@@ -1,0 +1,43 @@
+
+CUDA_PATH       ?= /Developer/NVIDIA/CUDA-6.5
+
+NVCC := $(CUDA_PATH)/bin/nvcc
+
+IFLAGS := -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/include
+
+#LDFLAGS := -L$(CUDA_PATH)/lib -lcudart_static
+LDFLAGS := -lc++
+
+#GENCODE_FLAGS := -gencode arch=compute_11,code=compute_11
+
+GENCODE_FLAGS := -arch x86_64
+ARCH_FLAGS := -arch x86_64
+
+OPT_FLAGS := -O3
+
+#FORTRAN_FLAGS := -malign-real
+#CLANG_FLAGS := -fno-align-commons
+
+
+# EXEC ?= @echo "[@]"
+
+
+all : kaspy
+
+
+#	$(NVCC) -ccbin gfortran $(OPT_FLAGS) -o $@ $(LDFLAGS) $(GENCODE_FLAGS)  $+
+#	$(NVCC) -ccbin gcc $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
+
+kaspy : kaspy.o cycler.o
+	gfortran $(OPT_FLAGS) $(FORTRAN_FLAGS) -o $@ $(LDFLAGS) $(GENCODE_FLAGS)  $+
+
+kaspy.o: kaspy.for
+	gfortran $(OPT_FLAGS) $(FORTRAN_FLAGS) -o $@ -c $<
+
+cycler.o: cycler.cpp
+	g++ $(OPT_FLAGS) $(CLANG_FLAGS) $(IFLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
+
+clean:
+	rm -f *.o
+	rm -f kaspy
+
