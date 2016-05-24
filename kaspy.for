@@ -91,6 +91,9 @@ c        ! ALL TOGETHER 8760 hours
      4     FF(IM,JM),FB(IM,JM),
      7     ffu(im,jm),ffv(im,jm),fbu(im,jm),fbv(im,jm),
      8     ff_end
+
+      COMMON/F_WIND/kx,ky,kt,kxu,kyu,ktu,kxv,kyv,ktv
+
       real*8
      5     SEL(IM,JM),SSEL(IM,JM),SFA(IM,JM),SSFA(IM,JM),SFEL(IM,JM),
      6     SFAR(IM,JM),SSFAR(IM,JM),SFELR(IM,JM),
@@ -125,23 +128,6 @@ C--------------------------------------------------------------------
 
 
 
-        vars_marker = 0.89898
-                
-        arrays_marker = 3.141592653589793238462643383279501010101010
-        arrays_end_marker = 0.9876543211234567890
-
-        ff_end = 100.001
-
-	icycler =cycler_init(vars_marker, arrays_marker,ff_marker)
-	
-
-c	call cycler_destroy(icycler)
-
-c	stop
-
-
-
-
       namep='pr1979.GR3'
       CALL READDIMGR3(KX,KY,KT,namep)
       ALLOCATE (PRESS(KX,KY,KT),PRESS0(KX,KY))
@@ -151,7 +137,13 @@ ccc      NH6=KT   1 DURATION !!!
       PRESS=PRESS/1000
    
       dht=(tka-tki)/(kt-1)
-      
+
+
+
+
+
+
+
 C     READ wind DATA
       nameu='u1979.GR3'
       CALL READDIMGR3(KXU,KYU,KTU,nameu)
@@ -160,13 +152,29 @@ C     READ wind DATA
      1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
 C  береп б 0 !!!!!!
 C      UWD=0
-      
+
+
+
+
+
       namev='v1979.GR3'
       CALL READDIMGR3(KXV,KYV,KTV,namev)
       ALLOCATE (VWD(KXV,KYV,KTV),VWD0(KXV,KYV))
       CALL READGR3
      1 (KXV,KYV,KTV,XKVI,XKVA,YKVI,YKVA,TKVI,TKVA,namev,VWD)
       VWD=0
+
+
+
+       arrays_marker = 3.1415926535897932384626433832795010
+       arrays_end_marker = 0.9876543211234567890
+
+       ff_end = 100.001
+
+       icycler =cycler_create(dht, arrays_marker,
+     1  ff_marker, kx, PRESS(0,0,0), PRESS0(0,0),
+     2  uwd(0,0,0), uwd0(0,0), vwd(0,0,0), vwd0(0,0))
+
 C
 C     READ IN GRID DATA AND INITIAL AND LATERAL BOUNDARY CONDITIONS
 C------------------------------------------------------------------------
@@ -242,7 +250,7 @@ c	DTE=20.0
 c******
 c      Read(*,*) hours
 	
-	call cycler_time()
+
 
 	tprni=1.0
       IEND=HOURS*3600/DTI+2
@@ -325,7 +333,7 @@ C   Evaluate external CFL time step
       END DO 
       
       open(77,file='wnd_press_90d.txt')
-      open(88,file='force1.txt')
+c!      open(88,file='force1.txt')
 
 C
 c      TIME=TIMEI
@@ -346,6 +354,7 @@ cc!        display_res =  display_load_data_f(display,
 cc!     & display_data_width, display_data_height, 
 cc!     & surf, fsm, display_scale)
 
+        call cycler_load(icycler)
 
 c call display(surf,im,jm,im,jm,-1.0,1.0,0)
         iold=0
@@ -430,41 +439,7 @@ c                              !!    here every hour
 C     AFSM - NUMBER OF NON-ZERO POINTS IN THE FSM ARRAY
 C==============================================CALCULATING STATISTICS===================================
         SSPRE=0
-        DO J=1,JM
-        DO I=1,IM
-          FA=(btim*FB(i,j)+ftim*FF(i,j)-100)/10.0
-          SSPRE=SSPRE+FA*FSM(I,J)/AFSM
-          SFA(I,J)=SFA(I,J)+FA
-          SSFA(I,J)=SSFA(I,J)+FA**2
-          SEL(I,J)=SEL(I,J)+EL(I,J)
-          SSEL(I,J)=SSEL(I,J)+EL(I,J)**2
-          SFEL(I,J)=SFEL(I,J)+FA*EL(I,J)
-          
-c	    uw=0.9*(btim*fbu(i,j)+ftim*ffu(i,j))  
-c	    vw=0.9*(btim*fbv(i,j)+ftim*ffv(i,j))
 
-	    uw=(btim*fbu(i,j)+ftim*ffu(i,j))  
-	    vw=(btim*fbv(i,j)+ftim*ffv(i,j))
-	      
-          su(i,j)=su(i,j)+uw
-          sv(i,j)=sv(i,j)+vw
-          ssu(i,j)=ssu(i,j)+uw**2
-          ssv(i,j)=ssv(i,j)+vw**2
-          ssuv(i,j)=ssuv(i,j)+uw*vw
-          ssue(i,j)=ssue(i,j)+uw*el(i,j)
-          ssve(i,j)=ssve(i,j)+vw*el(i,j)
-        END DO
-c        call display_show_f(display)
-        END DO 
-        DO J=1,JM
-        DO I=1,IM
-          FAR=(btim*FB(i,j)+ftim*FF(i,j)-100)/10.0-SSPRE
-          SFAR(I,J)=SFAR(I,J)+FAR
-          SSFAR(I,J)=SSFAR(I,J)+FAR**2
-          SFELR(I,J)=SFELR(I,J)+FAR*EL(I,J)
-        END DO
-c        call display_show_f(display)
-        END DO 
       
         NSTAT=NSTAT+1
 	end if
@@ -491,7 +466,7 @@ c================================================renew forcing fields ==========
         call getnewwindVAR(kxu,kyu,XKUI,XKUA,YKUI,YKUA,uwd0,ffu)
         vwd0(:,:)=vwd(:,:,itime6)
         call getnewwindVAR(kxv,kyv,XKVI,XKVA,YKVI,YKVA,vwd0,ffv)
-        write(88,*) fyf(1,1),fyf(im,jm),fxf(1,1),fxf(im,jm)
+c!        write(88,*) fyf(1,1),fyf(im,jm),fxf(1,1),fxf(im,jm)
       end if  
 c----------------------------------------------------end of renew forcing-------------------------------
 
@@ -716,29 +691,7 @@ c	    write(23,946) (100*vaf(i,j),i=2,imm1)
 c      end do
 C     STATISTICS
       EPS=1.0E-10
-      DO J=1,JM
-      DO I=1,IM
-        SFA(I,J)=SFA(I,J)/NSTAT      
-        SEL(I,J)=SEL(I,J)/NSTAT      
-        SFAR(I,J)=SFAR(I,J)/NSTAT      
-        SSFA(I,J)=(SSFA(I,J)/NSTAT-SFA(I,J)**2)*1.0E4
-        SSEL(I,J)=(SSEL(I,J)/NSTAT-SEL(I,J)**2)*1.0E4
-        SFEL(I,J)=(SFEL(I,J)/NSTAT-SFA(I,J)*SEL(I,J))*1.0E4
-        SSFAR(I,J)=(SSFAR(I,J)/NSTAT-SFAR(I,J)**2)*1.0E4
-        SFELR(I,J)=(SFELR(I,J)/NSTAT-SFAR(I,J)*SEL(I,J))*1.0E4
-        SFA(I,J)=SFEL(I,J)/(SSFA(I,J)+EPS)
-c        SEL(I,J)=SQRT(SSEL(I,J)/(SSFA(I,J)+EPS))
-        SFAR(I,J)=SFELR(I,J)/(SSFAR(I,J)+EPS)
-        
-        su(i,j)=su(i,j)/nstat
-        sv(i,j)=sv(i,j)/nstat
-        ssu(i,j)=(ssu(i,j)/NSTAT-su(i,j)**2)
-        ssv(i,j)=(ssv(i,j)/NSTAT-sv(i,j)**2)
-        ssuv(i,j)=(ssuv(i,j)/NSTAT-sv(i,j)*su(i,j))
-        ssue(i,j)=(ssue(i,j)/NSTAT-su(i,j)*sel(i,j))*100
-        ssve(i,j)=(ssve(i,j)/NSTAT-sv(i,j)*sel(i,j))*100                
-      END DO
-      END DO
+
 c      NAME='SSFA.GRD'
 c      CALL WRITEGRD(IM,JM,IM,SSFA,10.0,31.0,53.0,66.0,NAME)
       NAME='SSEL.GRD'

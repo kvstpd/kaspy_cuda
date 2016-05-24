@@ -3,7 +3,7 @@
       PARAMETER (IMM2=IM-2,JMM2=JM-2)
       PARAMETER (LIJ=IM*JM)
       COMMON/BLKCON/
-     1          vars_marker,GRAV,timeh,timeh6,tide_l,tide_l0,
+     1          dht,GRAV,timeh,timeh6,tide_l,tide_l0,
      2          IINT,IPRINT,DTE,DTI,TPRNI,UMOL,xmi,xma,ymi,yma
 C---------------- 2-D ARRAYS --------------------------------------
       COMMON/BLK2D/arrays_marker,H(IM,JM),DX(JM),DY(JM),D(IM,JM),
@@ -16,7 +16,7 @@ C---------------- 2-D ARRAYS --------------------------------------
      8     FLUXUA(IM,JM),FLUXVA(IM,JM),arrays_end_marker
 
 
-       real*4 vars_marker,padding
+       real*4 dht,padding
        real*8 arrays_marker,timeh,timeh6,tide_l,TIDE_L0,dti,dte
        real*8 arrays_end_marker
        

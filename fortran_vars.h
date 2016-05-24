@@ -21,7 +21,7 @@
 //real*8 timeh,timeh6,tide_l,TIDE_L0,dti,dte
 
 typedef struct{
-    float marker;
+    float dht;
     float grav;
     double timeh;
     double timeh6;
@@ -113,6 +113,21 @@ typedef struct{
     float fbv[F_DATA_HEIGHT][F_DATA_WIDTH];
     double end_marker;
 } fortran_ffloats;
+
+
+     // COMMON/F_INTS/kx,ky,kt,kxu,kyu,ktu,kxv,kyv,ktv
+
+typedef struct{
+    int kx;
+    int ky;
+    int kt;
+    int kxu;
+    int kyu;
+    int ktu;
+    int kxv;
+    int kyv;
+    int ktv;
+} fortran_wind_data;
 
 
 #endif /* _FORTRAN_VARS_H_ */

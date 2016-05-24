@@ -42,6 +42,34 @@ void KaspyCycler::findElves()
 
 
 
+void KaspyCycler::loadData()
+{
+    g_fbu = &m_fFloats->fbu[0][0];
+    g_fbv = &m_fFloats->fbv[0][0];
+    g_ffu = &m_fFloats->ffu[0][0];
+    g_ffv = &m_fFloats->ffv[0][0];
+    
+    g_fxb = &m_fFloats->fxb[0][0];
+    g_fxf = &m_fFloats->fxf[0][0];
+    g_fyb = &m_fFloats->fyb[0][0];
+    g_fyf = &m_fFloats->fyf[0][0];
+
+    
+    g_fb = &m_fFloats->fb[0][0];
+    g_ff = &m_fFloats->ff[0][0];
+   
+    
+    g_wusurf = &m_fArrays->wusurf[0][0];
+    g_wvsurf = &m_fArrays->wvsurf[0][0];
+    
+    g_dum = &m_fArrays->dum[0][0];
+    g_dvm = &m_fArrays->dvm[0][0];
+    
+    g_d = &m_fArrays->d[0][0];
+}
+
+
+
 
 /*
  DO J=2,JMM1
@@ -62,31 +90,53 @@ void KaspyCycler::findElves()
  */
 void KaspyCycler::makeWsurf(float ro_ratio)
 {
-    float ftim = fmodf((float)m_fVars->timeh6, 1.0f);
-    float btim = 1.0f - ftim;
-    float uw, vw, speed, windc;
-    
-    int ji, jp1i, jip1, jim1, jm1i;
-    
-    float * g_fbu = &m_fFloats->fbu[0][0];
-    float * g_fbv = &m_fFloats->fbv[0][0];
-    float * g_ffu = &m_fFloats->ffu[0][0];
-    float * g_ffv = &m_fFloats->ffv[0][0];
+    m_fVars->timeh6 = (m_fVars->timeh / m_fVars->dht) + 1.0f;
 
-    float * g_fxb = &m_fFloats->fxb[0][0];
-    float * g_fxf = &m_fFloats->fxf[0][0];
-    float * g_fyb = &m_fFloats->fyb[0][0];
-    float * g_fyf = &m_fFloats->fyf[0][0];
-   
+    float timeh6 = m_fVars->timeh6;
     
-    float * g_wusurf = &m_fArrays->wusurf[0][0];
-    float * g_wvsurf = &m_fArrays->wvsurf[0][0];
+    int pressSize = m_fWindData->kx * m_fWindData->ky;
+    int windUSize = m_fWindData->kxu * m_fWindData->kyu;
+    int windVSize = m_fWindData->kxv * m_fWindData->kyv;
     
-    float * g_dum = &m_fArrays->dum[0][0];
-    float * g_dvm = &m_fArrays->dvm[0][0];
+    itime6 = (int)timeh6;
+
+    ftim = (timeh6 - itime6);
+    btim = 1.0f - ftim;
     
-    float * g_d = &m_fArrays->d[0][0];
+    if (itime6 > itime6_old)
+    {
+        itime6_old = itime6;
+        
+        memcpy(g_fxb, g_fxf, F_DATA_SIZE * sizeof(float));
+        memcpy(g_fyb, g_fyf, F_DATA_SIZE * sizeof(float));
+        memcpy(g_fb, g_ff, F_DATA_SIZE * sizeof(float));
+        memcpy(g_fbu, g_ffu, F_DATA_SIZE * sizeof(float));
+        memcpy(g_fbv, g_ffv, F_DATA_SIZE * sizeof(float));
+
+        memcpy(m_press0, m_press + itime6 * pressSize, pressSize * sizeof(float));
+        memcpy(m_uwd0, m_uwd + itime6 * windUSize, windUSize * sizeof(float));
+        memcpy(m_vwd0, m_vwd + itime6 * windVSize, windVSize * sizeof(float));
+        
+    }
     
+        /*press0(:,:)=press(:,:,itime6)
+        call getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,
+                               1 FF,fxf,fyf)
+        uwd0(:,:)=uwd(:,:,itime6)
+        call getnewwindVAR(kxu,kyu,XKUI,XKUA,YKUI,YKUA,uwd0,ffu)
+        vwd0(:,:)=vwd(:,:,itime6)
+        call getnewwindVAR(kxv,kyv,XKVI,XKVA,YKVI,YKVA,vwd0,ffv)*/
+
+
+            
+    float uw, vw, speed, windc;
+    int ji, jp1i, jip1, jim1, jm1i;
+
+    
+    
+    
+    ftim = fmodf((float)m_fVars->timeh6, 1.0f);
+    btim = 1.0f - ftim;
     
     for (int j=1; j<(m_height-1); j++ )
     {

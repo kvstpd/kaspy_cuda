@@ -67,9 +67,14 @@ extern "C" void cycler_time_()
 
 
 
-int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats_marker)
+int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats_marker,
+                int * wind_marker,
+                   float * press, float * press0,
+                   float * uwd, float * uwd0, float * vwd, float * vwd0)
 {
-    if ((vars_marker == 0) || (arrays_marker == 0)|| (ffloats_marker == 0))
+    if ((vars_marker == 0) || (arrays_marker == 0)
+        || (ffloats_marker == 0) || (press == 0) || (press0 == 0)
+        || (wind_marker == 0))
     {
         return -1;
     }
@@ -78,7 +83,9 @@ int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats
     _i_cycler_time();
     
     cycler = new KaspyCycler((fortran_common_vars *)vars_marker,
-                             (fortran_common_arrays *)arrays_marker, (fortran_ffloats *)ffloats_marker);
+                             (fortran_common_arrays *)arrays_marker, (fortran_ffloats *)ffloats_marker,
+                             (fortran_wind_data *)wind_marker,
+                             press, press0, uwd, uwd0, vwd, vwd0);
      
     
     return 0;
@@ -86,15 +93,43 @@ int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats
 
 
 // Intel Fortran WIN naming
-extern "C" int CYCLER_INIT(float * vars_marker, double * arrays_marker, double * ffloats_marker)
+extern "C" int CYCLER_CREATE(float * vars_marker, double * arrays_marker, double * ffloats_marker,
+                             int * wind_marker,
+                             float * press, float * press0,
+                             float * uwd, float * uwd0, float * vwd, float * vwd0)
 {
-    return _i_cycler_init(vars_marker, arrays_marker, ffloats_marker);
+    return _i_cycler_init(vars_marker, arrays_marker, ffloats_marker, wind_marker,
+                          press, press0, uwd, uwd0, vwd, vwd0);
 }
 
 // GFortran Unix naming
-extern "C" int cycler_init_(float * vars_marker, double * arrays_marker, double * ffloats_marker)
+extern "C" int cycler_create_(float * vars_marker, double * arrays_marker, double * ffloats_marker,
+                              int * wind_marker,
+                              float * press, float * press0,
+                              float * uwd, float * uwd0, float * vwd, float * vwd0)
 {
-    return _i_cycler_init(vars_marker, arrays_marker, ffloats_marker);
+    return _i_cycler_init(vars_marker, arrays_marker, ffloats_marker, wind_marker,
+                          press, press0, uwd, uwd0, vwd, vwd0);
+}
+
+
+
+// GFortran Unix naming
+extern "C" void cycler_load_(int * icycler)
+{
+    if (cycler)
+    {
+        cycler->loadData();
+    }
+}
+
+// Intel Fortran WIN naming
+extern "C" void CYCLER_LOAD(int * icycler)
+{
+    if (cycler)
+    {
+        cycler->loadData();
+    }
 }
 
 
