@@ -120,7 +120,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
         memcpy(g_fbu, g_ffu, F_DATA_SIZE * sizeof(float));
         memcpy(g_fbv, g_ffv, F_DATA_SIZE * sizeof(float));
 
-        setbuf(stdout,NULL);
+        //setbuf(stdout,NULL);
         
         //printf("press size is %d\n", pressSize );
         
