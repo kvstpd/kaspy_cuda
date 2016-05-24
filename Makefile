@@ -43,7 +43,7 @@ all : build/kaspy
 test : build/kaspy
 	cd build && pwd && ./kaspy
 
-build/kaspy : kaspy.o cycler.o test_cu.o vectorAdd.o
+build/kaspy : kaspy.o cycler.o KaspyCycler.o
 	$(NVCC) -ccbin gfortran $(OPT_FLAGS) -o $@ $(LDFLAGS) $(GENCODE_FLAGS)  $+
 
 kaspy.o: kaspy.for
@@ -52,17 +52,13 @@ kaspy.o: kaspy.for
 cycler.o: cycler.cpp
 	$(NVCC) -ccbin gcc $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
 
-test_cu.o: test_cu.cu
+KaspyCycler.o: KaspyCycler.cu
 	$(NVCC) -ccbin gcc $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
-
-vectorAdd.o: vectorAdd.cu
-	$(NVCC) -ccbin gcc $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
-
 
 oclean:
 	rm -f *.o
 
 clean:
 	rm -f *.o
-	rm -f kaspy
+	rm -f build/kaspy
 

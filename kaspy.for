@@ -123,13 +123,7 @@ C--------------------------------------------------------------------
       integer ijloc(2)
 
 
-      
-       ittest = 99
 
-
-       write (*,*) 'tttt=',ittest
-
-       ittest = test_me(ittest)
 
         vars_marker = 0.89898
                 
@@ -153,7 +147,7 @@ c	stop
       ALLOCATE (PRESS(KX,KY,KT),PRESS0(KX,KY))
       CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
 ccc      NH6=KT   1 DURATION !!!
-      NH6=100    !
+      NH6=10    !
       PRESS=PRESS/1000
    
       dht=(tka-tki)/(kt-1)
@@ -502,22 +496,23 @@ c================================================renew forcing fields ==========
 c----------------------------------------------------end of renew forcing-------------------------------
 
 
+       call cycler_wsurf(icycler, ro_ratio)
 c====================================================computing wusurf(i,j), wvsurf/(i,j)=================
-      DO J=2,JMM1
-      DO I=2,IMM1
-	uw=(btim*fbu(i,j)+ftim*ffu(i,j))
-	vw=(btim*fbv(i,j)+ftim*ffv(i,j))  
-	speed=sqrt(uw**2+vw**2) !******************************************************
-!      speed=0
-	windc=1.0e-3*(0.8+speed*0.065)*ro_ratio*speed  
-      WUSURF(I,J)=-windc*uw
-     1 	*.25*(DUM(I,J+1)+DUM(I+1,J)+DUM(I-1,J)+DUM(I,J-1))+
-     2  0.5*(d(i,j)+d(i-1,j))*(btim*FxB(i,j)+ftim*FxF(i,j))
-      WVSURF(I,J)=-windc*vw
-     1 	*.25*(DVM(I,J+1)+DVM(I+1,J)+DVM(I-1,J)+DVM(I,J-1))+
-     2  0.5*(d(i,j)+d(i,j-1))*(btim*FyB(i,j)+ftim*FyF(i,j))
-      end do
-      end do
+c      DO J=2,JMM1
+c      DO I=2,IMM1
+c	uw=(btim*fbu(i,j)+ftim*ffu(i,j))
+c	vw=(btim*fbv(i,j)+ftim*ffv(i,j))
+c	speed=sqrt(uw**2+vw**2) !******************************************************
+c!      speed=0
+c	windc=1.0e-3*(0.8+speed*0.065)*ro_ratio*speed
+c      WUSURF(I,J)=-windc*uw
+c     1 	*.25*(DUM(I,J+1)+DUM(I+1,J)+DUM(I-1,J)+DUM(I,J-1))+
+c     2  0.5*(d(i,j)+d(i-1,j))*(btim*FxB(i,j)+ftim*FxF(i,j))
+c      WVSURF(I,J)=-windc*vw
+c     1 	*.25*(DVM(I,J+1)+DVM(I+1,J)+DVM(I-1,J)+DVM(I,J-1))+
+c     2  0.5*(d(i,j)+d(i,j-1))*(btim*FyB(i,j)+ftim*FyF(i,j))
+c      end do
+c      end do
 
 c     write(6,'('' IEXT,TIME ='',I5,F9.2)') IEXT,TIME      
 
