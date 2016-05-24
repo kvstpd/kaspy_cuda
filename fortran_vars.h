@@ -115,18 +115,38 @@ typedef struct{
 } fortran_ffloats;
 
 
-     // COMMON/F_INTS/kx,ky,kt,kxu,kyu,ktu,kxv,kyv,ktv
+//       COMMON/F_WIND/kx,ky,kt,kxu,kyu,ktu,kxv,kyv,ktv,
+//1  XKI,XKA,YKI,YKA,XKUI,XKUA,YKUI,YKUA,
+//2  XKVI,XKVA,YKVI,YKVA
 
 typedef struct{
     int kx;
     int ky;
     int kt;
+    
     int kxu;
     int kyu;
     int ktu;
+    
     int kxv;
     int kyv;
-    int ktv;
+    int ktv;   
+    
+    float xki;
+    float xka;
+    float yki;
+    float yka;
+    
+    float xkui;
+    float xkua;
+    float ykui;
+    float ykua;
+    
+    float xkvi;
+    float xkva;
+    float ykvi;
+    float ykva;
+    
 } fortran_wind_data;
 
 

@@ -92,7 +92,9 @@ c        ! ALL TOGETHER 8760 hours
      7     ffu(im,jm),ffv(im,jm),fbu(im,jm),fbv(im,jm),
      8     ff_end
 
-      COMMON/F_WIND/kx,ky,kt,kxu,kyu,ktu,kxv,kyv,ktv
+      COMMON/F_WIND/kx,ky,kt,kxu,kyu,ktu,kxv,kyv,ktv,
+     1  XKI,XKA,YKI,YKA,XKUI,XKUA,YKUI,YKUA,
+     2  XKVI,XKVA,YKVI,YKVA
 
       real*8
      5     SEL(IM,JM),SSEL(IM,JM),SFA(IM,JM),SSFA(IM,JM),SFEL(IM,JM),
@@ -438,36 +440,36 @@ c                              !!    here every hour
 	write(77,'(101f10.3)') timeh,(elf(stx(kk),sty(kk)),kk=1,nstation)
 C     AFSM - NUMBER OF NON-ZERO POINTS IN THE FSM ARRAY
 C==============================================CALCULATING STATISTICS===================================
-        SSPRE=0
+c        SSPRE=0
 
       
-        NSTAT=NSTAT+1
+c        NSTAT=NSTAT+1
 	end if
 c------------------------------------------------end if statistics------------------------------------
 ccccc    8787  continue     ! Конец обхода статистики 
-      timeh6=timeh/dht+1
-      itime6=timeh6
-      ftim=0
-      ftim=(timeh6-itime6)
-      btim=1.0-ftim
+c      timeh6=timeh/dht+1
+c      itime6=timeh6
+c      ftim=0
+c      ftim=(timeh6-itime6)
+c      btim=1.0-ftim
       
 c================================================renew forcing fields ==================================
-      if (itime6.gt.itime6_old) then
-        itime6_old=itime6
-        fxb=fxf
-        fyb=fyf
-        FB=FF
-        fbu=ffu
-        fbv=ffv
-        press0(:,:)=press(:,:,itime6)
-        call getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,
-     1 FF,fxf,fyf)                
-        uwd0(:,:)=uwd(:,:,itime6)
-        call getnewwindVAR(kxu,kyu,XKUI,XKUA,YKUI,YKUA,uwd0,ffu)
-        vwd0(:,:)=vwd(:,:,itime6)
-        call getnewwindVAR(kxv,kyv,XKVI,XKVA,YKVI,YKVA,vwd0,ffv)
+c      if (itime6.gt.itime6_old) then
+c        itime6_old=itime6
+c        fxb=fxf
+c        fyb=fyf
+c        FB=FF
+c        fbu=ffu
+c        fbv=ffv
+c        press0(:,:)=press(:,:,itime6)
+c        call getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,
+c     1 FF,fxf,fyf)
+c        uwd0(:,:)=uwd(:,:,itime6)
+c        call getnewwindVAR(kxu,kyu,XKUI,XKUA,YKUI,YKUA,uwd0,ffu)
+c        vwd0(:,:)=vwd(:,:,itime6)
+c        call getnewwindVAR(kxv,kyv,XKVI,XKVA,YKVI,YKVA,vwd0,ffv)
 c!        write(88,*) fyf(1,1),fyf(im,jm),fxf(1,1),fxf(im,jm)
-      end if  
+c      end if
 c----------------------------------------------------end of renew forcing-------------------------------
 
 
