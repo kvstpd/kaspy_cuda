@@ -8,8 +8,10 @@
 
 #include "KaspyCycler.h"
 
+// getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,FF,fxf,fyf)
 
-
+extern void GETNEWPRESSUREVAR(int * kx, int * ky, float * xki, float * xka, float * yki, float * yka,
+                              float * press0, float * ff, float * fxf, float * fyf);
 
 
 
@@ -122,6 +124,10 @@ void KaspyCycler::makeWsurf(float ro_ratio)
         //printf("copy pressure from %#018llx to %#018llx\n", m_press, m_press0);
 
         memcpy(m_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
+        
+        GETNEWPRESSUREVAR(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->kxa,
+                          &m_fWindData->yki, &m_fWindData->yka, m_press0, g_ff, g_fxf, g_fyf);
+        
         memcpy(m_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
         memcpy(m_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
         
