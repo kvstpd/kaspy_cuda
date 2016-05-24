@@ -20,25 +20,25 @@ LINK_OPTS := /MACHINE:X64 /SUBSYSTEM:CONSOLE
 all : test.exe
 
 test : build/test.exe
-    cd build && pwd && ./test.exe
+	cd build && pwd && ./test.exe
 
 build/test.exe : kaspy.obj KaspyCycler.obj cycler.obj
-    link $+ $(CUDA_LIBS) /OUT:$@ $(LINK_OPTS) /LIBPATH:"$(F_LIBPATH)" /LIBPATH:"$(C_LIBPATH)" /LIBPATH:"$(SDK_LIBPATH)" /LIBPATH:"$(CUDA_LIBPATH)"
+	link $+ $(CUDA_LIBS) /OUT:$@ $(LINK_OPTS) /LIBPATH:"$(F_LIBPATH)" /LIBPATH:"$(C_LIBPATH)" /LIBPATH:"$(SDK_LIBPATH)" /LIBPATH:"$(CUDA_LIBPATH)"
 
 KaspyCycler.obj: KaspyCycler.cu
-    nvcc $< --compile $(NV_OPTS)
+	nvcc $< --compile $(NV_OPTS)
 
 cycler.obj : cycler.cpp
-    nvcc $< --compile $(NV_OPTS)
+	nvcc $< --compile $(NV_OPTS)
 
 kaspy.obj : kaspy.for
-    ifort $(F_OPTS) /c $<
+	ifort $(F_OPTS) /c $<
 
 clean :
-    rm -f *.obj
-    rm -f ./build/test.exe
-    rm -f *.exp
-    rm -f *__genmod.mod
-    rm -f *__genmod.f90
-    rm -f *.lib
+	rm -f *.obj
+	rm -f ./build/test.exe
+	rm -f *.exp
+	rm -f *__genmod.mod
+	rm -f *__genmod.f90
+	rm -f *.lib
 
