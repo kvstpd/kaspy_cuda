@@ -17,12 +17,12 @@ NV_OPTS := --machine 64 --optimize 3 -I"$(C_INCPATH)" --compiler-options "$(C_OP
 LINK_OPTS := /MACHINE:X64 /SUBSYSTEM:CONSOLE
 
 
-all : test.exe
+all : build/kaspy_cuda.exe
 
-test : build/test.exe
-	cd build && pwd && ./test.exe
+test : build/kaspy_cuda.exe
+	cd build && pwd && ./kaspy_cuda.exe
 
-build/test.exe : kaspy.obj KaspyCycler.obj cycler.obj
+build/kaspy_cuda.exe : kaspy.obj KaspyCycler.obj cycler.obj
 	link $+ $(CUDA_LIBS) /OUT:$@ $(LINK_OPTS) /LIBPATH:"$(F_LIBPATH)" /LIBPATH:"$(C_LIBPATH)" /LIBPATH:"$(SDK_LIBPATH)" /LIBPATH:"$(CUDA_LIBPATH)"
 
 KaspyCycler.obj: KaspyCycler.cu
@@ -36,7 +36,7 @@ kaspy.obj : kaspy.for
 
 clean :
 	rm -f *.obj
-	rm -f ./build/test.exe
+	rm -f ./build/kaspy_cuda.exe
 	rm -f *.exp
 	rm -f *__genmod.mod
 	rm -f *__genmod.f90
