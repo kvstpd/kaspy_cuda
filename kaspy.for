@@ -172,8 +172,8 @@ C      UWD=0
        ff_end = 100.001
 
        icycler =cycler_create(dht, arrays_marker,
-     1  ff_marker, kx, PRESS(0,0,0), PRESS0(0,0),
-     2  uwd(0,0,0), uwd0(0,0), vwd(0,0,0), vwd0(0,0))
+     1  ff_marker, kx, PRESS(1,1,1), PRESS0(1,1),
+     2  uwd(1,1,1), uwd0(1,1), vwd(1,1,1), vwd0(1,1))
 
 C
 C     READ IN GRID DATA AND INITIAL AND LATERAL BOUNDARY CONDITIONS
