@@ -1,64 +1,43 @@
 
-CUDA_PATH       := /Developer/NVIDIA/CUDA-6.5
-CUDA_LIBPATH := $(CUDA_PATH)/lib
+C_LIBPATH := c:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/lib/amd64
+F_LIBPATH := c:/Program Files (x86)/Intel/ComposerXE-2011/compiler/lib/intel64
+SDK_LIBPATH := c:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/x64
+CUDA_LIBPATH := c:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v7.5/lib/x64
+
+C_INCPATH := c:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/include
+
+CUDA_LIBS := cudart_static.lib
+
+F_OPTS := /arch:SSE4.2 /QxSSE4.2 /O3 /Qparallel /Zp16
+
+C_OPTS := /Ox /favor:INTEL64 /Zp16
+
+NV_OPTS := --machine 64 --optimize 3 -I"$(C_INCPATH)" --compiler-options "$(C_OPTS)"
+
+LINK_OPTS := /MACHINE:X64 /SUBSYSTEM:CONSOLE
 
 
-NVCC := $(CUDA_PATH)/bin/nvcc
+all : test.exe
 
-LDFLAGS := -L$(CUDA_LIBPATH) -lcudart_static -lc++
+test : build/test.exe
+cd build && pwd && ./test.exe
 
-GENCODE_FLAGS := -gencode arch=compute_11,code=compute_11
+build/test.exe : kaspy.obj KaspyCycler.obj cycler.obj
+link $+ $(CUDA_LIBS) /OUT:$@ $(LINK_OPTS) /LIBPATH:"$(F_LIBPATH)" /LIBPATH:"$(C_LIBPATH)" /LIBPATH:"$(SDK_LIBPATH)" /LIBPATH:"$(CUDA_LIBPATH)"
 
-OPT_FLAGS := -O3
+KaspyCycler.obj: KaspyCycler.cu
+nvcc $< --compile $(NV_OPTS)
 
+cycler.obj : cycler.cpp
+nvcc $< --compile $(NV_OPTS)
 
-#C_LIBPATH :=
-#F_LIBPATH :=
-#SDK_LIBPATH :=
+kaspy.obj : kaspy.for
+ifort $(F_OPTS) /c $<
 
-#C_INCPATH :=
-
-#CUDA_LIBS := cudart_static.lib
-
-F_OPTS := $(OPT_FLAGS)
-
-# /arch:SSE4.2 /QxSSE4.2 /O3 /Qparallel /Zp16
-
-C_OPTS := $(OPT_FLAGS)
-
-#/Ox /favor:INTEL64 /Zp16
-
-NV_OPTS := --machine 64 --optimize 3 --compiler-options "$(C_OPTS)"
-
-#LINK_OPTS := /MACHINE:X64 /SUBSYSTEM:CONSOLE
-
-
-
-
-
-
-
-all : build/kaspy
-
-test : build/kaspy
-	cd build && pwd && ./kaspy
-
-build/kaspy : kaspy.o cycler.o KaspyCycler.o
-	$(NVCC) -ccbin gfortran $(OPT_FLAGS) -o $@ $(LDFLAGS) $(GENCODE_FLAGS)  $+
-
-kaspy.o: kaspy.for
-	gfortran $(OPT_FLAGS) -o $@ -c $<
-
-cycler.o: cycler.cpp
-	$(NVCC) -ccbin gcc $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
-
-KaspyCycler.o: KaspyCycler.cu
-	$(NVCC) -ccbin gcc $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
-
-oclean:
-	rm -f *.o
-
-clean:
-	rm -f *.o
-	rm -f build/kaspy
-
+clean :
+rm -f *.obj
+rm -f ./build/test.exe
+rm -f *.exp
+rm -f *__genmod.mod
+rm -f *__genmod.f90
+rm -f *.lib
