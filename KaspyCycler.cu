@@ -125,7 +125,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 
         memcpy(m_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
         
-        GETNEWPRESSUREVAR(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->kxa,
+        GETNEWPRESSUREVAR(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->xka,
                           &m_fWindData->yki, &m_fWindData->yka, m_press0, g_ff, g_fxf, g_fyf);
         
         memcpy(m_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
