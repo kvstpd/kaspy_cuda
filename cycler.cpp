@@ -30,10 +30,10 @@ public:
         m_fArrays(for_arrays),
         m_fFloats(for_floats)
     {
-	ersetb();
-        printf("cycler alloc with var marker %f, array marker %32.32f \n", m_fVars->marker, m_fArrays->marker);
-        printf("end marker %32.32f \n", m_fArrays->end_marker);
-        printf("ff end %32.32f \n", m_fFloats->end_marker);
+	//ersetb();
+        //printf("cycler alloc with var marker %f, array marker %32.32f \n", m_fVars->marker, m_fArrays->marker);
+        //printf("end marker %32.32f \n", m_fArrays->end_marker);
+        //printf("ff end %32.32f \n", m_fFloats->end_marker);
     }
     
     
