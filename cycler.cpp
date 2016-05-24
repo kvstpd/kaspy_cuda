@@ -171,10 +171,18 @@ void _i_cycler_time()
 }
 
 
+// Intel Fortran WIN naming
 extern "C" void CYCLER_TIME()
 {
     _i_cycler_time();
 }
+
+// GFortran Unix naming
+extern "C" void cycler_time_()
+{
+    _i_cycler_time();
+}
+
 
 
 int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats_marker)
@@ -195,12 +203,29 @@ int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats
 }
 
 
+// Intel Fortran WIN naming
 extern "C" int CYCLER_INIT(float * vars_marker, double * arrays_marker, double * ffloats_marker)
 {
     return _i_cycler_init(vars_marker, arrays_marker, ffloats_marker);
 }
 
+// GFortran Unix naming
+extern "C" int cycler_init_(float * vars_marker, double * arrays_marker, double * ffloats_marker)
+{
+    return _i_cycler_init(vars_marker, arrays_marker, ffloats_marker);
+}
 
+
+// GFortran Unix naming
+extern "C" void cycler_wsurf_(int * icycler, float * ro_ratio)
+{
+    if (cycler)
+    {
+        cycler->makeWsurf(*ro_ratio);
+    }
+}
+
+// Intel Fortran WIN naming
 extern "C" void CYCLER_WSURF(int * icycler, float * ro_ratio)
 {
     if (cycler)
@@ -220,7 +245,13 @@ void _i_cycler_destroy(int * icycler)
     }
 }
 
+// GFortran Unix naming
+extern "C" void cycler_destroy_(int * icycler)
+{
+    _i_cycler_destroy(icycler);
+}
 
+// Intel Fortran WIN naming
 extern "C" void CYCLER_DESTROY(int * icycler)
 {
     _i_cycler_destroy(icycler);

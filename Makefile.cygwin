@@ -25,17 +25,17 @@ test : test.exe
 test.exe : kaspy.obj test_cu.obj vectorAdd.obj cycler.obj
 	link $+ $(CUDA_LIBS) /OUT:./build/$@ $(LINK_OPTS) /LIBPATH:"$(F_LIBPATH)" /LIBPATH:"$(C_LIBPATH)" /LIBPATH:"$(SDK_LIBPATH)" /LIBPATH:"$(CUDA_LIBPATH)"
 
-test_cu.obj : source/test_cu.cu
+test_cu.obj : test_cu.cu
 	nvcc $< --compile $(NV_OPTS)
 
-vectorAdd.obj : source/vectorAdd.cu
+vectorAdd.obj : vectorAdd.cu
 	nvcc $< --compile $(NV_OPTS)
 
-cycler.obj : source/cycler.cpp
+cycler.obj : cycler.cpp
 	nvcc $< --compile $(NV_OPTS)
 
 
-kaspy.obj : source/kaspy.for
+kaspy.obj : kaspy.for
 	ifort $(F_OPTS) /c $<
 
 clean : 

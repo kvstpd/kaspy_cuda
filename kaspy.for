@@ -411,10 +411,10 @@ cc!        call display_update_f(display)
 
 cc!        call display_show_f(display)
     
-        write(6,1117) 't=',timeh,'h','Sea level=',elfmax,elfmin,'m',crr
+        write(6,1117) 't=',timeh,'h','Sea level=',elfmax,elfmin,'m'
 
 
-1117   FORMAT(a3,f12.4,1x,a1,5x,a10,f8.4,1x,f8.4,1x,a1,a1,\)
+1117   FORMAT(a3,f12.4,1x,a1,5x,a10,f8.4,1x,f8.4,1x,a1,a1)
       end if
 c*************************************************
 C------------------------------------------------------------------------
@@ -672,13 +672,13 @@ c      end if
  9001 CONTINUE
       IF(VAMAX.GT.VMAXL) THEN
       write(*,*) imax,jmax
-        pause 'vamax>vmax'
-      STOP
+      write(*,*) 'vamax>vmax!!!'
+c      STOP
       ENDIF
       IF(UAMAX.GT.VMAXL) THEN
       write(*,*) imax,jmax
-        pause 'uamax>umax'
-      STOP
+       write(*,*) 'uamax>umax!!!'
+c      STOP
       ENDIF
  7000 CONTINUE
 C--------------------------------------------------------------------
@@ -1271,7 +1271,7 @@ C
 
 
       SUBROUTINE GAUSS(IX,S,AM,V)
-      use dfport
+c      use dfport
       v1=rand(0)
       v2=rand(0)
 c      V1=URAND(IX)
