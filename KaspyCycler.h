@@ -40,7 +40,8 @@ public:
     m_vwd(for_vwd),
     m_vwd0(for_vwd0)
     {
-        //ersetb();
+        setbuf(stdout,NULL);
+        
         printf("cycler alloc with dht %f, array marker %32.32f \n", m_fVars->dht, m_fArrays->marker);
         printf("end marker %32.32f \n", m_fArrays->end_marker);
         printf("ff end %32.32f \n", m_fFloats->end_marker);

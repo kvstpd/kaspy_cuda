@@ -41,6 +41,7 @@ void _i_cycler_time()
 #endif
     
     //ersetb();
+    setbuf(stdout,NULL);
     
     printf("time now is %10.10f\n", new_time);
     
