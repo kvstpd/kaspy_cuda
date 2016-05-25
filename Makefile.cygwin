@@ -8,40 +8,39 @@ C_INCPATH := c:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/include
 
 CUDA_LIBS := cudart_static.lib
 
-F_OPTS := /arch:SSE4.2 /QxSSE4.2 /O3 /Qparallel /Zp16
+F_OPTS := /Zp16
+#/arch:SSE4.2 /QxSSE4.2 /O3 /Qparallel /Zp16
 
-C_OPTS := /Ox /favor:INTEL64 /Zp16
+C_OPTS := /favor:INTEL64 /Zp16
+#/Ox /favor:INTEL64 /Zp16
 
 NV_OPTS := --machine 64 --optimize 3 -I"$(C_INCPATH)" --compiler-options "$(C_OPTS)"
 
-LINK_OPTS := /MACHINE:X64 /SUBSYSTEM:CONSOLE 
+LINK_OPTS := /MACHINE:X64 /SUBSYSTEM:CONSOLE
 
 
-all : test.exe
+all : build/kaspy_cuda.exe
 
-test : test.exe
-	cd build && pwd && ./test.exe
+test : build/kaspy_cuda.exe
+cd build && pwd && ./kaspy_cuda.exe
 
-test.exe : kaspy.obj test_cu.obj vectorAdd.obj cycler.obj
-	link $+ $(CUDA_LIBS) /OUT:./build/$@ $(LINK_OPTS) /LIBPATH:"$(F_LIBPATH)" /LIBPATH:"$(C_LIBPATH)" /LIBPATH:"$(SDK_LIBPATH)" /LIBPATH:"$(CUDA_LIBPATH)"
+build/kaspy_cuda.exe : kaspy.obj KaspyCycler.obj cycler.obj
+link $+ $(CUDA_LIBS) /OUT:$@ $(LINK_OPTS) /LIBPATH:"$(F_LIBPATH)" /LIBPATH:"$(C_LIBPATH)" /LIBPATH:"$(SDK_LIBPATH)" /LIBPATH:"$(CUDA_LIBPATH)"
 
-test_cu.obj : test_cu.cu
-	nvcc $< --compile $(NV_OPTS)
-
-vectorAdd.obj : vectorAdd.cu
-	nvcc $< --compile $(NV_OPTS)
+KaspyCycler.obj: KaspyCycler.cu
+nvcc $< --compile $(NV_OPTS)
 
 cycler.obj : cycler.cpp
-	nvcc $< --compile $(NV_OPTS)
-
+nvcc $< --compile $(NV_OPTS)
 
 kaspy.obj : kaspy.for
-	ifort $(F_OPTS) /c $<
+ifort $(F_OPTS) /c $<
 
-clean : 
-	rm -f *.obj
-	rm -f ./build/test.exe
-	rm -f *.exp
-	rm -f *__genmod.mod
-	rm -f *__genmod.f90
-	rm -f *.lib
+clean :
+rm -f *.obj
+rm -f ./build/kaspy_cuda.exe
+rm -f *.exp
+rm -f *__genmod.mod
+rm -f *__genmod.f90
+rm -f *.lib
+

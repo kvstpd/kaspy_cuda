@@ -10,13 +10,13 @@
 
 // getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,FF,fxf,fyf)
 
-extern "C"  void GETNEWPRESSUREVAR(int * kx, int * ky, float * xki, float * xka, float * yki, float * yka,
+extern "C"  void getnewpressurevar_(int * kx, int * ky, float * xki, float * xka, float * yki, float * yka,
                               float * press0, float * ff, float * fxf, float * fyf);
 
 
 // call getnewwindVAR(kxu,kyu,XKUI,XKUA,YKUI,YKUA,uwd0,ffu)
 
-extern "C"  void GETNEWWINDVAR(int * kxu, int * kyu, float * xkui, float * xkua,
+extern "C"  void getnewwindvar_(int * kxu, int * kyu, float * xkui, float * xkua,
                                float * ykui, float * ykua, float * uwd0, float * ffu);
 
 
@@ -130,17 +130,17 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 
         memcpy(m_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
         
-        GETNEWPRESSUREVAR(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->xka,
+        getnewpressurevar_(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->xka,
                           &m_fWindData->yki, &m_fWindData->yka, m_press0, g_ff, g_fxf, g_fyf);
         
         memcpy(m_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
         
-        GETNEWWINDVAR(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
+        getnewwindvar_(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
                       &m_fWindData->ykui, &m_fWindData->ykua, m_uwd0, g_ffu);
         
         memcpy(m_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
         
-        GETNEWWINDVAR(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
+        getnewwindvar_(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
                       &m_fWindData->ykvi, &m_fWindData->ykva, m_vwd0, g_ffv);
         
     }
