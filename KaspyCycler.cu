@@ -21,6 +21,45 @@ extern "C"  void getnewwindvar_(int * kxu, int * kyu, float * xkui, float * xkua
 
 
 
+
+
+float * g_fbu;
+float * g_fbv;
+float * g_ffu;
+float * g_ffv;
+
+float * g_fxb;
+float * g_fxf;
+float * g_fyb;
+float * g_fyf;
+
+float * g_fb;
+float * g_ff;
+
+float * g_wusurf;
+float * g_wvsurf;
+
+float * g_dum;
+float * g_dvm;
+
+float * g_d;
+float * g_dx;
+float * g_dy;
+
+float * g_fluxua;
+float * g_fluxva;
+
+float * g_ua;
+float * g_va;
+
+float * g_el;
+float * g_elf;
+float * g_elb;
+
+
+
+
+
 void KaspyCycler::findElves()
 {
     //printf("arrays is set to %llxd \n", (long long)m_fArrays );
@@ -145,21 +184,34 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 
         memcpy(m_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
         
-        getnewpressurevar_(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->xka,
+        GETNEWPRESSUREVAR(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->xka,
                           &m_fWindData->yki, &m_fWindData->yka, m_press0, g_ff, g_fxf, g_fyf);
-        
+		
+		//getnewpressurevar_(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->xka,
+		//				   &m_fWindData->yki, &m_fWindData->yka, m_press0, g_ff, g_fxf, g_fyf);
+
+		
         memcpy(m_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
-        
-        getnewwindvar_(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
-                      &m_fWindData->ykui, &m_fWindData->ykua, m_uwd0, g_ffu);
-        
+
+		GETNEWWINDVAR(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
+					  &m_fWindData->ykui, &m_fWindData->ykua, m_uwd0, g_ffu);
+		
+		
+        //getnewwindvar_(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
+        //              &m_fWindData->ykui, &m_fWindData->ykua, m_uwd0, g_ffu);
+		
+		
+		
         memcpy(m_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
         
-        getnewwindvar_(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
-                      &m_fWindData->ykvi, &m_fWindData->ykva, m_vwd0, g_ffv);
-        
+        //getnewwindvar_(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
+        //              &m_fWindData->ykvi, &m_fWindData->ykva, m_vwd0, g_ffv);
+		
+		GETNEWWINDVAR(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
+					   &m_fWindData->ykvi, &m_fWindData->ykva, m_vwd0, g_ffv);
+		
     }
-    
+	
         /*press0(:,:)=press(:,:,itime6)
         call getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,
                                1 FF,fxf,fyf)

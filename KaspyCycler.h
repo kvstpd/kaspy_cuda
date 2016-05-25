@@ -14,41 +14,6 @@
 #include "fortran_vars.h"
 
 
-
-float * g_fbu;
-float * g_fbv;
-float * g_ffu;
-float * g_ffv;
-
-float * g_fxb;
-float * g_fxf;
-float * g_fyb;
-float * g_fyf;
-
-float * g_fb;
-float * g_ff;
-
-float * g_wusurf;
-float * g_wvsurf;
-
-float * g_dum;
-float * g_dvm;
-
-float * g_d;
-float * g_dx;
-float * g_dy;
-
-float * g_fluxua;
-float * g_fluxva;
-
-float * g_ua;
-float * g_va;
-
-float * g_el;
-float * g_elf;
-float * g_elb;
-
-
 class KaspyCycler
 {
 public:
