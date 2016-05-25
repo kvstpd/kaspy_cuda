@@ -10,15 +10,20 @@
 
 // getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,FF,fxf,fyf)
 
-extern "C"  void getnewpressurevar_(int * kx, int * ky, float * xki, float * xka, float * yki, float * yka,
-                              float * press0, float * ff, float * fxf, float * fyf);
+//extern "C"  void getnewpressurevar_(int * kx, int * ky, float * xki, float * xka, float * yki, float * yka,
+//                              float * press0, float * ff, float * fxf, float * fyf);
+
+extern "C"  void GETNEWPRESSUREVAR(int * kx, int * ky, float * xki, float * xka, float * yki, float * yka,
+									float * press0, float * ff, float * fxf, float * fyf);
 
 
 // call getnewwindVAR(kxu,kyu,XKUI,XKUA,YKUI,YKUA,uwd0,ffu)
 
-extern "C"  void getnewwindvar_(int * kxu, int * kyu, float * xkui, float * xkua,
-                               float * ykui, float * ykua, float * uwd0, float * ffu);
+//extern "C"  void getnewwindvar_(int * kxu, int * kyu, float * xkui, float * xkua,
+//                               float * ykui, float * ykua, float * uwd0, float * ffu);
 
+extern "C"  void GETNEWWINDVAR(int * kxu, int * kyu, float * xkui, float * xkua,
+								float * ykui, float * ykua, float * uwd0, float * ffu);
 
 
 
