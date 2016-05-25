@@ -47,9 +47,7 @@ void KaspyCycler::findElves()
     //printf("C SAYS: time is %f, elf min is %f, elf max is %f \n",m_fVars->timeh, elf_min, elf_max);
 }
 
-
-
-void KaspyCycler::loadData()
+void KaspyCycler::sendDataToGPU()
 {
     g_fbu = &m_fFloats->fbu[0][0];
     g_fbv = &m_fFloats->fbv[0][0];
@@ -60,11 +58,11 @@ void KaspyCycler::loadData()
     g_fxf = &m_fFloats->fxf[0][0];
     g_fyb = &m_fFloats->fyb[0][0];
     g_fyf = &m_fFloats->fyf[0][0];
-
+    
     
     g_fb = &m_fFloats->fb[0][0];
     g_ff = &m_fFloats->ff[0][0];
-   
+    
     
     g_wusurf = &m_fArrays->wusurf[0][0];
     g_wvsurf = &m_fArrays->wvsurf[0][0];
@@ -73,8 +71,25 @@ void KaspyCycler::loadData()
     g_dvm = &m_fArrays->dvm[0][0];
     
     g_d = &m_fArrays->d[0][0];
+    g_dx = &m_fArrays->dx[0];
+    g_dy = &m_fArrays->dy[0];
+
+
+    g_fluxua = &m_fArrays->fluxua[0][0];
+    g_fluxva = &m_fArrays->fluxva[0][0];
+    
+    g_ua = &m_fArrays->ua[0][0];
+    g_va = &m_fArrays->va[0][0];
+    
+    g_el = &m_fArrays->el[0][0];
+    g_elf = &m_fArrays->elf[0][0];
+    g_elb = &m_fArrays->elb[0][0];
 }
 
+void KaspyCycler::getDataToCPU()
+{
+    
+}
 
 
 
@@ -164,29 +179,73 @@ void KaspyCycler::makeWsurf(float ro_ratio)
     ftim = fmodf((float)m_fVars->timeh6, 1.0f);
     btim = 1.0f - ftim;
     
+    for (int j=1; j<m_height; j++ )
+    {
+        for (int i=1; i<m_width; i++ )
+        {
+            if ((j<(m_height-1)) && i<(m_width-1))
+            {
+                ji = j * m_width + i;
+                jp1i = ji + m_width;
+                jip1 = ji + 1;
+                jim1 = ji - 1;
+                jm1i = ji - m_width;
+                
+                uw = btim * (g_fbu[ji]) + ftim * (g_ffu[ji]);
+                vw = btim * (g_fbv[ji]) + ftim * (g_ffv[ji]);
+                
+                speed = sqrtf(uw*uw + vw*vw);
+                windc = 0.001f * (0.8f + speed * 0.065f) * ro_ratio * speed;
+                
+                g_wusurf[ji] = -windc * uw *
+                0.25f * (g_dum[jp1i]+g_dum[jip1]+g_dum[jim1]+g_dum[jm1i])
+                + 0.5f * (g_d[ji] + g_d[jim1]) * (btim * g_fxb[ji] + ftim * g_fxf[ji]);
+                
+                g_wvsurf[ji] = -windc * vw *
+                0.25f * (g_dvm[jp1i]+g_dvm[jip1]+g_dvm[jim1]+g_dvm[jm1i])
+                + 0.5f * (g_d[ji] + g_d[jm1i]) * (btim * g_fyb[ji] + ftim * g_fyf[ji]);
+            }
+            
+            //DO 405 J=2,JM
+            //DO 405 I=2,IM
+            //FLUXUA(I,J)=.25E0*(D(I,J)+D(I-1,J))*(DY(j)+DY(j))*UA(I,J)
+            //405  FLUXVA(I,J)=.25E0*(D(I,J)+D(I,J-1))*(DX(j)+DX(j-1))*VA(I,J)
+
+            g_fluxua[ji] = 0.25f * (g_d[ji] + g_d[jim1]) * (g_dy[j] + g_dy[j] /*???*/) * g_ua[ji];
+            g_fluxva[ji] = 0.25f * (g_d[ji] + g_d[jm1i]) * (g_dx[j] + g_dx[j-1] ) * g_va[ji];
+            
+        }
+    }
+    
+    
+    /// HERE SHOULD START A NEW CUDA CALL TO KEEP fluxua fluxva synced
+   
+    /*DO 410 J=2,JMM1
+    DO 410 I=2,IMM1
+    410 ELF(I,J)=ELB(I,J)
+    1    -DTE2*(FLUXUA(I+1,J)-FLUXUA(I,J)+FLUXVA(I,J+1)-FLUXVA(I,J))
+    2                    / ART(J) */
+    
+    float dte2 = m_fVars->dte * 2.0f;
+    
     for (int j=1; j<(m_height-1); j++ )
     {
+        float artj = m_fArrays->art[j];
+        
         for (int i=1; i<(m_width-1); i++ )
         {
             ji = j * m_width + i;
             jp1i = ji + m_width;
             jip1 = ji + 1;
-            jim1 = ji - 1;
-            jm1i = ji - m_width;
             
-            uw = btim * (g_fbu[ji]) + ftim * (g_ffu[ji]);
-            vw = btim * (g_fbv[ji]) + ftim * (g_ffv[ji]);
+            g_elf[ji] = g_elb[ji] - dte2 *
+                (g_fluxua[jip1] - g_fluxua[ji] + g_fluxva[jp1i] - g_fluxva[ji]) /  artj;
             
-            speed = sqrtf(uw*uw + vw*vw);
-            windc = 0.001f * (0.8f + speed * 0.065f) * ro_ratio * speed;
-            
-            g_wusurf[ji] = -windc * uw *
-            0.25f * (g_dum[jp1i]+g_dum[jip1]+g_dum[jim1]+g_dum[jm1i])
-            + 0.5f * (g_d[ji] + g_d[jim1]) * (btim * g_fxb[ji] + ftim * g_fxf[ji]);
-            
-            g_wvsurf[ji] = -windc * vw *
-            0.25f * (g_dvm[jp1i]+g_dvm[jip1]+g_dvm[jim1]+g_dvm[jm1i])
-            + 0.5f * (g_d[ji] + g_d[jm1i]) * (btim * g_fyb[ji] + ftim * g_fyf[ji]);
         }
     }
+    
+
+
+    
+    
 }

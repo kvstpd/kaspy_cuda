@@ -120,7 +120,7 @@ extern "C" void cycler_load_(int * icycler)
 {
     if (cycler)
     {
-        cycler->loadData();
+        cycler->sendDataToGPU();
     }
 }
 
@@ -129,9 +129,30 @@ extern "C" void CYCLER_LOAD(int * icycler)
 {
     if (cycler)
     {
-        cycler->loadData();
+        cycler->sendDataToGPU();
     }
 }
+
+
+
+// GFortran Unix naming
+extern "C" void cycler_get_data_back_(int * icycler)
+{
+    if (cycler)
+    {
+        cycler->getDataToCPU();
+    }
+}
+
+// Intel Fortran WIN naming
+extern "C" void CYCLER_GET_DATA_BACK(int * icycler)
+{
+    if (cycler)
+    {
+        cycler->getDataToCPU();
+    }
+}
+
 
 
 // GFortran Unix naming

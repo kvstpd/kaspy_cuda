@@ -494,16 +494,16 @@ c      end do
 c     write(6,'('' IEXT,TIME ='',I5,F9.2)') IEXT,TIME      
 
 c======================405 cycle and 410 cycle: computing continuity equation
-      DO 405 J=2,JM
-      DO 405 I=2,IM
-      FLUXUA(I,J)=.25E0*(D(I,J)+D(I-1,J))*(DY(j)+DY(j))*UA(I,J)
- 405  FLUXVA(I,J)=.25E0*(D(I,J)+D(I,J-1))*(DX(j)+DX(j-1))*VA(I,J)
+c      DO 405 J=2,JM
+c      DO 405 I=2,IM
+c      FLUXUA(I,J)=.25E0*(D(I,J)+D(I-1,J))*(DY(j)+DY(j))*UA(I,J)
+c 405  FLUXVA(I,J)=.25E0*(D(I,J)+D(I,J-1))*(DX(j)+DX(j-1))*VA(I,J)
 C
-      DO 410 J=2,JMM1
-      DO 410 I=2,IMM1
-  410 ELF(I,J)=ELB(I,J)
-     1    -DTE2*(FLUXUA(I+1,J)-FLUXUA(I,J)+FLUXVA(I,J+1)-FLUXVA(I,J))
-     2                    /ART(J)
+c      DO 410 J=2,JMM1
+c      DO 410 I=2,IMM1
+c  410 ELF(I,J)=ELB(I,J)
+c     1    -DTE2*(FLUXUA(I+1,J)-FLUXUA(I,J)+FLUXVA(I,J+1)-FLUXVA(I,J))
+c     2                    /ART(J)
 C
 c--------------------end of continuity equation----------------------------------
 
