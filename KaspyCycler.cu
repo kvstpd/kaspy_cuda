@@ -438,9 +438,9 @@ void KaspyCycler::getNewPressure()
 		for (int i=1; i<kx; i++ )
 		{
 			int ji = j * kx + i;
-			jm1i = ji - kx;
-			jim1 = ji -  1;
-			jm1im1 = jim1 - 1;
+			int jm1i = ji - kx;
+			int jim1 = ji -  1;
+			int jm1im1 = jim1 - 1;
 			
 			pkk[j][i] = pk[jm1im1];
 		}
