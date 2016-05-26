@@ -1331,11 +1331,11 @@ c      output - px(Nx,Ny),Py(Nx,Ny)
 	dx=(xma-xmi)/(nx-1)
 
 C     SURROUNDING
-c	DO J=2,KY+1
-c        DO I=2,KX+1
-c          PKK(I,J)=PK(I-1,J-1)
-c        END DO
-c      END DO
+	DO J=2,KY+1       
+        DO I=2,KX+1
+          PKK(I,J)=PK(I-1,J-1)
+        END DO
+      END DO
 	DO J=2,KY+1       
         PKK(1,J)=2*PKK(2,J)-PKK(3,J)
         PKK(KX+2,J)=2*PKK(KX+1,J)-PKK(KX,J)
