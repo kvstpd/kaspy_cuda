@@ -429,7 +429,41 @@ void KaspyCycler::getNewPressure()
 	
 	GETBICUBIC(&kx2,&ky2,&fifty,&pkk[0][0],&c[0][0][0][0]);
 	
-
+/*
+	do j=1,Ny
+ y=ymi+(j-1)*dy
+ j0=(y-yki)/dky+1
+ if (j0<1) j0=1
+ if (j0>ky-1) j0=ky-1
+ u=(y-(yki+(j0-1)*dky))/dky
+ 
+ do i=1,Nx
+ x=xmi+(i-1)*dx
+ i0=(x-xki)/dkx+1
+ if (i0<1) I0=1
+ if (i0>kx-1) i0=kx-1
+ t=(x-(xki+(i0-1)*dkx))/dkx
+ ay=0.
+ a2=0.
+ a1=0.
+ DO K=4,1,-1
+ ay=t*ay+((c(K,4,i0,j0)*u+c(k,3,i0,j0))*u+c(K,2,i0,j0))*u+
+ 1		  c(K,1,i0,j0)
+ a2=t*a2+(3.*c(K,4,i0,j0)*u+2.*c(K,3,i0,j0))*u+c(K,2,i0,j0)
+ a1=u*a1+(3.*c(4,K,i0,j0)*t+2.*c(3,K,i0,j0))*t+c(2,K,i0,j0)
+ END DO
+ a1=a1/dkx/c2/cos(c1*y)
+ a2=a2/dky/c2
+ 
+ p(i,j)=ay
+ px(i,j)=a1
+ py(i,j)=a2
+ 
+ end do
+ END DO
+	
+ */
+	
 	
 	for (int j=0; j<ny; j++ )
 	{
@@ -447,9 +481,9 @@ void KaspyCycler::getNewPressure()
 			float x = xmi + i * dx;
 			int i0 = (int)((x - xki)/dkx);
 			
-			if (i0 < 0) j0 = 0;
+			if (i0 < 0) i0 = 0;
 			
-			if (i0 > kx-2) j0 = kx-2;
+			if (i0 > kx-2) i0 = kx-2;
 			
 			float t = ( x - (xki + i0*dkx) )/dkx;
 			
