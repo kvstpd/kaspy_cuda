@@ -352,7 +352,7 @@ void KaspyCycler::getNewPressure()
 {
 	int kx = m_fWindData->kx;
 	int ky = m_fWindData->ky;
-	float kd = kx;
+	//float kd = kx;
 	float * pk = m_press0;
 	float xki = m_fWindData->xki;
 	float xka = m_fWindData->xka;
@@ -360,7 +360,7 @@ void KaspyCycler::getNewPressure()
 	float yka = m_fWindData->yka;
 	int nx = F_DATA_WIDTH;
 	int ny = F_DATA_HEIGHT;
-	int nd = F_DATA_WIDTH;
+	//int nd = F_DATA_WIDTH;
 	
 	float * p = g_ff;
 	float * px = g_fxf;
@@ -416,7 +416,7 @@ void KaspyCycler::getNewPressure()
 		pkk[j][kx+1] = 2*pkk[j][kx] - pkk[j][kx-1];
 	}
 	
-	for (int i=1; i<(kx+1); i++ )
+	for (int i=0; i<(kx+1); i++ )
 	{
 		pkk[0][i] = 2*pkk[1][i] - pkk[2][i];
 		pkk[ky+1][i] = 2*pkk[ky][i] - pkk[ky-1][i];
