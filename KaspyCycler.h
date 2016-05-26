@@ -52,6 +52,7 @@ public:
     void sendDataToGPU();
     void getDataToCPU();
 
+	void getNewPressure();
     
     void findElves();
     
