@@ -204,11 +204,11 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 
         memcpy(m_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
 		
-		//getNewPressure();
+		getNewPressure(0,0);
 		
 #ifdef _WIN64
-		GETNEWPRESSUREVAR(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->xka,
-						  &m_fWindData->yki, &m_fWindData->yka, m_press0, g_ff, g_fxf, g_fyf);
+		//GETNEWPRESSUREVAR(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->xka,
+		//				  &m_fWindData->yki, &m_fWindData->yka, m_press0, g_ff, g_fxf, g_fyf);
 #else
 		//getnewpressurevar_(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->xka,
 		//				   &m_fWindData->yki, &m_fWindData->yka, m_press0, g_ff, g_fxf, g_fyf);
@@ -350,7 +350,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
  */
 
 
-void KaspyCycler::getNewPressure(float * pkk, float * c)
+void KaspyCycler::getNewPressure(float * pkkk, float * ccc)
 {
 	int kx = m_fWindData->kx;
 	int ky = m_fWindData->ky;
@@ -373,8 +373,8 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 	float ymi = m_fVars->xmi;
 	float yma = m_fVars->xma;
 	
-	//float pkk[50][50];
-	//float c[50][50][4][4];
+	float pkk[50][50];
+	float c[50][50][4][4];
 	
 	float c1=3.1415926/180.0;
 	float c2=111111.0f;
@@ -408,28 +408,28 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 			//int jim1 = ji -  1;
 			//int jm1im1 = jim1 - 1;
 			
-			//pkk[j][i] = pk[j * (kx - 1) + i - 1];
+			pkk[j][i] = pk[j * (kx - 1) + i - 1];
 			
-			pkk[j * 50 + i] = pk[(j - 1) * kx + i - 1];
+			//pkk[j * 50 + i] = pk[(j - 1) * kx + i - 1];
 		}
 	}
 
 	for (int j=1; j<=ky; j++ )
 	{
-		pkk[j*50+0] = 2.0f*pkk[j*50+1] - pkk[j*50+2];
-		pkk[j*50+kx+1] = 2.0f*pkk[j*50+kx] - pkk[j*50+kx-1];
+		//pkk[j*50+0] = 2.0f*pkk[j*50+1] - pkk[j*50+2];
+		//pkk[j*50+kx+1] = 2.0f*pkk[j*50+kx] - pkk[j*50+kx-1];
 		
-		//pkk[j][0] = 2.0f*pkk[j][1] - pkk[j][2];
-		//pkk[j][kx+1] = 2.0f*pkk[j][kx] - pkk[j][kx-1];
+		pkk[j][0] = 2.0f*pkk[j][1] - pkk[j][2];
+		pkk[j][kx+1] = 2.0f*pkk[j][kx] - pkk[j][kx-1];
 	}
 	
 	for (int i=0; i<=(kx+1); i++ )
 	{
-		pkk[0*50+i] = 2.0f*pkk[1*50+i] - pkk[2*50+i];
-		pkk[(ky+1)*50+i] = 2.0f*pkk[ky*50+i] - pkk[(ky-1)*50+i];
+		//pkk[0*50+i] = 2.0f*pkk[1*50+i] - pkk[2*50+i];
+		//pkk[(ky+1)*50+i] = 2.0f*pkk[ky*50+i] - pkk[(ky-1)*50+i];
 		
-		//pkk[0][i] = 2.0f*pkk[1][i] - pkk[2][i];
-		//pkk[ky+1][i] = 2.0f*pkk[ky][i] - pkk[ky-1][i];
+		pkk[0][i] = 2.0f*pkk[1][i] - pkk[2][i];
+		pkk[ky+1][i] = 2.0f*pkk[ky][i] - pkk[ky-1][i];
 	}
 	
 
@@ -437,13 +437,13 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 	int ky2 = ky + 2;
 	int fifty = 50;
 	
-	GETBICUBIC(&kx2,&ky2,&fifty,pkk,c);
+	//GETBICUBIC(&kx2,&ky2,&fifty,pkk,c);
 	
-	//GETBICUBIC(&kx2,&ky2,&fifty,&pkk[0][0],&c[0][0][0][0]);
+	GETBICUBIC(&kx2,&ky2,&fifty,&pkk[0][0],&c[0][0][0][0]);
 	
 
 	
-/*	
+	
 	for (int j=0; j<ny; j++ )
 	{
 		float y = ymi + j*dy;
@@ -498,7 +498,7 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 		
 		
 	}
-	*/
+	
 	
 
 }
