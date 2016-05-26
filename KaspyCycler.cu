@@ -408,10 +408,12 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 			//int jim1 = ji -  1;
 			//int jm1im1 = jim1 - 1;
 			
-			pkk[j][i] = pk[j * (kx - 1) + i - 1];
+			//pkk[j][i] = pk[j * (kx - 1) + i - 1];
+			
+			pkk[j * kx + i] = pk[j * (kx - 1) + i - 1];
 		}
 	}
-/*	
+/*
 	for (int j=1; j<=ky; j++ )
 	{
 		pkk[j][0] = 2.0f*pkk[j][1] - pkk[j][2];
