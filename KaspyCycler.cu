@@ -437,7 +437,9 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 	int ky2 = ky + 2;
 	int fifty = 50;
 	
-	GETBICUBIC(&kx2,&ky2,&fifty,&pkk[0][0],&c[0][0][0][0]);
+	GETBICUBIC(&kx2,&ky2,&fifty,pkk],c);
+	
+	//GETBICUBIC(&kx2,&ky2,&fifty,&pkk[0][0],&c[0][0][0][0]);
 	
 
 	
