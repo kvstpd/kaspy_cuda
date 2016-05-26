@@ -413,20 +413,26 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 			pkk[j * 50 + i] = pk[(j - 1) * kx + i - 1];
 		}
 	}
-/*
+
 	for (int j=1; j<=ky; j++ )
 	{
-		pkk[j][0] = 2.0f*pkk[j][1] - pkk[j][2];
-		pkk[j][kx+1] = 2.0f*pkk[j][kx] - pkk[j][kx-1];
+		pkk[j*50+0] = 2.0f*pkk[j*50+1] - pkk[j*50+2];
+		pkk[j*50+kx+1] = 2.0f*pkk[j*50+kx] - pkk[j*50+kx-1];
+		
+		//pkk[j][0] = 2.0f*pkk[j][1] - pkk[j][2];
+		//pkk[j][kx+1] = 2.0f*pkk[j][kx] - pkk[j][kx-1];
 	}
 	
 	for (int i=0; i<=(kx+1); i++ )
 	{
-		pkk[0][i] = 2.0f*pkk[1][i] - pkk[2][i];
-		pkk[ky+1][i] = 2.0f*pkk[ky][i] - pkk[ky-1][i];
+		pkk[0*50+i] = 2.0f*pkk[1*50+i] - pkk[2*50+i];
+		pkk[(ky+1)*50+i] = 2.0f*pkk[ky*50+i] - pkk[(ky-1)*50+i];
+		
+		//pkk[0][i] = 2.0f*pkk[1][i] - pkk[2][i];
+		//pkk[ky+1][i] = 2.0f*pkk[ky][i] - pkk[ky-1][i];
 	}
 	
-	
+/*
 	int kx2 = kx + 2;
 	int ky2 = ky + 2;
 	int fifty = 50;

@@ -1338,14 +1338,14 @@ c        DO I=2,KX+1
 c          PKK(I,J)=PK(I-1,J-1)
 c        END DO
 c      END DO
-	DO J=2,KY+1       
-        PKK(1,J)=2*PKK(2,J)-PKK(3,J)
-        PKK(KX+2,J)=2*PKK(KX+1,J)-PKK(KX,J)
-      END DO
-	DO I=1,KX+2       
-        PKK(I,1)=2*PKK(I,2)-PKK(I,3)
-        PKK(I,KY+2)=2*PKK(I,KY+1)-PKK(I,KY)
-      END DO
+c	DO J=2,KY+1
+c        PKK(1,J)=2*PKK(2,J)-PKK(3,J)
+c        PKK(KX+2,J)=2*PKK(KX+1,J)-PKK(KX,J)
+c      END DO
+c	DO I=1,KX+2
+c        PKK(I,1)=2*PKK(I,2)-PKK(I,3)
+c        PKK(I,KY+2)=2*PKK(I,KY+1)-PKK(I,KY)
+c      END DO
 	CALL GETBICUBIC(KX+2,KY+2,50,PKK,C)
 
 
