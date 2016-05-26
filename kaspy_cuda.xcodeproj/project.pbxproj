@@ -9,6 +9,7 @@
 /* Begin PBXFileReference section */
 		2BA310AD1CF4582C00F501CF /* KaspyCycler.cu */ = {isa = PBXFileReference; lastKnownFileType = text; path = KaspyCycler.cu; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		2BA310AE1CF4582C00F501CF /* KaspyCycler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KaspyCycler.h; sourceTree = "<group>"; };
+		2BB58ABD1CF73C98002770AB /* Makefile.cygother */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.cygother; sourceTree = "<group>"; };
 		2BBBBB681CF4CE8E00629C93 /* Makefile.MacCUDA */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.MacCUDA; sourceTree = "<group>"; };
 		2BE06F341CF3A78400038345 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		2BE06F361CF415A900038345 /* comblk.for */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.fortran; path = comblk.for; sourceTree = "<group>"; };
@@ -32,6 +33,7 @@
 				2BE06F391CF415A900038345 /* kaspy.for */,
 				2BE06F3A1CF415A900038345 /* Makefile */,
 				2BE06F3B1CF415A900038345 /* Makefile.cygwin */,
+				2BB58ABD1CF73C98002770AB /* Makefile.cygother */,
 				2BBBBB681CF4CE8E00629C93 /* Makefile.MacCUDA */,
 				2BE06F3C1CF415A900038345 /* Makefile.MacOsNoCUDA */,
 				2BE06F341CF3A78400038345 /* README.md */,
