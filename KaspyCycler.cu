@@ -432,7 +432,7 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 		//pkk[ky+1][i] = 2.0f*pkk[ky][i] - pkk[ky-1][i];
 	}
 	
-/*
+
 	int kx2 = kx + 2;
 	int ky2 = ky + 2;
 	int fifty = 50;
@@ -441,7 +441,7 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 	
 
 	
-	
+/*	
 	for (int j=0; j<ny; j++ )
 	{
 		float y = ymi + j*dy;

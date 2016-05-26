@@ -135,7 +135,7 @@ C--------------------------------------------------------------------
       ALLOCATE (PRESS(KX,KY,KT),PRESS0(KX,KY))
       CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
 ccc      NH6=KT   1 DURATION !!!
-      NH6=10    !
+      NH6=100    !
       PRESS=PRESS/1000
    
       dht=(tka-tki)/(kt-1)
@@ -1346,7 +1346,7 @@ c	DO I=1,KX+2
 c        PKK(I,1)=2*PKK(I,2)-PKK(I,3)
 c        PKK(I,KY+2)=2*PKK(I,KY+1)-PKK(I,KY)
 c      END DO
-	CALL GETBICUBIC(KX+2,KY+2,50,PKK,C)
+c	CALL GETBICUBIC(KX+2,KY+2,50,PKK,C)
 
 
 
