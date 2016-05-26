@@ -1330,7 +1330,7 @@ c      output - px(Nx,Ny),Py(Nx,Ny)
 	dy=(yma-ymi)/(ny-1)
 	dx=(xma-xmi)/(nx-1)
 
-	call CYCLER_PRESSURE(icycler, pkk(0,0), c(0,0,0,0))
+	call CYCLER_PRESSURE(icycler, pkk, c)
 
 C     SURROUNDING
 c	DO J=2,KY+1
