@@ -324,37 +324,9 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 
 
 
-/*subroutine getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,
- 1 FF,fxf,fyf)
-	INCLUDE 'comblk.for'
-	real fxf(im,jm),fyf(im,jm),PRESS0(KX,KY),FF(IM,JM)
-	CALL GETPRESScube(KX,KY,KX,PRESS0,XKI,XKA,YKI,YKA,
- 1                     IM,JM,IM,FF,FXF,FYF,XMI,XMA,YMI,YMA)
-	return
-	end*/
+
 
 /*
- subroutine getpressCUBE(kx,ky,kd,pk,xki,xka,yki,yka,
- 1                     nx,ny,nd,P,px,py,xmi,xma,ymi,yma)
- c     interpolate pressure field to get derivatives.
- c     inputs - pk(kx,ky)
- c     inputs - xki,xka,yki,yka
- c     inputs - xmi,xma,ymi,yma
- c     inputs - Kx,Ky,Nx,Ny
- c------------------------------------------------------------
- c      output - px(Nx,Ny),Py(Nx,Ny)
- real px(nd,*),py(nd,*),pk(kd,*),P(ND,*)
- real PKK(50,50),C(4,4,50,50)
- 
- c1=3.1415926/180.0
- c2=111111.0
- 
- dky=(yka-yki)/(ky-1)
- dkx=(xka-xki)/(kx-1)
- 
- dy=(yma-ymi)/(ny-1)
- dx=(xma-xmi)/(nx-1)
- 
  C     SURROUNDING
  DO J=2,KY+1
  DO I=2,KX+1
@@ -428,7 +400,7 @@ void KaspyCycler::getNewPressure()
 	
 	float * p = g_ff;
 	float * px = g_fxf;
-	float * py = g_fyf
+	float * py = g_fyf;
 	
 	float xmi = m_fVars->xmi;
 	float xma = m_fVars->xma;
@@ -438,8 +410,53 @@ void KaspyCycler::getNewPressure()
 	float pkk[50][50];
 	float c[50][50][4][4];
 	
+	float c1=3.1415926/180.0;
+	float c2=111111.0f;
 	
+	float dky=(yka-yki)/(ky-1.0f);
+	float  dkx=(xka-xki)/(kx-1.0f);
+ 
+ 	float dy=(yma-ymi)/(ny-1.0f);
+ 	float dx=(xma-xmi)/(nx-1.0f);
 	
+/*DO J=2,KY+1
+ DO I=2,KX+1
+ PKK(I,J)=PK(I-1,J-1)
+ END DO
+ END DO
+ DO J=2,KY+1
+ PKK(1,J)=2*PKK(2,J)-PKK(3,J)
+ PKK(KX+2,J)=2*PKK(KX+1,J)-PKK(KX,J)
+ END DO
+ DO I=1,KX+2
+ PKK(I,1)=2*PKK(I,2)-PKK(I,3)
+ PKK(I,KY+2)=2*PKK(I,KY+1)-PKK(I,KY)
+ END DO*/
+	
+	for (int j=1; j<ky); j++ )
+	{
+		for (int i=1; i<kx; i++ )
+		{
+			int ji = j * kx + i;
+			jm1i = ji - kx;
+			jim1 = ji -  1;
+			jm1im1 = jim1 - 1;
+			
+			pkk[j][i] = pk[jm1im1];
+		}
+	}
+	
+	for (int j=1; j<ky); j++ )
+	{
+		pkk[j][0] = 2*pkk[j][1] - pkk[j][2];
+		pkk[j][kx+1] = 2*pkk[j][kx] - pkk[j][kx-1];
+	}
+	
+	for (int i=1; i<(kx+1)); i++ )
+	{
+		pkk[0][i] = 2*pkk[1][i] - pkk[2][i];
+		pkk[ky+1][i] = 2*pkk[ky][i] - pkk[ky-1][i];
+	}
 	
 }
 
