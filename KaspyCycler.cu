@@ -423,7 +423,11 @@ void KaspyCycler::getNewPressure()
 	}
 	
 	
-	GETBICUBIC(kx+2,ky+2,50,pkk,c);
+	int kx2 = kx + 2;
+	int ky2 = ky + 2;
+	int fifty = 50;
+	
+	GETBICUBIC(&kx2,&ky2,&fifty,&pkk[0][0],&c[0][0][0][0]);
 	
 
 	
@@ -458,7 +462,7 @@ void KaspyCycler::getNewPressure()
 				ay = t*ay+((c[j0][i0][3][k] * u + c[j0][i0][2][k])*u+c[j0][i0][1][k])*u + c[j0][i0][0][k];
 				
 				a2 = t*a2 + (3.0f*c[j0][i0][3][k]*u+2.0f*c[j0][i0][2][k])*u+c[j0][i0][1][k];
-				a1 = t*a1 + (3.0f*c[j0][i0][k][4]*t+2.0f*c[j0][i0][k][2])*t+c[j0][i0][k][1];
+				a1 = t*a1 + (3.0f*c[j0][i0][k][3]*t+2.0f*c[j0][i0][k][2])*t+c[j0][i0][k][1];
 				
 			}
 			
