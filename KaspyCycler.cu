@@ -397,9 +397,9 @@ void KaspyCycler::getNewPressure()
  PKK(I,KY+2)=2*PKK(I,KY+1)-PKK(I,KY)
  END DO*/
 	
-	for (int j=1; j<ky; j++ )
+	for (int j=1; j<=ky; j++ )
 	{
-		for (int i=1; i<kx; i++ )
+		for (int i=1; i<=kx; i++ )
 		{
 			//int ji = j * kx + i;
 			//int jm1i = ji - kx;
@@ -410,13 +410,13 @@ void KaspyCycler::getNewPressure()
 		}
 	}
 	
-	for (int j=1; j<ky; j++ )
+	for (int j=1; j<=ky; j++ )
 	{
 		pkk[j][0] = 2*pkk[j][1] - pkk[j][2];
 		pkk[j][kx+1] = 2*pkk[j][kx] - pkk[j][kx-1];
 	}
 	
-	for (int i=0; i<(kx+1); i++ )
+	for (int i=0; i<=(kx+1); i++ )
 	{
 		pkk[0][i] = 2*pkk[1][i] - pkk[2][i];
 		pkk[ky+1][i] = 2*pkk[ky][i] - pkk[ky-1][i];
