@@ -317,131 +317,134 @@ void KaspyCycler::makeWsurf(float ro_ratio)
             
         }
     }
-    
+ }
 
 
-	
-	
-	
-	/*subroutine getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,
-								 1 FF,fxf,fyf)
+
+
+
+
+/*subroutine getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,
+ 1 FF,fxf,fyf)
 	INCLUDE 'comblk.for'
 	real fxf(im,jm),fyf(im,jm),PRESS0(KX,KY),FF(IM,JM)
 	CALL GETPRESScube(KX,KY,KX,PRESS0,XKI,XKA,YKI,YKA,
-					  1                     IM,JM,IM,FF,FXF,FYF,XMI,XMA,YMI,YMA)
+ 1                     IM,JM,IM,FF,FXF,FYF,XMI,XMA,YMI,YMA)
 	return
 	end*/
+
+/*
+ subroutine getpressCUBE(kx,ky,kd,pk,xki,xka,yki,yka,
+ 1                     nx,ny,nd,P,px,py,xmi,xma,ymi,yma)
+ c     interpolate pressure field to get derivatives.
+ c     inputs - pk(kx,ky)
+ c     inputs - xki,xka,yki,yka
+ c     inputs - xmi,xma,ymi,yma
+ c     inputs - Kx,Ky,Nx,Ny
+ c------------------------------------------------------------
+ c      output - px(Nx,Ny),Py(Nx,Ny)
+ real px(nd,*),py(nd,*),pk(kd,*),P(ND,*)
+ real PKK(50,50),C(4,4,50,50)
+ 
+ c1=3.1415926/180.0
+ c2=111111.0
+ 
+ dky=(yka-yki)/(ky-1)
+ dkx=(xka-xki)/(kx-1)
+ 
+ dy=(yma-ymi)/(ny-1)
+ dx=(xma-xmi)/(nx-1)
+ 
+ C     SURROUNDING
+ DO J=2,KY+1
+ DO I=2,KX+1
+ PKK(I,J)=PK(I-1,J-1)
+ END DO
+ END DO
+ DO J=2,KY+1
+ PKK(1,J)=2*PKK(2,J)-PKK(3,J)
+ PKK(KX+2,J)=2*PKK(KX+1,J)-PKK(KX,J)
+ END DO
+ DO I=1,KX+2
+ PKK(I,1)=2*PKK(I,2)-PKK(I,3)
+ PKK(I,KY+2)=2*PKK(I,KY+1)-PKK(I,KY)
+ END DO
+ CALL GETBICUBIC(KX+2,KY+2,50,PKK,C)
+ 
+ 
+ 
+ do j=1,Ny
+ y=ymi+(j-1)*dy
+ j0=(y-yki)/dky+1
+ if (j0<1) j0=1
+ if (j0>ky-1) j0=ky-1
+ u=(y-(yki+(j0-1)*dky))/dky
+ 
+ do i=1,Nx
+ x=xmi+(i-1)*dx
+ i0=(x-xki)/dkx+1
+ if (i0<1) I0=1
+ if (i0>kx-1) i0=kx-1
+ t=(x-(xki+(i0-1)*dkx))/dkx
+ ay=0.
+ a2=0.
+ a1=0.
+ DO K=4,1,-1
+ ay=t*ay+((c(K,4,i0,j0)*u+c(k,3,i0,j0))*u+c(K,2,i0,j0))*u+
+ 1		  c(K,1,i0,j0)
+ a2=t*a2+(3.*c(K,4,i0,j0)*u+2.*c(K,3,i0,j0))*u+c(K,2,i0,j0)
+ a1=u*a1+(3.*c(4,K,i0,j0)*t+2.*c(3,K,i0,j0))*t+c(2,K,i0,j0)
+ END DO
+ a1=a1/dkx/c2/cos(c1*y)
+ a2=a2/dky/c2
+ 
+ p(i,j)=ay
+ px(i,j)=a1
+ py(i,j)=a2
+ 
+ end do
+ END DO
+ 
+ CALL GETPRESScube(KX,KY,KX,PRESS0,XKI,XKA,YKI,YKA,
+ 1                     IM,JM,IM,FF,FXF,FYF,XMI,XMA,YMI,YMA)
+ subroutine getpressCUBE(kx,ky,kd,pk,xki,xka,yki,yka,
+ 1                     nx,ny,nd,P,px,py,xmi,xma,ymi,yma)
+ */
+
+
+void KaspyCycler::getNewPressure()
+{
+	int kx = m_fWindData->kx;
+	int ky = m_fWindData->ky;
+	float kd = kx;
+	float * pk = m_press0;
+	float xki = m_fWindData->xki;
+	float xka = m_fWindData->xka;
+	float yki = m_fWindData->yki;
+	float yka = m_fWindData->yka;
+	int nx = F_DATA_WIDTH;
+	int ny = F_DATA_HEIGHT;
+	int nd = F_DATA_WIDTH;
 	
-	/*
-	 subroutine getpressCUBE(kx,ky,kd,pk,xki,xka,yki,yka,
-	 1                     nx,ny,nd,P,px,py,xmi,xma,ymi,yma)
-	 c     interpolate pressure field to get derivatives.
-	 c     inputs - pk(kx,ky)
-	 c     inputs - xki,xka,yki,yka
-	 c     inputs - xmi,xma,ymi,yma
-	 c     inputs - Kx,Ky,Nx,Ny
-	 c------------------------------------------------------------
-	 c      output - px(Nx,Ny),Py(Nx,Ny)
-	 real px(nd,*),py(nd,*),pk(kd,*),P(ND,*)
-	 real PKK(50,50),C(4,4,50,50)
-	 
-	 c1=3.1415926/180.0
-	 c2=111111.0
-	 
-	 dky=(yka-yki)/(ky-1)
-	 dkx=(xka-xki)/(kx-1)
-	 
-	 dy=(yma-ymi)/(ny-1)
-	 dx=(xma-xmi)/(nx-1)
-	 
-	 C     SURROUNDING
-	 DO J=2,KY+1
-	 DO I=2,KX+1
-	 PKK(I,J)=PK(I-1,J-1)
-	 END DO
-	 END DO
-	 DO J=2,KY+1
-	 PKK(1,J)=2*PKK(2,J)-PKK(3,J)
-	 PKK(KX+2,J)=2*PKK(KX+1,J)-PKK(KX,J)
-	 END DO
-	 DO I=1,KX+2
-	 PKK(I,1)=2*PKK(I,2)-PKK(I,3)
-	 PKK(I,KY+2)=2*PKK(I,KY+1)-PKK(I,KY)
-	 END DO
-	 CALL GETBICUBIC(KX+2,KY+2,50,PKK,C)
-	 
-	 
-	 
-	 do j=1,Ny
-	 y=ymi+(j-1)*dy
-	 j0=(y-yki)/dky+1
-	 if (j0<1) j0=1
-	 if (j0>ky-1) j0=ky-1
-	 u=(y-(yki+(j0-1)*dky))/dky
-	 
-	 do i=1,Nx
-	 x=xmi+(i-1)*dx
-	 i0=(x-xki)/dkx+1
-	 if (i0<1) I0=1
-	 if (i0>kx-1) i0=kx-1
-	 t=(x-(xki+(i0-1)*dkx))/dkx
-	 ay=0.
-	 a2=0.
-	 a1=0.
-	 DO K=4,1,-1
-	 ay=t*ay+((c(K,4,i0,j0)*u+c(k,3,i0,j0))*u+c(K,2,i0,j0))*u+
-	 1		  c(K,1,i0,j0)
-	 a2=t*a2+(3.*c(K,4,i0,j0)*u+2.*c(K,3,i0,j0))*u+c(K,2,i0,j0)
-	 a1=u*a1+(3.*c(4,K,i0,j0)*t+2.*c(3,K,i0,j0))*t+c(2,K,i0,j0)
-	 END DO
-	 a1=a1/dkx/c2/cos(c1*y)
-	 a2=a2/dky/c2
-	 
-	 p(i,j)=ay
-	 px(i,j)=a1
-	 py(i,j)=a2
-	 
-	 end do
-	 END DO
-	 
-	 CALL GETPRESScube(KX,KY,KX,PRESS0,XKI,XKA,YKI,YKA,
-	 1                     IM,JM,IM,FF,FXF,FYF,XMI,XMA,YMI,YMA)
-	 subroutine getpressCUBE(kx,ky,kd,pk,xki,xka,yki,yka,
-	 1                     nx,ny,nd,P,px,py,xmi,xma,ymi,yma)
-		*/
+	float * p = g_ff;
+	float * px = g_fxf;
+	float * py = g_fyf
+	
+	float xmi = m_fVars->xmi;
+	float xma = m_fVars->xma;
+	float ymi = m_fVars->xmi;
+	float yma = m_fVars->xma;
+	
+	float pkk[50][50];
+	float c[50][50][4][4];
 	
 	
-	void KaspyCycler::getNewPressure()
-	{
-		int kx = m_fWindData->kx;
-		int ky = m_fWindData->ky;
-		float kd = kx;
-		float * pk = m_press0;
-		float xki = m_fWindData->xki;
-		float xka = m_fWindData->xka;
-		float yki = m_fWindData->yki;
-		float yka = m_fWindData->yka;
-		int nx = F_DATA_WIDTH;
-		int ny = F_DATA_HEIGHT;
-		int nd = F_DATA_WIDTH;
-		
-		float * p = g_ff;
-		float * px = g_fxf;
-		float * py = g_fyf
-		
-		float xmi = m_fVars->xmi;
-		float xma = m_fVars->xma;
-		float ymi = m_fVars->xmi;
-		float yma = m_fVars->xma;
-		
-		float pkk[50][50];
-		float c[50][50][4][4];
-		
-		
-		
-		
-	}
-	 
-	 
-	 
-	 }
+	
+	
+}
+
+
+
+
+
+
