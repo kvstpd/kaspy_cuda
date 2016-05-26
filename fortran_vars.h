@@ -11,7 +11,7 @@
 
 #define	F_DATA_SIZE F_DATA_WIDTH * F_DATA_HEIGHT
 
-#pragma pack(16)
+#pragma pack(8)
 
 
 //COMMON/BLKCON/
