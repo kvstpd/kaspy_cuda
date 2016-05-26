@@ -134,6 +134,15 @@ extern "C" void CYCLER_LOAD(int * icycler)
 }
 
 
+extern "C" void CYCLER_PRESSURE(int * icycler, float * pkk, float * c)
+{
+	if (cycler)
+	{
+		cycler->getNewPressure(pkk, c);
+	}
+}
+
+
 
 // GFortran Unix naming
 extern "C" void cycler_get_data_back_(int * icycler)

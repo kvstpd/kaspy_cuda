@@ -204,7 +204,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 
         memcpy(m_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
 		
-		getNewPressure();
+		//getNewPressure();
 		
 #ifdef _WIN64
 		GETNEWPRESSUREVAR(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->xka,
@@ -350,7 +350,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
  */
 
 
-void KaspyCycler::getNewPressure()
+void KaspyCycler::getNewPressure(float * pkk, float * c)
 {
 	int kx = m_fWindData->kx;
 	int ky = m_fWindData->ky;
@@ -373,8 +373,8 @@ void KaspyCycler::getNewPressure()
 	float ymi = m_fVars->xmi;
 	float yma = m_fVars->xma;
 	
-	float pkk[50][50];
-	float c[50][50][4][4];
+	//float pkk[50][50];
+	//float c[50][50][4][4];
 	
 	float c1=3.1415926/180.0;
 	float c2=111111.0f;
@@ -399,7 +399,7 @@ void KaspyCycler::getNewPressure()
  PKK(I,KY+2)=2*PKK(I,KY+1)-PKK(I,KY)
  END DO*/
 	
-	/*for (int j=1; j<=ky; j++ )
+	for (int j=1; j<=ky; j++ )
 	{
 		for (int i=1; i<=kx; i++ )
 		{
@@ -411,7 +411,7 @@ void KaspyCycler::getNewPressure()
 			pkk[j][i] = pk[j * (kx - 1) + i - 1];
 		}
 	}
-	
+/*	
 	for (int j=1; j<=ky; j++ )
 	{
 		pkk[j][0] = 2.0f*pkk[j][1] - pkk[j][2];
