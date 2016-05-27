@@ -14,8 +14,6 @@ void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float
 
 
 
-
-
 float * g_fbu;
 float * g_fbv;
 float * g_ffu;
@@ -151,45 +149,29 @@ void KaspyCycler::makeWsurf(float ro_ratio)
         memcpy(g_fbu, g_ffu, F_DATA_SIZE * sizeof(float));
         memcpy(g_fbv, g_ffv, F_DATA_SIZE * sizeof(float));
 
-        //setbuf(stdout,NULL);
-        
-        //printf("press size is %d\n", pressSize );
-        
-        //printf("press 000 is %f press0 00 is %f\n", m_press[0], m_press0[0]);
 
-        //printf("copy pressure from %#018llx to %#018llx\n", m_press, m_press0);
 
         memcpy(m_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
 		
-		getNewWind('p');
-		
-		
+		getWindPressure('p');
+
 		
         memcpy(m_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
 		
 		
-		getNewWind('u');
-		
+		getWindPressure('u');
 
-		
         memcpy(m_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
 		
-		getNewWind('v');
-		
+		getWindPressure('v');
 
-        
-		
-		
     }
 	
-
-
-            
+	
     float uw, vw, speed, windc;
     int ji, jp1i, jip1, jim1, jm1i;
 
-    
-    
+
     
     ftim = fmodf((float)m_fVars->timeh6, 1.0f);
     btim = 1.0f - ftim;
@@ -231,12 +213,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
     
     
     /// HERE SHOULD START A NEW CUDA CALL TO KEEP fluxua fluxva synced
-   
-    /*DO 410 J=2,JMM1
-    DO 410 I=2,IMM1
-    410 ELF(I,J)=ELB(I,J)
-    1    -DTE2*(FLUXUA(I+1,J)-FLUXUA(I,J)+FLUXVA(I,J+1)-FLUXVA(I,J))
-    2                    / ART(J) */
+	
     
     float dte2 = m_fVars->dte * 2.0f;
     
@@ -260,7 +237,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 
 
 
-void KaspyCycler::getNewWind(char uv)
+void KaspyCycler::getWindPressure(char uv)
 {
 	int kx, ky, kd, nx, ny, nd;
 	float * p;
@@ -438,130 +415,6 @@ void KaspyCycler::getNewWind(char uv)
 
 
 
-
-void KaspyCycler::getNewPressure()
-{
-	int kx = m_fWindData->kx;
-	int ky = m_fWindData->ky;
-	//float kd = kx;
-	float * pk = m_press0;
-	float xki = m_fWindData->xki;
-	float xka = m_fWindData->xka;
-	float yki = m_fWindData->yki;
-	float yka = m_fWindData->yka;
-	int nx = F_DATA_WIDTH;
-	int ny = F_DATA_HEIGHT;
-	//int nd = F_DATA_WIDTH;
-	
-	float * p = g_ff;
-	float * px = g_fxf;
-	float * py = g_fyf;
-	
-	float xmi = m_fVars->xmi;
-	float xma = m_fVars->xma;
-	float ymi = m_fVars->ymi;
-	float yma = m_fVars->yma;
-	
-	float pkkd[50][50];
-	float cd[50][50][4][4];
-	
-	float * pkk = &pkkd[0][0];
-	float * c = &cd[0][0][0][0];
-	
-	float c1=3.1415926/180.0;
-	float c2=111111.0f;
-	
-	float dky=(yka-yki)/(ky-1.0f);
-	float  dkx=(xka-xki)/(kx-1.0f);
- 
- 	float dy=(yma-ymi)/(ny-1.0f);
- 	float dx=(xma-xmi)/(nx-1.0f);
-	
-	
-	for (int j=1; j<=ky; j++ )
-	{
-		for (int i=1; i<=kx; i++ )
-		{
-			pkk[j * 50 + i] = pk[(j - 1) * kx + i - 1];
-		}
-	}
-
-	for (int j=1; j<=ky; j++ )
-	{
-		pkk[j*50+0] = 2.0f*pkk[j*50+1] - pkk[j*50+2];
-		pkk[j*50+kx+1] = 2.0f*pkk[j*50+kx] - pkk[j*50+kx-1];
-	}
-	
-	for (int i=0; i<=(kx+1); i++ )
-	{
-		pkk[0*50+i] = 2.0f*pkk[1*50+i] - pkk[2*50+i];
-		pkk[(ky+1)*50+i] = 2.0f*pkk[ky*50+i] - pkk[(ky-1)*50+i];
-	}
-	
-	
-	getbicubic(kx + 2,ky + 2, 50, pkk,c);
-	
-	for (int j=0; j<ny; j++ )
-	{
-		float y = ymi + j*dy;
-		int j0 = (int)((y - yki)/dky);
-		
-		if (j0 < 0)
-		{
-			j0 = 0;
-		}
-		
-		if (j0 > ky-2)
-		{
-			j0 = ky-2;
-		}
-		
-		float u = (y - (yki + j0*dky))/dky;
-		
-		for (int i=0; i<nx; i++ )
-		{
-			float x = xmi + i * dx;
-			int i0 = (int)((x - xki)/dkx);
-			
-			if (i0 < 0) i0 = 0;
-			
-			if (i0 > kx-2) i0 = kx-2;
-			
-			float t = ( x - (xki + i0*dkx) )/dkx;
-			
-			float ay = 0.0f;
-			float a2 = 0.0f;
-			float a1 = 0.0f;
-			
-			for (int k=3; k>=0; k-- )
-			{
-				ay = t*ay+((c[j0 * 800 + i0 * 16 + 3 * 4 + k] * u + c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u
-						   + c[j0 * 800 + i0 * 16 + 1 * 4 + k])*u + c[j0 * 800 + i0 * 16 + 0 * 4 + k];
-				
-				a2 = t*a2 + (3.0f*c[j0 * 800 + i0 * 16 + 3 * 4 + k]*u
-							 + 2.0f*c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u+c[j0 * 800 + i0 * 16 + 1 * 4 + k];
-				
-				a1 = u*a1 + (3.0f*c[j0 * 800 + i0 * 16 + k * 4 + 3]*t +
-							 2.0f*c[j0 * 800 + i0 * 16 + k * 4 + 2])*t+c[j0 * 800 + i0 * 16 + k * 4 + 1];
-				
-			}
-			
-			a1 = a1/dkx/c2/cosf(c1*y);
-			a2 = a2/dky/c2;
-			
-			int ji = j * nx + i;
-			
-			p[ji] = ay;
-			px[ji] = a1;
-			py[ji] = a2;
-			
-		}
-		
-	}
-	
-
-
-}
 
 
 

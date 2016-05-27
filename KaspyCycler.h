@@ -52,9 +52,8 @@ public:
     void sendDataToGPU();
     void getDataToCPU();
 
-	void getNewPressure();
 
-	void getNewWind(char uv);
+	void getWindPressure(char uv);
 
     void findElves();
     

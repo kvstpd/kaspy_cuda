@@ -134,23 +134,6 @@ extern "C" void CYCLER_LOAD(int * icycler)
 }
 
 
-/*extern "C" void CYCLER_PRESSURE(int * icycler, float * pkk, float * c)
-{
-	if (cycler)
-	{
-		cycler->getNewPressure(pkk, c);
-	}
-}
-
-extern "C" void cycler_pressure_(int * icycler, float * pkk, float * c)
-{
-	if (cycler)
-	{
-		cycler->getNewPressure(pkk, c);
-	}
-}*/
-
-
 
 
 // GFortran Unix naming
