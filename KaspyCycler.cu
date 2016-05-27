@@ -9,22 +9,8 @@
 #include "KaspyCycler.h"
 
 void getbicubic(int nx, int ny, int nd, float * z, float * c);
-extern "C" void bcucofc_(float * y,float * y1,float * y2, float * y12,float * pd1,float * pd2,float * cc);
+void bcucof(float * y,float * y1,float * y2, float * y12,float * pd1,float * pd2,float * cc);
 
-
-
-#ifdef _WIN64
-
-extern "C"  void GETNEWWINDVAR(int * kxu, int * kyu, float * xkui, float * xkua,
-							   float * ykui, float * ykua, float * uwd0, float * ffu);
-
-#else
-
-
-extern "C"  void getnewwindvar_(int * kxu, int * kyu, float * xkui, float * xkua,
-                               float * ykui, float * ykua, float * uwd0, float * ffu);
-
-#endif
 
 
 
@@ -184,26 +170,13 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		
 		getNewWind('u');
 		
-/*#ifdef _WIN64
-		GETNEWWINDVAR(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
-					  &m_fWindData->ykui, &m_fWindData->ykua, m_uwd0, g_ffu);
-#else
-		getnewwindvar_(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
-		              &m_fWindData->ykui, &m_fWindData->ykua, m_uwd0, g_ffu);
-#endif*/
 
 		
         memcpy(m_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
 		
 		getNewWind('v');
 		
-/*#ifdef _WIN64
-		GETNEWWINDVAR(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
-					  &m_fWindData->ykvi, &m_fWindData->ykva, m_vwd0, g_ffv);
-#else
-		getnewwindvar_(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
-		              &m_fWindData->ykvi, &m_fWindData->ykva, m_vwd0, g_ffv);		
-#endif*/
+
         
 		
 		
@@ -678,7 +651,7 @@ void getbicubic(int nx, int ny, int nd, float * z, float * c)
 							  - z[(j+2) * nd + i -1] + z[(j) * nd + i -1]);
 	
 			
-			bcucofc_(&y[0],&y1[0],&y2[0],&y12[0],&d1,&d2,&cc[0][0]);
+			bcucof(&y[0],&y1[0],&y2[0],&y12[0],d1,d2,&cc[0][0]);
 			
 			for (int k=0; k<4; k++ )
 			{
@@ -696,13 +669,9 @@ void getbicubic(int nx, int ny, int nd, float * z, float * c)
 }
 
 
-extern "C" void getbicubic_c_(int * nx, int * ny, int * nd, float * z, float * c)
-{
-	getbicubic(*nx, *ny, *nd, z, c);
-}
 
 
-extern "C" void bcucofc_(float * y,float * y1,float * y2, float * y12,float * pd1,float * pd2,float * cc)
+void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float * cc)
 {
 	float xx;
 	float cl[16];
@@ -728,8 +697,8 @@ extern "C" void bcucofc_(float * y,float * y1,float * y2, float * y12,float * pd
 		0,0,0,0,0,0,-1,1,0,0,2,-2,0,0,-1,1
  	};
 	
-	float d1 = *pd1;
-	float d2 = *pd2;
+	//float d1 = *pd1;
+	//float d2 = *pd2;
 	
 	
 	float d1d2 = d1 * d2;
