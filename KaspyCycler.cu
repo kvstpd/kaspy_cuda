@@ -373,6 +373,13 @@ void KaspyCycler::getNewWind(char uv)
 	yma = m_fVars->yma;
 	
 	
+	float dky=(yka-yki)/(ky-1.0f);
+	float  dkx=(xka-xki)/(kx-1.0f);
+ 
+	float dy=(yma-ymi)/(ny-1.0f);
+	float dx=(xma-xmi)/(nx-1.0f);
+	
+	
 	for (int j=1; j<=ky; j++ )
 	{
 		for (int i=1; i<=kx; i++ )
@@ -411,8 +418,6 @@ void KaspyCycler::getNewWind(char uv)
 		{
 			j0 = ky-2;
 		}
-		
-		float u = (y - (yki + j0*dky))/dky;
 		
 		float u = (y - (yki + j0*dky))/dky;
 		
