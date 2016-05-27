@@ -507,7 +507,7 @@ c     2                    /ART(J)
 C
 c--------------------end of continuity equation----------------------------------
 
-      CALL BCOND(1) !!boundary condition: elevevation
+ccc      CALL BCOND(1) !!boundary condition: elevevation
 C
       IF(MOD(IINT,ISPADV).EQ.0) CALL ADVAVE(ADVUA,ADVVA,MODE)
 C  Note that ALPHA = 0. is perfectly acceptable. The value, ALPHA = .225

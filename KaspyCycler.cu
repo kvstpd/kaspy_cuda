@@ -47,6 +47,7 @@ float * g_el;
 float * g_elf;
 float * g_elb;
 
+float * g_fsm;
 
 
 
@@ -114,6 +115,8 @@ void KaspyCycler::sendDataToGPU()
     g_el = &m_fArrays->el[0][0];
     g_elf = &m_fArrays->elf[0][0];
     g_elb = &m_fArrays->elb[0][0];
+	
+	g_fsm = &m_fArrays->fsm[0][0];
 }
 
 void KaspyCycler::getDataToCPU()
@@ -232,7 +235,57 @@ void KaspyCycler::makeWsurf(float ro_ratio)
             
         }
     }
- }
+ 
+
+
+	/// BCOND 1
+	float tide_l = m_fVars->tide_l;
+	
+	for (int j=1; j<m_height; j++ )
+	{
+		g_elf[j * m_width + 1] = tide_l;
+		g_elf[j * m_width + m_width - 2] = tide_l;
+		
+		g_elf[j * m_width] = tide_l;
+		g_elf[j * m_width + m_width - 1] = tide_l;
+	}
+	
+	for (int i=1; i<m_width; i++ )
+	{
+		g_elf[i] =  g_elf[i + m_width];
+		
+		g_elf[i + m_width * (m_height - 1)  ] =  g_elf[i + m_width * (m_height - 2)];
+	}
+	
+	for (int j=1; j<m_height; j++ )
+	{
+		for (int i=1; i<m_width; i++ )
+		{
+			ji = j * m_width + i;
+			
+			g_elf[ji] *= g_fsm[ji];
+		}
+	}
+	
+	/// END BCOND 1
+	
+/*
+ c      tide_l=0.5
+
+ DO 130 I=1,IM
+
+ ELF(I,1)=elf(i,2)
+
+ elf(i,jm)=elf(i,jmm1)
+ 130   CONTINUE
+ C
+ DO 140 J=1,JM
+ DO 140 I=1,IM
+ 140  ELF(I,J)=ELF(I,J)*FSM(I,J)
+ */
+	
+	
+}
 
 
 
