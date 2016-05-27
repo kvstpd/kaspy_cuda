@@ -1281,7 +1281,7 @@ C     SURROUNDING
         PKK(I,1)=2*PKK(I,2)-PKK(I,3)
         PKK(I,KY+2)=2*PKK(I,KY+1)-PKK(I,KY)
       END DO
-	CALL GETBICUBIC_C(KX+2,KY+2,50,PKK,C)
+c	//CALL GETBICUBIC_C(KX+2,KY+2,50,PKK,C)
 
 	do j=1,Ny
 	  y=ymi+(j-1)*dy
@@ -1432,7 +1432,7 @@ C     CALCULATE DERIVATIVE
 		write(*,*) Y12(1),Y12(2),Y12(3),Y12(4)
 		end if
 
-		 CALL bcucofc(y,y1,y2,y12,d1,d2,CC)
+c		 CALL bcucofc(y,y1,y2,y12,d1,d2,CC)
 	     DO K=1,4
 	     DO L=1,4
 		   C(K,L,I-1,J-1)=CC(K,L)
