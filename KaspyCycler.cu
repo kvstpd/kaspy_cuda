@@ -9,7 +9,7 @@
 #include "KaspyCycler.h"
 
 void getbicubic(int nx, int ny, int nd, float * z, float * c);
-void bcucof(float * y,float * y1,float * y2, float * y12,float * pd1,float * pd2,float * cc);
+void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float * cc);
 
 
 
