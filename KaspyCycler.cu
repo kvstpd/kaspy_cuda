@@ -161,7 +161,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 
         memcpy(m_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
 		
-		getNewPressure();
+		getNewWind('p');
 		
 		
 		
@@ -258,47 +258,14 @@ void KaspyCycler::makeWsurf(float ro_ratio)
  }
 
 
-//getnewwindvar_(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
-//			   &m_fWindData->ykui, &m_fWindData->ykua, m_uwd0, g_ffu);
 
-// 		getnewwindvar_(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
-// &m_fWindData->ykvi, &m_fWindData->ykva, m_vwd0, g_ffv);
-
-/*
- subroutine getnewwindVAR(kxw,kyw,XKI,XKA,YKI,YKA,uw0,ffu)
- INCLUDE 'comblk.for'
- real uw0(KXw,KYw),ffu(IM,JM)
- CALL GETcube(KXw,KYw,KXw,uw0,XKI,XKA,YKI,YKA,
- 1                     IM,JM,IM,FFU,XMI,XMA,YMI,YMA)
- return
- end
-
- 
- subroutine getCUBE(kx,ky,kd,pk,xki,xka,yki,yka,
- 1                     nx,ny,nd,P,xmi,xma,ymi,yma)
- c     interpolate pressure field to get derivatives.
- c     inputs - pk(kx,ky)
- c     inputs - xki,xka,yki,yka
- c     inputs - xmi,xma,ymi,yma
- c     inputs - Kx,Ky,Nx,Ny
- c------------------------------------------------------------
- c      output - px(Nx,Ny),Py(Nx,Ny)
-	real pk(kd,*),P(ND,*)
-	real PKK(50,50),C(4,4,50,50)
- 
- 
-	dky=(yka-yki)/(ky-1)
-	dkx=(xka-xki)/(kx-1)
- 
-	dy=(yma-ymi)/(ny-1)
-	dx=(xma-xmi)/(nx-1)
- 
- */
 
 void KaspyCycler::getNewWind(char uv)
 {
 	int kx, ky, kd, nx, ny, nd;
 	float * p;
+	float * px;
+	float * py;
 	float * pk;
 	float xki, xka, yki, yka, xmi, xma, ymi, yma;
 	float pkkd[50][50];
@@ -320,7 +287,7 @@ void KaspyCycler::getNewWind(char uv)
 		
 		p = g_ffu;
 	}
-	else
+	else if (uv == 'v')
 	{
 		kx = m_fWindData->kxv;
 		ky = m_fWindData->kyv;
@@ -333,6 +300,27 @@ void KaspyCycler::getNewWind(char uv)
 		
 		p = g_ffv;
 	}
+	else if (uv == 'p')
+	{
+		kx = m_fWindData->kx;
+		ky = m_fWindData->ky;
+		//float kd = kx;
+		pk = m_press0;
+		xki = m_fWindData->xki;
+		xka = m_fWindData->xka;
+		yki = m_fWindData->yki;
+		yka = m_fWindData->yka;
+
+		
+		p = g_ff;
+		px = g_fxf;
+		py = g_fyf;
+	}
+	else
+	{
+		// don't know what to do
+		return;
+	}
 	
 	kd = kx;
 	
@@ -344,6 +332,9 @@ void KaspyCycler::getNewWind(char uv)
 	xma = m_fVars->xma;
 	ymi = m_fVars->ymi;
 	yma = m_fVars->yma;
+	
+	float c1=3.1415926/180.0;
+	float c2=111111.0f;
 	
 	
 	float dky=(yka-yki)/(ky-1.0f);
@@ -406,52 +397,43 @@ void KaspyCycler::getNewWind(char uv)
 			float t = ( x - (xki + i0*dkx) )/dkx;
 			
 			float ay = 0.0f;
-
+			float a2 = 0.0f;
+			float a1 = 0.0f;
 			
+			int ji = j * nx + i;
 			
 			for (int k=3; k>=0; k-- )
 			{
 				ay = t*ay+((c[j0 * 800 + i0 * 16 + 3 * 4 + k] * u + c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u
 						   + c[j0 * 800 + i0 * 16 + 1 * 4 + k])*u + c[j0 * 800 + i0 * 16 + 0 * 4 + k];
 			}
-
 			
-			int ji = j * nx + i;
+			if (uv == 'p')
+			{
+				for (int k=3; k>=0; k-- )
+				{
+					a2 = t*a2 + (3.0f*c[j0 * 800 + i0 * 16 + 3 * 4 + k]*u
+								 + 2.0f*c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u+c[j0 * 800 + i0 * 16 + 1 * 4 + k];
+					
+					a1 = u*a1 + (3.0f*c[j0 * 800 + i0 * 16 + k * 4 + 3]*t +
+								 2.0f*c[j0 * 800 + i0 * 16 + k * 4 + 2])*t+c[j0 * 800 + i0 * 16 + k * 4 + 1];
+					
+				}
+				
+				a1 = a1/dkx/c2/cosf(c1*y);
+				a2 = a2/dky/c2;
+				
+				px[ji] = a1;
+				py[ji] = a2;
+			}
 			
 			p[ji] = ay;
-			
 			
 		}
 		
 	}
 	
-	
-	
-	/*
-	 do j=1,Ny
-	 y=ymi+(j-1)*dy
-	 j0=(y-yki)/dky+1
-	 if (j0<1) j0=1
-	 if (j0>ky-1) j0=ky-1
-	 u=(y-(yki+(j0-1)*dky))/dky
-	 
-	 do i=1,Nx
-	 x=xmi+(i-1)*dx
-	 i0=(x-xki)/dkx+1
-	 if (i0<1) I0=1
-	 if (i0>kx-1) i0=kx-1
-	 t=(x-(xki+(i0-1)*dkx))/dkx
-	 ay=0.
-	 DO K=4,1,-1
-	 ay=t*ay+((c(K,4,i0,j0)*u+c(k,3,i0,j0))*u+c(K,2,i0,j0))*u+
-	 1		  c(K,1,i0,j0)
-	 END DO
-	 p(i,j)=ay
-	 end do
-	 END DO
-	 
-	 
-	 */
+
 }
 
 
