@@ -135,7 +135,7 @@ C--------------------------------------------------------------------
       ALLOCATE (PRESS(KX,KY,KT),PRESS0(KX,KY))
       CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
 ccc      NH6=KT   1 DURATION !!!
-      NH6=100    !
+      NH6=10    !
       PRESS=PRESS/1000
    
       dht=(tka-tki)/(kt-1)
@@ -1281,7 +1281,7 @@ C     SURROUNDING
         PKK(I,1)=2*PKK(I,2)-PKK(I,3)
         PKK(I,KY+2)=2*PKK(I,KY+1)-PKK(I,KY)
       END DO
-	CALL GETBICUBIC(KX+2,KY+2,50,PKK,C)
+	CALL GETBICUBIC_C(KX+2,KY+2,50,PKK,C)
 
 	do j=1,Ny
 	  y=ymi+(j-1)*dy
@@ -1330,7 +1330,10 @@ c      output - px(Nx,Ny),Py(Nx,Ny)
 	dy=(yma-ymi)/(ny-1)
 	dx=(xma-xmi)/(nx-1)
 
-	call CYCLER_PRESSURE(icycler, pkk, c)
+c	call CYCLER_PRESSURE(icycler, pkk, c)
+
+
+	return
 
 C     SURROUNDING
 c	DO J=2,KY+1
@@ -1348,6 +1351,7 @@ c        PKK(I,KY+2)=2*PKK(I,KY+1)-PKK(I,KY)
 c      END DO
 c	CALL GETBICUBIC(KX+2,KY+2,50,PKK,C)
 
+c	write(*,*) xmi, ymi, xki, yki, dx, dy, dkx, dky
 
 
 	do j=1,Ny
@@ -1356,7 +1360,9 @@ c	CALL GETBICUBIC(KX+2,KY+2,50,PKK,C)
 	  if (j0<1) j0=1
 	  if (j0>ky-1) j0=ky-1
 	  u=(y-(yki+(j0-1)*dky))/dky
-	  
+
+c		write(*,*) u
+
 	  do i=1,Nx
 	    x=xmi+(i-1)*dx
 	    i0=(x-xki)/dkx+1
@@ -1379,6 +1385,10 @@ c	CALL GETBICUBIC(KX+2,KY+2,50,PKK,C)
 	    px(i,j)=a1
 	    py(i,j)=a2
 
+c		cif (i.eq.6.AND.j.eq.6) thenc
+c			write(*,*) ayc
+c		end if
+c
 	  end do
       END DO
 
@@ -1397,26 +1407,32 @@ C     CALCULATE DERIVATIVE
       DO J=2,NY-2
 	  DO I=2,NX-2
 	     Y(1)=Z(I,J)
-           Y(2)=Z(I+1,J)
+		 Y(2)=Z(I+1,J)
 		 Y(3)=Z(I+1,J+1)
 	     Y(4)=Z(I,J+1)
 
 		 Y1(1)=0.5*(Z(I+1,J)-Z(I-1,J)) 
 		 Y1(4)=0.5*(Z(I+1,J+1)-Z(I-1,J+1)) 
 		 Y1(2)=0.5*(Z(I+2,J)  -Z(I,J)) 
-		 Y1(3)=0.5*(Z(I+2,J+1)-Z(I,J+1)) 
-		 
+		 Y1(3)=0.5*(Z(I+2,J+1)-Z(I,J+1))
+
 		 Y2(1)=0.5*(Z(I,J+1)  -Z(I,J-1)) 
 		 Y2(2)=0.5*(Z(I+1,J+1)-Z(I+1,J-1)) 
 		 Y2(3)=0.5*(Z(I+1,J+2)-Z(I+1,J)) 
 		 Y2(4)=0.5*(Z(I,J+2)-Z(I,J))
-		 
-		 Y12(1)=0.25*(Z(I+1,J+1)-Z(I+1,J-1)-Z(I-1,J+1)+Z(I-1,J-1)) 
+
+
+
+		 Y12(1)=0.25*(Z(I+1,J+1)-Z(I+1,J-1)-Z(I-1,J+1)+Z(I-1,J-1))
 		 Y12(2)=0.25*(Z(I+2,J+1)-Z(I+2,J-1)-Z(I,J+1)+Z(I,J-1)) 
 		 Y12(3)=0.25*(Z(I+2,J+2)-Z(I+2,J)-Z(I,J+2)+Z(I,J)) 
-		 Y12(4)=0.25*(Z(I+1,J+2)-Z(I+1,J)-Z(I-1,J+2)+Z(I-1,J)) 
-           
-		 CALL bcucof(y,y1,y2,y12,d1,d2,CC)
+		 Y12(4)=0.25*(Z(I+1,J+2)-Z(I+1,J)-Z(I-1,J+2)+Z(I-1,J))
+
+		if (i.eq.6.AND.j.eq.6) then
+		write(*,*) Y12(1),Y12(2),Y12(3),Y12(4)
+		end if
+
+		 CALL bcucofc(y,y1,y2,y12,d1,d2,CC)
 	     DO K=1,4
 	     DO L=1,4
 		   C(K,L,I-1,J-1)=CC(K,L)
@@ -1431,41 +1447,41 @@ C     CALCULATE DERIVATIVE
       RETURN
 	END
 
-      SUBROUTINE bcucof(y,y1,y2,y12,d1,d2,c)
-      REAL d1,d2,c(4,4),y(4),y1(4),y12(4),y2(4)
-      INTEGER i,j,k,l
-      REAL d1d2,xx,cl(16),wt(16,16),x(16)
-      SAVE wt
-      DATA wt/1,0,-3,2,4*0,-3,0,9,-6,2,0,-6,4,8*0,3,0,-9,6,-2,0,6,-4,10*
-     *0,9,-6,2*0,-6,4,2*0,3,-2,6*0,-9,6,2*0,6,-4,4*0,1,0,-3,2,-2,0,6,-4,
-     *1,0,-3,2,8*0,-1,0,3,-2,1,0,-3,2,10*0,-3,2,2*0,3,-2,6*0,3,-2,2*0,
-     *-6,4,2*0,3,-2,0,1,-2,1,5*0,-3,6,-3,0,2,-4,2,9*0,3,-6,3,0,-2,4,-2,
-     *10*0,-3,3,2*0,2,-2,2*0,-1,1,6*0,3,-3,2*0,-2,2,5*0,1,-2,1,0,-2,4,
-     *-2,0,1,-2,1,9*0,-1,2,-1,0,1,-2,1,10*0,1,-1,2*0,-1,1,6*0,-1,1,2*0,
-     *2,-2,2*0,-1,1/
-      d1d2=d1*d2
-      do 11 i=1,4
-        x(i)=y(i)
-        x(i+4)=y1(i)*d1
-        x(i+8)=y2(i)*d2
-        x(i+12)=y12(i)*d1d2
-11    continue
-      do 13 i=1,16
-        xx=0.
-        do 12 k=1,16
-          xx=xx+wt(i,k)*x(k)
-12      continue
-        cl(i)=xx
-13    continue
-      l=0
-      do 15 i=1,4
-        do 14 j=1,4
-          l=l+1
-          c(i,j)=cl(l)
-14      continue
-15    continue
-      return
-      END
+c      SUBROUTINE bcucof(y,y1,y2,y12,d1,d2,c)
+c      REAL d1,d2,c(4,4),y(4),y1(4),y12(4),y2(4)
+c      INTEGER i,j,k,l
+c      REAL d1d2,xx,cl(16),wt(16,16),x(16)
+c      SAVE wt
+c      DATA wt/1,0,-3,2,4*0,-3,0,9,-6,2,0,-6,4,8*0,3,0,-9,6,-2,0,6,-4,10*
+c     *0,9,-6,2*0,-6,4,2*0,3,-2,6*0,-9,6,2*0,6,-4,4*0,1,0,-3,2,-2,0,6,-4,
+c     *1,0,-3,2,8*0,-1,0,3,-2,1,0,-3,2,10*0,-3,2,2*0,3,-2,6*0,3,-2,2*0,
+c     *-6,4,2*0,3,-2,0,1,-2,1,5*0,-3,6,-3,0,2,-4,2,9*0,3,-6,3,0,-2,4,-2,
+c     *10*0,-3,3,2*0,2,-2,2*0,-1,1,6*0,3,-3,2*0,-2,2,5*0,1,-2,1,0,-2,4,
+c     *-2,0,1,-2,1,9*0,-1,2,-1,0,1,-2,1,10*0,1,-1,2*0,-1,1,6*0,-1,1,2*0,
+c     *2,-2,2*0,-1,1/
+c      d1d2=d1*d2
+c      do 11 i=1,4
+c        x(i)=y(i)
+c        x(i+4)=y1(i)*d1
+c        x(i+8)=y2(i)*d2
+c        x(i+12)=y12(i)*d1d2
+c11    continue
+c      do 13 i=1,16
+c        xx=0.
+c        do 12 k=1,16
+c          xx=xx+wt(i,k)*x(k)
+c12      continue
+c        cl(i)=xx
+c13    continue
+c      l=0
+c      do 15 i=1,4
+c        do 14 j=1,4
+c          l=l+1
+c          c(i,j)=cl(l)
+c14      continue
+c15    continue
+c      return
+c      END
 
 
       SUBROUTINE READGRD(NX,NY,NDX,Z,XMI,XMA,YMI,YMA,NAME)

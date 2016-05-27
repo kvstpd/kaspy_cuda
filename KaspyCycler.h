@@ -52,8 +52,10 @@ public:
     void sendDataToGPU();
     void getDataToCPU();
 
-	void getNewPressure(float * pkk, float * c);
-    
+	void getNewPressure();
+
+	void getNewWind(char uv);
+
     void findElves();
     
     void makeWsurf(float ro_ratio);

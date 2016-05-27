@@ -8,36 +8,23 @@
 
 #include "KaspyCycler.h"
 
-// getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,FF,fxf,fyf)
+void getbicubic(int nx, int ny, int nd, float * z, float * c);
+extern "C" void bcucofc_(float * y,float * y1,float * y2, float * y12,float * pd1,float * pd2,float * cc);
+
+
 
 #ifdef _WIN64
-extern "C"  void GETNEWPRESSUREVAR(int * kx, int * ky, float * xki, float * xka, float * yki, float * yka,
-								   float * press0, float * ff, float * fxf, float * fyf);
-
-//SUBROUTINE GETBICUBIC(NX,NY,ND,Z,C)
-
-
-extern "C"  void GETBICUBIC(int * NX,int * NY,int * ND,float * Z,float * C);
 
 extern "C"  void GETNEWWINDVAR(int * kxu, int * kyu, float * xkui, float * xkua,
 							   float * ykui, float * ykua, float * uwd0, float * ffu);
 
 #else
 
-//extern "C"  void getnewpressurevar_(int * kx, int * ky, float * xki, float * xka, float * yki, float * yka,
-//                              float * press0, float * ff, float * fxf, float * fyf);
 
 extern "C"  void getnewwindvar_(int * kxu, int * kyu, float * xkui, float * xkua,
                                float * ykui, float * ykua, float * uwd0, float * ffu);
 
 #endif
-
-
-
-
-
-// call getnewwindVAR(kxu,kyu,XKUI,XKUA,YKUI,YKUA,uwd0,ffu)
-
 
 
 
@@ -152,23 +139,7 @@ void KaspyCycler::getDataToCPU()
 
 
 
-/*
- DO J=2,JMM1
- DO I=2,IMM1
- uw=(btim*fbu(i,j)+ftim*ffu(i,j))
- vw=(btim*fbv(i,j)+ftim*ffv(i,j))
- speed=sqrt(uw**2+vw**2) !******************************************************
- !      speed=0
- windc=1.0e-3*(0.8+speed*0.065)*ro_ratio*speed
- WUSURF(I,J)=-windc*uw
- 1 	*.25*(DUM(I,J+1)+DUM(I+1,J)+DUM(I-1,J)+DUM(I,J-1))+
- 2  0.5*(d(i,j)+d(i-1,j))*(btim*FxB(i,j)+ftim*FxF(i,j))
- WVSURF(I,J)=-windc*vw
- 1 	*.25*(DVM(I,J+1)+DVM(I+1,J)+DVM(I-1,J)+DVM(I,J-1))+
- 2  0.5*(d(i,j)+d(i,j-1))*(btim*FyB(i,j)+ftim*FyF(i,j))
- end do
- end do
- */
+
 void KaspyCycler::makeWsurf(float ro_ratio)
 {
     m_fVars->timeh6 = (m_fVars->timeh / m_fVars->dht) + 1.0f;
@@ -204,21 +175,14 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 
         memcpy(m_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
 		
-		//getNewPressure();
-		
-#ifdef _WIN64
-		GETNEWPRESSUREVAR(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->xka,
-						  &m_fWindData->yki, &m_fWindData->yka, m_press0, g_ff, g_fxf, g_fyf);
-#else
-		//getnewpressurevar_(&m_fWindData->kx, &m_fWindData->ky, &m_fWindData->xki, &m_fWindData->xka,
-		//				   &m_fWindData->yki, &m_fWindData->yka, m_press0, g_ff, g_fxf, g_fyf);
-#endif
-		
+		getNewPressure();
 		
 		
 		
         memcpy(m_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
 		
+		
+		getNewWind('u');
 		
 #ifdef _WIN64
 		GETNEWWINDVAR(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
@@ -230,6 +194,8 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 
 		
         memcpy(m_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
+		
+		getNewWind('v');
 		
 #ifdef _WIN64
 		GETNEWWINDVAR(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
@@ -243,13 +209,6 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		
     }
 	
-        /*press0(:,:)=press(:,:,itime6)
-        call getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,
-                               1 FF,fxf,fyf)
-        uwd0(:,:)=uwd(:,:,itime6)
-        call getnewwindVAR(kxu,kyu,XKUI,XKUA,YKUI,YKUA,uwd0,ffu)
-        vwd0(:,:)=vwd(:,:,itime6)
-        call getnewwindVAR(kxv,kyv,XKVI,XKVA,YKVI,YKVA,vwd0,ffv)*/
 
 
             
@@ -289,12 +248,9 @@ void KaspyCycler::makeWsurf(float ro_ratio)
                 + 0.5f * (g_d[ji] + g_d[jm1i]) * (btim * g_fyb[ji] + ftim * g_fyf[ji]);
             }
             
-            //DO 405 J=2,JM
-            //DO 405 I=2,IM
-            //FLUXUA(I,J)=.25E0*(D(I,J)+D(I-1,J))*(DY(j)+DY(j))*UA(I,J)
-            //405  FLUXVA(I,J)=.25E0*(D(I,J)+D(I,J-1))*(DX(j)+DX(j-1))*VA(I,J)
 
-            g_fluxua[ji] = 0.25f * (g_d[ji] + g_d[jim1]) * (g_dy[j] + g_dy[j] /*???*/) * g_ua[ji];
+
+            g_fluxua[ji] = 0.25f * (g_d[ji] + g_d[jim1]) * (g_dy[j] + g_dy[j] ) * g_ua[ji];
             g_fluxva[ji] = 0.25f * (g_d[ji] + g_d[jm1i]) * (g_dx[j] + g_dx[j-1] ) * g_va[ji];
             
         }
@@ -329,28 +285,126 @@ void KaspyCycler::makeWsurf(float ro_ratio)
  }
 
 
+//getnewwindvar_(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
+//			   &m_fWindData->ykui, &m_fWindData->ykua, m_uwd0, g_ffu);
 
-
-
-
-
+// 		getnewwindvar_(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
+// &m_fWindData->ykvi, &m_fWindData->ykva, m_vwd0, g_ffv);
 
 /*
- C     SURROUNDING
+ subroutine getnewwindVAR(kxw,kyw,XKI,XKA,YKI,YKA,uw0,ffu)
+ INCLUDE 'comblk.for'
+ real uw0(KXw,KYw),ffu(IM,JM)
+ CALL GETcube(KXw,KYw,KXw,uw0,XKI,XKA,YKI,YKA,
+ 1                     IM,JM,IM,FFU,XMI,XMA,YMI,YMA)
+ return
+ end
 
  
+ subroutine getCUBE(kx,ky,kd,pk,xki,xka,yki,yka,
+ 1                     nx,ny,nd,P,xmi,xma,ymi,yma)
+ c     interpolate pressure field to get derivatives.
+ c     inputs - pk(kx,ky)
+ c     inputs - xki,xka,yki,yka
+ c     inputs - xmi,xma,ymi,yma
+ c     inputs - Kx,Ky,Nx,Ny
+ c------------------------------------------------------------
+ c      output - px(Nx,Ny),Py(Nx,Ny)
+	real pk(kd,*),P(ND,*)
+	real PKK(50,50),C(4,4,50,50)
  
  
-
+	dky=(yka-yki)/(ky-1)
+	dkx=(xka-xki)/(kx-1)
  
- CALL GETPRESScube(KX,KY,KX,PRESS0,XKI,XKA,YKI,YKA,
- 1                     IM,JM,IM,FF,FXF,FYF,XMI,XMA,YMI,YMA)
- subroutine getpressCUBE(kx,ky,kd,pk,xki,xka,yki,yka,
- 1                     nx,ny,nd,P,px,py,xmi,xma,ymi,yma)
+	dy=(yma-ymi)/(ny-1)
+	dx=(xma-xmi)/(nx-1)
+ 
  */
 
+void KaspyCycler::getNewWind(char uv)
+{
+	int kx, ky, kd, nx, ny, nd;
+	float * p;
+	float * pk;
+	float xki, xka, yki, yka, xmi, xma, ymi, yma;
+	float pkkd[50][50];
+	float cd[50][50][4][4];
+	
+	float * pkk = &pkkd[0][0];
+	float * c = &cd[0][0][0][0];
+	
+	if (uv == 'u')
+	{
+		kx = m_fWindData->kxu;
+		ky = m_fWindData->kyu;
+		pk = m_uwd0;
+		
+		xki = m_fWindData->xkui;
+		xka = m_fWindData->xkua;
+		yki = m_fWindData->ykui;
+		yka = m_fWindData->ykua;
+		
+		p = g_ffu;
+	}
+	else
+	{
+		kx = m_fWindData->kxv;
+		ky = m_fWindData->kyv;
+		pk = m_vwd0;
+		
+		xki = m_fWindData->xkvi;
+		xka = m_fWindData->xkva;
+		yki = m_fWindData->ykvi;
+		yka = m_fWindData->ykva;
+		
+		p = g_ffv;
+	}
+	
+	kd = kx;
+	
+	nx = F_DATA_WIDTH;
+	ny = F_DATA_HEIGHT;
+	nd = F_DATA_WIDTH;
+	
+	xmi = m_fVars->xmi;
+	xma = m_fVars->xma;
+	ymi = m_fVars->ymi;
+	yma = m_fVars->yma;
+	
+	
+	for (int j=1; j<=ky; j++ )
+	{
+		for (int i=1; i<=kx; i++ )
+		{
+			pkk[j * 50 + i] = pk[(j - 1) * kd + i - 1];
+		}
+	}
 
-void KaspyCycler::getNewPressure(float * pkk, float * c)
+	
+	for (int j=1; j<=ky; j++ )
+	{
+		pkk[j*50+0] = 2.0f*pkk[j*50+1] - pkk[j*50+2];
+		pkk[j*50+kx+1] = 2.0f*pkk[j*50+kx] - pkk[j*50+kx-1];
+	}
+	
+	
+	for (int i=0; i<=(kx+1); i++ )
+	{
+		pkk[0*50+i] = 2.0f*pkk[1*50+i] - pkk[2*50+i];
+		pkk[(ky+1)*50+i] = 2.0f*pkk[ky*50+i] - pkk[(ky-1)*50+i];
+	}
+	
+	getbicubic(kx + 2,ky + 2, 50, pkk,c);
+	
+	
+	
+}
+
+
+
+
+void KaspyCycler::getNewPressure()
 {
 	int kx = m_fWindData->kx;
 	int ky = m_fWindData->ky;
@@ -370,11 +424,14 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 	
 	float xmi = m_fVars->xmi;
 	float xma = m_fVars->xma;
-	float ymi = m_fVars->xmi;
-	float yma = m_fVars->xma;
+	float ymi = m_fVars->ymi;
+	float yma = m_fVars->yma;
 	
-	//float pkk[50][50];
-	//float c[50][50][4][4];
+	float pkkd[50][50];
+	float cd[50][50][4][4];
+	
+	float * pkk = &pkkd[0][0];
+	float * c = &cd[0][0][0][0];
 	
 	float c1=3.1415926/180.0;
 	float c2=111111.0f;
@@ -385,31 +442,11 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
  	float dy=(yma-ymi)/(ny-1.0f);
  	float dx=(xma-xmi)/(nx-1.0f);
 	
-/*DO J=2,KY+1
- DO I=2,KX+1
- PKK(I,J)=PK(I-1,J-1)
- END DO
- END DO
- DO J=2,KY+1
- PKK(1,J)=2*PKK(2,J)-PKK(3,J)
- PKK(KX+2,J)=2*PKK(KX+1,J)-PKK(KX,J)
- END DO
- DO I=1,KX+2
- PKK(I,1)=2*PKK(I,2)-PKK(I,3)
- PKK(I,KY+2)=2*PKK(I,KY+1)-PKK(I,KY)
- END DO*/
 	
 	for (int j=1; j<=ky; j++ )
 	{
 		for (int i=1; i<=kx; i++ )
 		{
-			//int ji = j * kx + i;
-			//int jm1i = ji - kx;
-			//int jim1 = ji -  1;
-			//int jm1im1 = jim1 - 1;
-			
-			//pkk[j][i] = pk[j * (kx - 1) + i - 1];
-			
 			pkk[j * 50 + i] = pk[(j - 1) * kx + i - 1];
 		}
 	}
@@ -418,33 +455,18 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 	{
 		pkk[j*50+0] = 2.0f*pkk[j*50+1] - pkk[j*50+2];
 		pkk[j*50+kx+1] = 2.0f*pkk[j*50+kx] - pkk[j*50+kx-1];
-		
-		//pkk[j][0] = 2.0f*pkk[j][1] - pkk[j][2];
-		//pkk[j][kx+1] = 2.0f*pkk[j][kx] - pkk[j][kx-1];
 	}
 	
 	for (int i=0; i<=(kx+1); i++ )
 	{
 		pkk[0*50+i] = 2.0f*pkk[1*50+i] - pkk[2*50+i];
 		pkk[(ky+1)*50+i] = 2.0f*pkk[ky*50+i] - pkk[(ky-1)*50+i];
-		
-		//pkk[0][i] = 2.0f*pkk[1][i] - pkk[2][i];
-		//pkk[ky+1][i] = 2.0f*pkk[ky][i] - pkk[ky-1][i];
 	}
 	
-
-	int kx2 = kx + 2;
-	int ky2 = ky + 2;
-	int fifty = 50;
 	
-	GETBICUBIC(&kx2,&ky2,&fifty,pkk,c);
+	getbicubic(kx + 2,ky + 2, 50, pkk,c);
 	
-	//GETBICUBIC(&kx2,&ky2,&fifty,&pkk[0][0],&c[0][0][0][0]);
-	
-
-	
-	
-/*	for (int j=0; j<ny; j++ )
+	for (int j=0; j<ny; j++ )
 	{
 		float y = ymi + j*dy;
 		int j0 = (int)((y - yki)/dky);
@@ -478,10 +500,14 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 			
 			for (int k=3; k>=0; k-- )
 			{
-				ay = t*ay+((c[j0][i0][3][k] * u + c[j0][i0][2][k])*u+c[j0][i0][1][k])*u + c[j0][i0][0][k];
+				ay = t*ay+((c[j0 * 800 + i0 * 16 + 3 * 4 + k] * u + c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u
+						   + c[j0 * 800 + i0 * 16 + 1 * 4 + k])*u + c[j0 * 800 + i0 * 16 + 0 * 4 + k];
 				
-				a2 = t*a2 + (3.0f*c[j0][i0][3][k]*u+2.0f*c[j0][i0][2][k])*u+c[j0][i0][1][k];
-				a1 = u*a1 + (3.0f*c[j0][i0][k][3]*t+2.0f*c[j0][i0][k][2])*t+c[j0][i0][k][1];
+				a2 = t*a2 + (3.0f*c[j0 * 800 + i0 * 16 + 3 * 4 + k]*u
+							 + 2.0f*c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u+c[j0 * 800 + i0 * 16 + 1 * 4 + k];
+				
+				a1 = u*a1 + (3.0f*c[j0 * 800 + i0 * 16 + k * 4 + 3]*t +
+							 2.0f*c[j0 * 800 + i0 * 16 + k * 4 + 2])*t+c[j0 * 800 + i0 * 16 + k * 4 + 1];
 				
 			}
 			
@@ -496,11 +522,168 @@ void KaspyCycler::getNewPressure(float * pkk, float * c)
 			
 		}
 		
-		
-	}*/
-	
+	}
 	
 
+
+}
+
+
+
+
+void getbicubic(int nx, int ny, int nd, float * z, float * c)
+{
+	float d1 = 1.0f;
+	float d2 = 1.0f;
+	
+	float y[4];
+	float y1[4];
+	float y2[4];
+	float y12[4];
+	float cc[4][4];
+	
+	
+	for (int j=1; j<ny-2; j++ )
+	{
+		for (int i=1; i<nx-2; i++ )
+		{
+			/*
+			 Y(1)=Z(I,J)
+			 Y(2)=Z(I+1,J)
+			 Y(3)=Z(I+1,J+1)
+			 Y(4)=Z(I,J+1)
+			 */
+			y[0] = z[j * nd + i];
+			y[1] = z[j * nd + i + 1];
+			y[2] = z[(j+1) * nd + i + 1];
+			y[3] = z[(j+1) * nd + i];
+			
+			/*
+			 Y1(1)=0.5*(Z(I+1,J)-Z(I-1,J))
+			 Y1(4)=0.5*(Z(I+1,J+1)-Z(I-1,J+1))
+			 Y1(2)=0.5*(Z(I+2,J)  -Z(I,J))
+			 Y1(3)=0.5*(Z(I+2,J+1)-Z(I,J+1))
+			 */
+			y1[0] = 0.5f * (z[j * nd + i + 1] - z[j * nd + i - 1]);
+			y1[3] = 0.5f * (z[(j+1) * nd + i + 1] - z[(j+1) * nd + i - 1]);
+			y1[1] = 0.5f * (z[j * nd + i + 2] - z[j * nd + i]);
+			y1[2] = 0.5f * (z[(j+1) * nd + i + 2] - z[(j+1) * nd + i]);
+
+			
+			/*
+			 Y2(1)=0.5*(Z(I,J+1)  -Z(I,J-1))
+			 Y2(2)=0.5*(Z(I+1,J+1)-Z(I+1,J-1))
+			 Y2(3)=0.5*(Z(I+1,J+2)-Z(I+1,J))
+			 Y2(4)=0.5*(Z(I,J+2)-Z(I,J))
+			 */
+			y2[0] = 0.5f * (z[(j+1) * nd + i] - z[(j-1) * nd + i]);
+			y2[1] = 0.5f * (z[(j+1) * nd + i + 1] - z[(j-1) * nd + i + 1]);
+			y2[2] = 0.5f * (z[(j+2) * nd + i + 1] - z[(j) * nd + i + 1]);
+			y2[3] = 0.5f * (z[(j+2) * nd + i] - z[j * nd + i]);
+			
+			
+			/*
+			 Y12(1)=0.25*(Z(I+1,J+1)-Z(I+1,J-1)-Z(I-1,J+1)+Z(I-1,J-1))
+			 Y12(2)=0.25*(Z(I+2,J+1)-Z(I+2,J-1)-Z(I,J+1)+Z(I,J-1))
+			 Y12(3)=0.25*(Z(I+2,J+2)-Z(I+2,J)-Z(I,J+2)+Z(I,J))
+			 Y12(4)=0.25*(Z(I+1,J+2)-Z(I+1,J)-Z(I-1,J+2)+Z(I-1,J))
+			 */
+			y12[0] = 0.25f * (z[(j+1) * nd + i + 1] - z[(j-1) * nd + i + 1]
+							  - z[(j+1) * nd + i - 1] + z[(j-1) * nd + i - 1]);
+			y12[1] = 0.25f * (z[(j+1) * nd + i + 2] - z[(j-1) * nd + i + 2]
+							  - z[(j+1) * nd + i] + z[(j-1) * nd + i]);
+			y12[2] = 0.25f * (z[(j+2) * nd + i + 2] - z[(j) * nd + i + 2]
+							  - z[(j+2) * nd + i] + z[j * nd + i]);
+			y12[3] = 0.25f * (z[(j+2) * nd + i + 1] - z[(j) * nd + i + 1]
+							  - z[(j+2) * nd + i -1] + z[(j) * nd + i -1]);
+	
+			
+			bcucofc_(&y[0],&y1[0],&y2[0],&y12[0],&d1,&d2,&cc[0][0]);
+			
+			for (int k=0; k<4; k++ )
+			{
+				for (int l=0; l<4; l++ )
+				{
+					//printf("\nk is %d l is %d\n", k, l);
+					c[(j-1)* 800 + (i-1) * 16 + l * 4 + k ] = cc[l][k];
+				}
+			}
+			
+			
+		}
+	 }
+	
+}
+
+
+extern "C" void getbicubic_c_(int * nx, int * ny, int * nd, float * z, float * c)
+{
+	getbicubic(*nx, *ny, *nd, z, c);
+}
+
+
+extern "C" void bcucofc_(float * y,float * y1,float * y2, float * y12,float * pd1,float * pd2,float * cc)
+{
+	float xx;
+	float cl[16];
+	
+	float x[16];
+	
+	float wt[] = {
+		1,0,-3,2,0,0,0,0,-3,0,9,-6,2,0,-6,4,
+		0,0,0,0,0,0,0,0,3,0,-9,6,-2,0,6,-4,
+		0,0,0,0,0,0,0,0,0,0,9,-6,0,0,-6,4,
+		0,0,3,-2,0,0,0,0,0,0,-9,6,0,0,6,-4,
+		0,0,0,0,1,0,-3,2,-2,0,6,-4,1,0,-3,2,
+		0,0,0,0,0,0,0,0,-1,0,3,-2,1,0,-3,2,
+		0,0,0,0,0,0,0,0,0,0,-3,2,0,0,3,-2,
+		0,0,0,0,0,0,3,-2,0,0,-6,4,0,0,3,-2,
+		0,1,-2,1,0,0,0,0,0,-3,6,-3,0,2,-4,2,
+		0,0,0,0,0,0,0,0,0,3,-6,3,0,-2,4,-2,
+		0,0,0,0,0,0,0,0,0,0,-3,3,0,0,2,-2,
+		0,0,-1,1,0,0,0,0,0,0,3,-3,0,0,-2,2,
+		0,0,0,0,0,1,-2,1,0,-2,4,-2,0,1,-2,1,
+		0,0,0,0,0,0,0,0,0,-1,2,-1,0,1,-2,1,
+		0,0,0,0,0,0,0,0,0,0,1,-1,0,0,-1,1,
+		0,0,0,0,0,0,-1,1,0,0,2,-2,0,0,-1,1
+ 	};
+	
+	float d1 = *pd1;
+	float d2 = *pd2;
+	
+	
+	float d1d2 = d1 * d2;
+
+	for (int i=0; i<4; i++ )
+	{
+		x[i] = y[i];
+		x[i + 4] = y1[i] * d1;
+		x[i + 8] = y2[i] * d2;
+		x[i + 12] = y12[i] * d1d2;
+	}
+	
+	for (int i=0; i<16; i++ )
+	{
+		xx = 0.0f;
+		
+		for (int k=0; k<16; k++ )
+		{
+			xx += wt[i + k*16] * x[k];
+		}
+		
+		cl[i] = xx;
+	}
+	
+	int l = 0;
+	
+	for (int i=0; i<4; i++ )
+	{
+		for (int j=0; j<4; j++ )
+		{
+			cc[j*4 + i] = cl[l++];
+		}
+	}
+	
 }
 
 
