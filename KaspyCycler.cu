@@ -182,7 +182,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
         memcpy(m_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
 		
 		
-		getNewWind('u');
+		//getNewWind('u');
 		
 #ifdef _WIN64
 		GETNEWWINDVAR(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
@@ -195,7 +195,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		
         memcpy(m_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
 		
-		getNewWind('v');
+		//getNewWind('v');
 		
 #ifdef _WIN64
 		GETNEWWINDVAR(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
@@ -397,8 +397,83 @@ void KaspyCycler::getNewWind(char uv)
 	
 	getbicubic(kx + 2,ky + 2, 50, pkk,c);
 	
+	for (int j=0; j<ny; j++ )
+	{
+		float y = ymi + j*dy;
+		int j0 = (int)((y - yki)/dky);
+		
+		if (j0 < 0)
+		{
+			j0 = 0;
+		}
+		
+		if (j0 > ky-2)
+		{
+			j0 = ky-2;
+		}
+		
+		float u = (y - (yki + j0*dky))/dky;
+		
+		float u = (y - (yki + j0*dky))/dky;
+		
+		for (int i=0; i<nx; i++ )
+		{
+			float x = xmi + i * dx;
+			int i0 = (int)((x - xki)/dkx);
+			
+			if (i0 < 0) i0 = 0;
+			
+			if (i0 > kx-2) i0 = kx-2;
+			
+			float t = ( x - (xki + i0*dkx) )/dkx;
+			
+			float ay = 0.0f;
+
+			
+			
+			for (int k=3; k>=0; k-- )
+			{
+				ay = t*ay+((c[j0 * 800 + i0 * 16 + 3 * 4 + k] * u + c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u
+						   + c[j0 * 800 + i0 * 16 + 1 * 4 + k])*u + c[j0 * 800 + i0 * 16 + 0 * 4 + k];
+			}
+
+			
+			int ji = j * nx + i;
+			
+			p[ji] = ay;
+			
+			
+		}
+		
+	}
 	
 	
+	
+	/*
+	 do j=1,Ny
+	 y=ymi+(j-1)*dy
+	 j0=(y-yki)/dky+1
+	 if (j0<1) j0=1
+	 if (j0>ky-1) j0=ky-1
+	 u=(y-(yki+(j0-1)*dky))/dky
+	 
+	 do i=1,Nx
+	 x=xmi+(i-1)*dx
+	 i0=(x-xki)/dkx+1
+	 if (i0<1) I0=1
+	 if (i0>kx-1) i0=kx-1
+	 t=(x-(xki+(i0-1)*dkx))/dkx
+	 ay=0.
+	 DO K=4,1,-1
+	 ay=t*ay+((c(K,4,i0,j0)*u+c(k,3,i0,j0))*u+c(K,2,i0,j0))*u+
+	 1		  c(K,1,i0,j0)
+	 END DO
+	 p(i,j)=ay
+	 end do
+	 END DO
+	 
+	 
+	 */
 }
 
 
