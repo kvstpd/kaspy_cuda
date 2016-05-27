@@ -182,28 +182,28 @@ void KaspyCycler::makeWsurf(float ro_ratio)
         memcpy(m_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
 		
 		
-		//getNewWind('u');
+		getNewWind('u');
 		
-#ifdef _WIN64
+/*#ifdef _WIN64
 		GETNEWWINDVAR(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
 					  &m_fWindData->ykui, &m_fWindData->ykua, m_uwd0, g_ffu);
 #else
 		getnewwindvar_(&m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->xkui, &m_fWindData->xkua,
 		              &m_fWindData->ykui, &m_fWindData->ykua, m_uwd0, g_ffu);
-#endif
+#endif*/
 
 		
         memcpy(m_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
 		
-		//getNewWind('v');
+		getNewWind('v');
 		
-#ifdef _WIN64
+/*#ifdef _WIN64
 		GETNEWWINDVAR(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
 					  &m_fWindData->ykvi, &m_fWindData->ykva, m_vwd0, g_ffv);
 #else
 		getnewwindvar_(&m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->xkvi, &m_fWindData->xkva,
 		              &m_fWindData->ykvi, &m_fWindData->ykva, m_vwd0, g_ffv);		
-#endif
+#endif*/
         
 		
 		
