@@ -88,6 +88,11 @@ typedef struct{
     float elb[F_DATA_HEIGHT][F_DATA_WIDTH];
     float fluxua[F_DATA_HEIGHT][F_DATA_WIDTH];
     float fluxva[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float advua[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float advva[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float surf[F_DATA_HEIGHT][F_DATA_WIDTH];
+
+	
     double end_marker;
 } fortran_common_arrays;
 

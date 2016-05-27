@@ -13,8 +13,9 @@ C---------------- 2-D ARRAYS --------------------------------------
      5     TPS(IM,JM),AAM2D,padding,
      6     UAF(IM,JM),UA(IM,JM),UAB(IM,JM),VAF(IM,JM),VA(IM,JM),
      7     VAB(IM,JM),ELF(IM,JM),EL(IM,JM),ELB(IM,JM),
-     8     FLUXUA(IM,JM),FLUXVA(IM,JM),arrays_end_marker
-
+     8     FLUXUA(IM,JM),FLUXVA(IM,JM),
+     1     ADVUA(IM,JM),ADVVA(IM,JM),
+     2     surf(im,jm),arrays_end_marker
 
        real*4 dht,padding
        real*8 arrays_marker,timeh,timeh6,tide_l,TIDE_L0,dti,dte

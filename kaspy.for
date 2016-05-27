@@ -83,9 +83,8 @@ c        ! ALL TOGETHER 8760 hours
 
       INCLUDE 'comblk.for'    
       LOGICAL SEAMT
-      DIMENSION 
-     1     ADVUA(IM,JM),ADVVA(IM,JM),
-     2     surf(im,jm)
+ 
+
       COMMON/F_FLOATS/ff_marker,
      3     fxf(im,jm),fyf(im,jm),fxb(im,jm),fyb(im,jm),
      4     FF(IM,JM),FB(IM,JM),
@@ -509,7 +508,7 @@ c--------------------end of continuity equation---------------------------------
 
 ccc      CALL BCOND(1) !!boundary condition: elevevation
 C
-      IF(MOD(IINT,ISPADV).EQ.0) CALL ADVAVE(ADVUA,ADVVA,MODE)
+      IF(MOD(IINT,ISPADV).EQ.0) CALL ADVAVE()
 C  Note that ALPHA = 0. is perfectly acceptable. The value, ALPHA = .225
 C  permits a longer time step.
 c=======================main momentum update: cycles 420 and 430=================
@@ -606,10 +605,10 @@ C---------------------------------------------------------------------
 C          END EXTERNAL (2-D) MODE CALCULATION
 C     AND CONTINUE WITH INTERNAL (3-D) MODE CALCULATION
 C---------------------------------------------------------------------
-      IF(IINT.EQ.1) GO TO 8200
-      IF(MODE.EQ.2) GO TO 8200
+c c     IF(IINT.EQ.1) GO TO 8200
+c      IF(MODE.EQ.2) GO TO 8200
 C
- 8200 CONTINUE
+c 8200 CONTINUE
 C
 C
 C
@@ -742,9 +741,9 @@ c	end do
       
       END 
 C
-      SUBROUTINE ADVAVE(ADVUA,ADVVA,MODE)
+      SUBROUTINE ADVAVE()
        INCLUDE 'comblk.for'
-      DIMENSION ADVUA(IM,JM),ADVVA(IM,JM)
+c      DIMENSION ADVUA(IM,JM),ADVVA(IM,JM)
 C---------------------------------------------------------------------
 C      CALCULATE U-ADVECTION & DIFFUSION
 C---------------------------------------------------------------------
@@ -829,7 +828,7 @@ C---------------------------------------------------------------
      1          +FLUXVA(I,J)-FLUXVA(I,J-1))/arv(j)
 C
 C---------------------------------------------------------------
-      IF(MODE.NE.2) GO TO 5000
+c      IF(MODE.NE.2) GO TO 5000
       DO 102 J=2,JMM1
       DO 102 I=2,IMM1
       WUBOT(I,J)=-0.5E0*(CBC(I,J)+CBC(I-1,J))
