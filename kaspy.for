@@ -781,20 +781,20 @@ c 460  FLUXUA(I,J)=DY(J)*(.125E0*((D(I+1,J)+D(I,J))*UA(I+1,J)
 c     1                 +(D(I,J)+D(I-1,J))*UA(I,J))
 c     2                  *(UA(I+1,J)+UA(I,J))
 c     3         -D(I,J)*2.E0*AAM2D*(UAB(I+1,J)-UAB(I,J))/DX(j))
-      DO  470 J=2,JM
-      DO  470 I=2,IM
-
-      TPS(I,J)=(D(I,J)+D(I-1,J)+D(I,J-1)+D(I-1,J-1))
-     1            *AAM2D
-     2            *((UAB(I,J)-UAB(I,J-1))
-     3                /(4*DY(j))
-     4                 +(VAB(I,J)-VAB(I-1,J))
-     5                /(4*DX(j)) )
-      FLUXVA(I,J)=(.125E0*((D(I,J)+D(I,J-1))*VA(I,J)
-     1                 +(D(I-1,J)+D(I-1,J-1))*VA(I-1,J))
-     2                    *(UA(I,J)+UA(I,J-1))
-     3 -TPS(I,J))*DX(j)
- 470  CONTINUE
+c      DO  470 J=2,JM
+c      DO  470 I=2,IMc
+c
+c      TPS(I,J)=(D(I,J)+D(I-1,J)+D(I,J-1)+D(I-1,J-1))
+c     1            *AAM2D
+c     2            *((UAB(I,J)-UAB(I,J-1))
+c     3                /(4*DY(j))
+c     4                 +(VAB(I,J)-VAB(I-1,J))
+c     5                /(4*DX(j)) )
+c      FLUXVA(I,J)=(.125E0*((D(I,J)+D(I,J-1))*VA(I,J)
+c     1                 +(D(I-1,J)+D(I-1,J-1))*VA(I-1,J))
+c     2                    *(UA(I,J)+UA(I,J-1))
+c     3 -TPS(I,J))*DX(j)
+c 470  CONTINUE
 C----------------------------------------------------------------
       DO  480 J=2,JMM1
       DO  480 I=2,IMM1
