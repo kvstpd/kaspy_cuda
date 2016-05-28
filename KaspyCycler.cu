@@ -62,6 +62,8 @@ float * g_tps;
 float * g_advua;
 float * g_advva;
 
+float * g_aru;
+float * g_arv;
 
 
 void KaspyCycler::findElves()
@@ -141,6 +143,10 @@ void KaspyCycler::sendDataToGPU()
 	g_fsm = &m_fArrays->fsm[0][0];
 	
 	g_tps = &m_fArrays->tps[0][0];
+	
+	g_aru = &m_fArrays->aru[0];
+	g_arv = &m_fArrays->arv[0];
+
 }
 
 void KaspyCycler::getDataToCPU()
@@ -343,31 +349,24 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		}
 
 		
+		for (int j=1; j<(m_height-1); j++ )
+		{
+			for (int i=1; i<(m_width-1); i++ )
+			{
+				ji = j * m_width + i;
+				jim1 = ji - 1;
+				jp1i = ji + m_width;
+				
+				g_advua[ji] = (g_fluxua[ji]-g_fluxua[jim1]
+							   +g_fluxva[jp1i]-g_fluxva[ji])/g_aru[j];
+			}
+			
+		}
 		
-/*
-
- DO  470 J=2,JM
- DO  470 I=2,IM
- 
- TPS(I,J)=(D(I,J)+D(I-1,J)+D(I,J-1)+D(I-1,J-1))
- 1            *AAM2D
- 2            *((UAB(I,J)-UAB(I,J-1))
- 3                /(4*DY(j))
- 4                 +(VAB(I,J)-VAB(I-1,J))
- 5                /(4*DX(j)) )
- FLUXVA(I,J)=(.125E0*((D(I,J)+D(I,J-1))*VA(I,J)
- 1                 +(D(I-1,J)+D(I-1,J-1))*VA(I-1,J))
- 2                    *(UA(I,J)+UA(I,J-1))
- 3 -TPS(I,J))*DX(j)
- 470  CONTINUE
- C----------------------------------------------------------------
- DO  480 J=2,JMM1
- DO  480 I=2,IMM1
- 480  ADVUA(I,J)=(FLUXUA(I,J)-FLUXUA(I-1,J)
- 1           +FLUXVA(I,J+1)-FLUXVA(I,J))/aru(j)
- 
- */
+		memset(g_advva, 0, F_DATA_SIZE * sizeof(float));
+		memset(g_fluxva, 0, F_DATA_SIZE * sizeof(float));
 		
+	
 	}
 	
 	
