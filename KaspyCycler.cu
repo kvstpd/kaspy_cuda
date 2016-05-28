@@ -43,12 +43,24 @@ float * g_fluxva;
 float * g_ua;
 float * g_va;
 
+float * g_uab;
+float * g_vab;
+
+float * g_uaf;
+float * g_vaf;
+
+
 float * g_el;
 float * g_elf;
 float * g_elb;
 
 float * g_fsm;
 
+float * g_tps;
+
+
+float * g_advua;
+float * g_advva;
 
 
 
@@ -108,15 +120,27 @@ void KaspyCycler::sendDataToGPU()
 
     g_fluxua = &m_fArrays->fluxua[0][0];
     g_fluxva = &m_fArrays->fluxva[0][0];
-    
+	
+	g_advua = &m_fArrays->advua[0][0];
+	g_advva = &m_fArrays->advua[0][0];
+	
     g_ua = &m_fArrays->ua[0][0];
     g_va = &m_fArrays->va[0][0];
-    
+
+	g_uab = &m_fArrays->uab[0][0];
+	g_vab = &m_fArrays->vab[0][0];
+
+	g_uaf = &m_fArrays->uaf[0][0];
+	g_vaf = &m_fArrays->vaf[0][0];
+	
+	
     g_el = &m_fArrays->el[0][0];
     g_elf = &m_fArrays->elf[0][0];
     g_elb = &m_fArrays->elb[0][0];
 	
 	g_fsm = &m_fArrays->fsm[0][0];
+	
+	g_tps = &m_fArrays->tps[0][0];
 }
 
 void KaspyCycler::getDataToCPU()
@@ -266,23 +290,72 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 			g_elf[ji] *= g_fsm[ji];
 		}
 	}
+
 	
-	/// END BCOND 1
-	
+	if (m_fVars->iint % 10 == 0)
+	{
+		//ADVAVE()
+		
+		//       ADVUA=0
+		//		FLUXUA=0
+		
+		memset(g_advua, 0, F_DATA_SIZE * sizeof(float));
+		memset(g_advva, 0, F_DATA_SIZE * sizeof(float));
+		memset(g_fluxua, 0, F_DATA_SIZE * sizeof(float));
+		memset(g_fluxva, 0, F_DATA_SIZE * sizeof(float));
+		
+		
+		float aam2d = m_fArrays->aam2d;
+		
+		for (int j=1; j<m_height; j++ )
+		{
+			for (int i=1; i<(m_width-1); i++ )
+			{
+				ji = j * m_width + i;
+				
+				g_fluxua[ji] = g_dy[j] * (.125f * ((g_d[ji + 1]+g_d[ji])*g_ua[ji + 1]
+						+(g_d[ji]+g_d[ji - 1])*g_ua[ji])
+										  *(g_ua[ji + 1]+g_ua[ji])
+										  - g_d[ji]*2.0f*aam2d*(g_uab[ji + 1]-g_uab[ji])/g_dx[j]);
+				
+				
+			}
+		}
+		
+		
 /*
- c      tide_l=0.5
-
- DO 130 I=1,IM
-
- ELF(I,1)=elf(i,2)
-
- elf(i,jm)=elf(i,jmm1)
- 130   CONTINUE
- C
- DO 140 J=1,JM
- DO 140 I=1,IM
- 140  ELF(I,J)=ELF(I,J)*FSM(I,J)
+ DO 460 J=2,JM
+ DO 460 I=2,IMM1
+ 460  FLUXUA(I,J)=DY(J)*(.125E0*((D(I+1,J)+D(I,J))*UA(I+1,J)
+ 1                 +(D(I,J)+D(I-1,J))*UA(I,J))
+ 2                  *(UA(I+1,J)+UA(I,J))
+ 3         -D(I,J)*2.E0*AAM2D*(UAB(I+1,J)-UAB(I,J))/DX(j))
+ DO  470 J=2,JM
+ DO  470 I=2,IM
+ 
+ TPS(I,J)=(D(I,J)+D(I-1,J)+D(I,J-1)+D(I-1,J-1))
+ 1            *AAM2D
+ 2            *((UAB(I,J)-UAB(I,J-1))
+ 3                /(4*DY(j))
+ 4                 +(VAB(I,J)-VAB(I-1,J))
+ 5                /(4*DX(j)) )
+ FLUXVA(I,J)=(.125E0*((D(I,J)+D(I,J-1))*VA(I,J)
+ 1                 +(D(I-1,J)+D(I-1,J-1))*VA(I-1,J))
+ 2                    *(UA(I,J)+UA(I,J-1))
+ 3 -TPS(I,J))*DX(j)
+ 470  CONTINUE
+ C----------------------------------------------------------------
+ DO  480 J=2,JMM1
+ DO  480 I=2,IMM1
+ 480  ADVUA(I,J)=(FLUXUA(I,J)-FLUXUA(I-1,J)
+ 1           +FLUXVA(I,J+1)-FLUXVA(I,J))/aru(j)
+ 
  */
+		
+	}
+	
+	
+	
 	
 	
 }
