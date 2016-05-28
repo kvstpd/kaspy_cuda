@@ -796,16 +796,16 @@ c     2                    *(UA(I,J)+UA(I,J-1))
 c     3 -TPS(I,J))*DX(j)
 c 470  CONTINUE
 C----------------------------------------------------------------
-      DO  480 J=2,JMM1
-      DO  480 I=2,IMM1
- 480  ADVUA(I,J)=(FLUXUA(I,J)-FLUXUA(I-1,J)
-     1           +FLUXVA(I,J+1)-FLUXVA(I,J))/aru(j)
+c      DO  480 J=2,JMM1
+c      DO  480 I=2,IMM1
+c 480  ADVUA(I,J)=(FLUXUA(I,J)-FLUXUA(I-1,J)
+c     1           +FLUXVA(I,J+1)-FLUXVA(I,J))/aru(j)
 C----------------------------------------------------------------
 C       CALCULATE V-ADVECTION & DIFFUSION
 C----------------------------------------------------------------
 C
-      ADVVA=0.0
-      FLUXVA=0.0
+c      ADVVA=0.0
+c      FLUXVA=0.0
 C
 C------- ADD VISCOUS FLUXES -----------------------------------
       DO  860 J=2,JMM1
