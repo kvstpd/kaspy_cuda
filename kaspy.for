@@ -771,16 +771,16 @@ c      aam2d  - horizondal friction (mm/s, here is a constant==2
 C
 C-------- ADVECTIVE FLUXES INITIALIZATION-------------------------------------
 C
-      ADVUA=0
-      FLUXUA=0
+c      ADVUA=0
+c      FLUXUA=0
 
 C----------- ADD VISCOUS FLUXES ---------------------------------
-      DO 460 J=2,JM
-      DO 460 I=2,IMM1
- 460  FLUXUA(I,J)=DY(J)*(.125E0*((D(I+1,J)+D(I,J))*UA(I+1,J)
-     1                 +(D(I,J)+D(I-1,J))*UA(I,J))
-     2                  *(UA(I+1,J)+UA(I,J))
-     3         -D(I,J)*2.E0*AAM2D*(UAB(I+1,J)-UAB(I,J))/DX(j))
+c c     DO 460 J=2,JM
+c c     DO 460 I=2,IMM1
+c 460  FLUXUA(I,J)=DY(J)*(.125E0*((D(I+1,J)+D(I,J))*UA(I+1,J)
+c     1                 +(D(I,J)+D(I-1,J))*UA(I,J))
+c     2                  *(UA(I+1,J)+UA(I,J))
+c     3         -D(I,J)*2.E0*AAM2D*(UAB(I+1,J)-UAB(I,J))/DX(j))
       DO  470 J=2,JM
       DO  470 I=2,IM
 
