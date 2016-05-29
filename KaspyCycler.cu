@@ -465,12 +465,12 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 				jm1ip1 = jm1i + 1;
 
 				g_wubot[ji]=-0.5e0*(g_cbc[ji]+g_cbc[jim1])
-				     *sqrtf(g_uab[ji]*g_uab[ji]+(.25e0*(g_vab[ji]
-											  +g_vab[jp1i]+g_vab[jim1]+g_vab[jp1im1]))^2)*g_uab[ji];
+				     *sqrtf(g_uab[ji]*g_uab[ji]+powf(.25e0*(g_vab[ji]
+											  +g_vab[jp1i]+g_vab[jim1]+g_vab[jp1im1]), 2) )*g_uab[ji];
 				
 				g_wvbot[ji]=-0.5e0*(g_cbc[ji]+g_cbc[jm1i])
 				    *sqrtf((.25e0*(g_uab[ji]+g_uab[jip1]
-								  +g_uab[jm1i]+g_uab[jm1ip1]))^2+g_vab[ji]*g_vab[ji])*g_vab[ji];
+								  +g_uab[jm1i]+g_uab[jm1ip1]))**2+g_vab[ji]*g_vab[ji])*g_vab[ji];
 				
 			}
 		}
