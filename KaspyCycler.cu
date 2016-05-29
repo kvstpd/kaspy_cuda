@@ -117,7 +117,7 @@ void KaspyCycler::sendDataToGPU()
     g_fb = &m_fFloats->fb[0][0];
     g_ff = &m_fFloats->ff[0][0];
 	
-	g_h = &m_fArrays->wusurf[0][0];
+	g_h = &m_fArrays->h[0][0];
     
     g_wusurf = &m_fArrays->wusurf[0][0];
     g_wvsurf = &m_fArrays->wvsurf[0][0];
@@ -504,8 +504,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 			jp1im1 = jp1i - 1;
 			jm1ip1 = jm1i + 1;
 			
-			float uaf1= g_advua[ji]
-			    -0.25f*(g_cor[j]*g_d[ji]*(g_va[jp1i]+g_va[ji])
+			float uaf1= g_advua[ji]   -0.25f*(g_cor[j]*g_d[ji]*(g_va[jp1i]+g_va[ji])
 					                 +g_cor[j]*g_d[jim1]*(g_va[jp1im1]+g_va[jim1]) )
 			         +0.5f*grav*g_dy[j]/g_aru[j]*(g_d[ji]+g_d[jim1])
 			             *( (1.0f-2.0f*alpha)*(g_el[ji]-g_el[jim1])
@@ -514,8 +513,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 			
 			g_uaf[ji]=
 			         ((g_h[ji]+g_elb[ji]+g_h[jim1]+g_elb[jim1])*g_uab[ji]
-					                   -4.e0*dte*uaf1)
-				/(g_h[ji]+g_elf[ji]+g_h[jim1]+g_elf[jim1]);
+					                   -4.e0*dte*uaf1)  /(g_h[ji]+g_elf[ji]+g_h[jim1]+g_elf[jim1]);
 			
 		}
 	}
