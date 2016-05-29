@@ -11,8 +11,8 @@
 void getbicubic(int nx, int ny, int nd, float * z, float * c);
 void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float * cc);
 
-extern "C" void ADVAVE();
 
+float grav = 9.806;
 
 
 float * g_fbu;
@@ -69,6 +69,8 @@ float * g_arv;
 float * g_wubot;
 float * g_wvbot;
 float * g_cbc;
+
+float * g_cor;
 
 void KaspyCycler::findElves()
 {
@@ -156,6 +158,8 @@ void KaspyCycler::sendDataToGPU()
 	g_wvbot = &m_fArrays->wvbot[0][0];
 
 	g_cbc = &m_fArrays->cbc[0][0];
+	
+	g_cor = &m_fArrays->cor[0];
 }
 
 void KaspyCycler::getDataToCPU()
@@ -171,7 +175,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
     m_fVars->timeh6 = (m_fVars->timeh / m_fVars->dht) + 1.0f;
 
     float timeh6 = m_fVars->timeh6;
-    
+	
     int pressSize = m_fWindData->kx * m_fWindData->ky;
     int windUSize = m_fWindData->kxu * m_fWindData->kyu;
     int windVSize = m_fWindData->kxv * m_fWindData->kyv;
@@ -308,9 +312,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 
 	
 	if (m_fVars->iint % 10 == 0)
-	{
-		//ADVAVE()
-		
+	{//ADVAVE()
 		//       ADVUA=0
 		//		FLUXUA=0
 		
@@ -479,9 +481,40 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		}
 		
 		
-		
+		// END ADVAVE();
 	}
-	// END ADVAVE();
+	
+	float alpha =  0.225f;
+	float dte = m_fVars->dte;
+	
+	for (int j=1; j<(m_height-1); j++ )
+	{
+		for (int i=1; i<m_width; i++ )
+		{
+			ji = j * m_width + i;
+			jp1i = ji + m_width;
+			jip1 = ji + 1;
+			jim1 = ji - 1;
+			jm1i = ji - m_width;
+			jm1im1 = jm1i  - 1;
+			jp1im1 = jp1i - 1;
+			jm1ip1 = jm1i + 1;
+			
+			float uaf1= g_advua[ji]
+			    -0.25f*(g_cor[j]*g_d[ji]*(g_va[jp1i]+g_va[ji])
+					                 +g_cor[j]*g_d[jim1]*(g_va[jp1im1]+g_va[jim1]) )
+			         +0.5f*grav*g_dy[j]/g_aru[j]*(g_d[ji]+g_d[jim1])
+			             *( (1.0f-2.0f*alpha)*(g_el[ji]-g_el[jim1])
+							            +alpha*(g_elb[ji]-g_elb[jim1]+g_elf[ji]-g_elf[jim1]) )
+			+g_wusurf[ji]-g_wubot[ji];
+			
+			g_uaf[ji]=
+			         ((g_h[ji]+g_elb[ji]+g_h[jim1]+g_elb[jim1])*g_uab[ji]
+					                   -4.e0*dte*uaf1)
+				/(g_h[ji]+g_elf[ji]+g_h[jim1]+g_elf[jim1]);
+			
+		}
+	}
 	
 	
 	

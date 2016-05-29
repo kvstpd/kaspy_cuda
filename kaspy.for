@@ -513,20 +513,20 @@ C  Note that ALPHA = 0. is perfectly acceptable. The value, ALPHA = .225
 C  permits a longer time step.
 c=======================main momentum update: cycles 420 and 430=================
       ALPHA=0.225     
-      DO 420 J=2,JMM1
-      DO 420 I=2,IM
-      UAF1=ADVUA(I,J)   
-     1    -.25*(COR(j)*D(I,J)*(VA(I,J+1)+VA(I,J))
-     2              +cor(j)*D(I-1,J)*(VA(I-1,J+1)+VA(I-1,J)) )
-     3         +.5E0*GRAV*dy(j)/aru(j)*(D(I,J)+D(I-1,J))
-     4             *( (1.E0-2.E0*ALPHA)*(EL(I,J)-EL(I-1,J))
-     4            +ALPHA*(ELB(I,J)-ELB(I-1,J)+ELF(I,J)-ELF(I-1,J)) )
-     6      +WUSURF(I,J)-WUBOT(I,J)   
-      UAF(I,J)=
-     1         ((H(I,J)+ELB(I,J)+H(I-1,J)+ELB(I-1,J))*UAB(I,J)
-     2                -4.E0*DTE*UAF1)
-     3        /(H(I,J)+ELF(I,J)+H(I-1,J)+ELF(I-1,J))
-420    CONTINUE
+c      DO 420 J=2,JMM1
+c      DO 420 I=2,IM
+c      UAF1=ADVUA(I,J)
+c     1    -.25*(COR(j)*D(I,J)*(VA(I,J+1)+VA(I,J))
+c     2              +cor(j)*D(I-1,J)*(VA(I-1,J+1)+VA(I-1,J)) )
+c     3         +.5E0*GRAV*dy(j)/aru(j)*(D(I,J)+D(I-1,J))
+c     4             *( (1.E0-2.E0*ALPHA)*(EL(I,J)-EL(I-1,J))
+c     4            +ALPHA*(ELB(I,J)-ELB(I-1,J)+ELF(I,J)-ELF(I-1,J)) )
+c     6      +WUSURF(I,J)-WUBOT(I,J)
+c      UAF(I,J)=
+c     1         ((H(I,J)+ELB(I,J)+H(I-1,J)+ELB(I-1,J))*UAB(I,J)
+c     2                -4.E0*DTE*UAF1)
+c     3        /(H(I,J)+ELF(I,J)+H(I-1,J)+ELF(I-1,J))
+c420    CONTINUE
       DO 430 J=2,JM
       DO 430 I=2,IMM1
       VAF1=ADVVA(I,J)  
@@ -658,7 +658,6 @@ C--------------------------------------------------------------------
  9000                     CONTINUE
 
 
-cc!        call display_destroy_f(display)
          
 C***********************************************************************
 C                                                                      *
@@ -740,109 +739,9 @@ c	end do
       STOP
       
       END 
-C
-      SUBROUTINE ADVAVE()
-       INCLUDE 'comblk.for'
-c      DIMENSION ADVUA(IM,JM),ADVVA(IM,JM)
-C---------------------------------------------------------------------
-C      CALCULATE U-ADVECTION & DIFFUSION
-C---------------------------------------------------------------------
-c      cycles: 7 cycles (460 470, 480, 860, 870, 880, 102) plus initialization with zeros
-c      of the arrays advua, fluxua, advva, fluxva
-c      writing to fluxua(i,j): 460 cycle, 870 cycle
-c      writing to fluxva(i,j): 470 cycle, 860 cycle
-c      writing to tps(i,j):  470 cycle
-c      writing to advua(i,j) 480 cycle
-c      writing to advva(i,j): 880 cycle
-c      writing to wubot(i,j): 102 cycle
-c      writing to wvbot(i,j): 102 cycle
-c
-c      read data from next arrays:
-c      D(i,j)- full depth (h+elevation)
-c      ua(i,j) - u velocity (central time layer)
-c      uab(i,j) - u velocity (old time layer)
-c      va(i,j) - v velocity (central time layer)
-c      vab(i,j) - v velocity (old time layer)
-c      cbc(i,j)  - empirical parameter of bottom roughness 
-c      dxx(j),dy(j) - spatial steps (depends on j only)
-c      aru(j), arv(j) - area u, area v (depends on j only)
-c      aam2d  - horizondal friction (mm/s, here is a constant==2 
 
-C
-C-------- ADVECTIVE FLUXES INITIALIZATION-------------------------------------
-C
-c      ADVUA=0
-c      FLUXUA=0
 
-C----------- ADD VISCOUS FLUXES ---------------------------------
-c c     DO 460 J=2,JM
-c c     DO 460 I=2,IMM1
-c 460  FLUXUA(I,J)=DY(J)*(.125E0*((D(I+1,J)+D(I,J))*UA(I+1,J)
-c     1                 +(D(I,J)+D(I-1,J))*UA(I,J))
-c     2                  *(UA(I+1,J)+UA(I,J))
-c     3         -D(I,J)*2.E0*AAM2D*(UAB(I+1,J)-UAB(I,J))/DX(j))
-c      DO  470 J=2,JM
-c      DO  470 I=2,IMc
-c
-c      TPS(I,J)=(D(I,J)+D(I-1,J)+D(I,J-1)+D(I-1,J-1))
-c     1            *AAM2D
-c     2            *((UAB(I,J)-UAB(I,J-1))
-c     3                /(4*DY(j))
-c     4                 +(VAB(I,J)-VAB(I-1,J))
-c     5                /(4*DX(j)) )
-c      FLUXVA(I,J)=(.125E0*((D(I,J)+D(I,J-1))*VA(I,J)
-c     1                 +(D(I-1,J)+D(I-1,J-1))*VA(I-1,J))
-c     2                    *(UA(I,J)+UA(I,J-1))
-c     3 -TPS(I,J))*DX(j)
-c 470  CONTINUE
-C----------------------------------------------------------------
-c      DO  480 J=2,JMM1
-c      DO  480 I=2,IMM1
-c 480  ADVUA(I,J)=(FLUXUA(I,J)-FLUXUA(I-1,J)
-c     1           +FLUXVA(I,J+1)-FLUXVA(I,J))/aru(j)
-C----------------------------------------------------------------
-C       CALCULATE V-ADVECTION & DIFFUSION
-C----------------------------------------------------------------
-C
-c      ADVVA=0.0
-c      FLUXVA=0.0
-C
-C------- ADD VISCOUS FLUXES -----------------------------------
-c      DO  860 J=2,JMM1
-c      DO  860 I=2,IM
-c 860  FLUXVA(I,J)=DX(J)*(.125E0*((D(I,J+1)+D(I,J))
-c     1       *VA(I,J+1)+(D(I,J)+D(I,J-1))*VA(I,J))
-c     2      *(VA(I,J+1)+VA(I,J))
-c     1        -D(I,J)*2.E0*AAM2D*(VAB(I,J+1)-VAB(I,J))/DY(j))
-c      DO  870 J=2,JM
-c      DO  870 I=2,IM
-c      FLUXUA(I,J)=(.125E0*((D(I,J)+D(I-1,J))*UA(I,J)
-c     1         +(D(I,J-1)+D(I-1,J-1))*UA(I,J-1))*
-c     2                        (VA(I-1,J)+VA(I,J))
-c     3  -TPS(I,J))*DY(j)
-c870   CONTINUE     
-cC---------------------------------------------------------------
-c      DO  880 J=2,JMM1
-c      DO  880 I=2,IMM1
-c 880  ADVVA(I,J)=(FLUXUA(I+1,J)-FLUXUA(I,J)
-c     1          +FLUXVA(I,J)-FLUXVA(I,J-1))/arv(j)c
-c
-C---------------------------------------------------------------
-c      IF(MODE.NE.2) GO TO 5000
-      DO 102 J=2,JMM1
-      DO 102 I=2,IMM1
-      WUBOT(I,J)=-0.5E0*(CBC(I,J)+CBC(I-1,J))
-     1     *SQRT(UAB(I,J)**2+(.25E0*(VAB(I,J)
-     2     +VAB(I,J+1)+VAB(I-1,J)+VAB(I-1,J+1)))**2)*UAB(I,J)
-      WVBOT(I,J)=-0.5E0*(CBC(I,J)+CBC(I,J-1))
-     1     *SQRT((.25E0*(UAB(I,J)+UAB(I+1,J)
-     2     +UAB(I,J-1)+UAB(I+1,J-1)))**2+VAB(I,J)**2)*VAB(I,J)
-  102 CONTINUE
-  120 CONTINUE  
- 5000 CONTINUE
-C 
-      RETURN
-      END
+
 C               
       SUBROUTINE BCOND(IDX)
        INCLUDE 'comblk.for'   
