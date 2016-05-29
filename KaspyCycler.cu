@@ -314,7 +314,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		//		FLUXUA=0
 		
 		memset(g_advua, 0, F_DATA_SIZE * sizeof(float));
-		//memset(g_fluxua, 0, F_DATA_SIZE * sizeof(float));
+		memset(g_fluxua, 0, F_DATA_SIZE * sizeof(float));
 		
 		
 		float aam2d = m_fArrays->aam2d;
