@@ -313,7 +313,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		//       ADVUA=0
 		//		FLUXUA=0
 		
-		//memset(g_advua, 0, F_DATA_SIZE * sizeof(float));
+		memset(g_advua, 0, F_DATA_SIZE * sizeof(float));
 		//memset(g_fluxua, 0, F_DATA_SIZE * sizeof(float));
 		
 		
@@ -389,8 +389,8 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 			
 		}
 		
-		//memset(g_advva, 0, F_DATA_SIZE * sizeof(float));
-		//memset(g_fluxva, 0, F_DATA_SIZE * sizeof(float));
+		memset(g_advva, 0, F_DATA_SIZE * sizeof(float));
+		memset(g_fluxva, 0, F_DATA_SIZE * sizeof(float));
 		
 		
 		for (int j=1; j<(m_height-1); j++ )
