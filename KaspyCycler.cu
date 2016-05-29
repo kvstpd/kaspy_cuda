@@ -202,7 +202,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	
 	
     float uw, vw, speed, windc;
-    int ji, jp1i, jip1, jim1, jm1i, jp1ip1, jm1im1;
+    int ji, jp1i, jip1, jim1, jm1i, jp1ip1, jm1im1, jp1im1, jm1ip1;
 
 
     
@@ -384,7 +384,91 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		//memset(g_advva, 0, F_DATA_SIZE * sizeof(float));
 		//memset(g_fluxva, 0, F_DATA_SIZE * sizeof(float));
 		
+		
+		for (int j=1; j<(m_height-1); j++ )
+		{
+			for (int i=1; i<m_width; i++ )
+			{
+				ji = j * m_width + i;
+				jp1i = ji + m_width;
+				jip1 = ji + 1;
+				jim1 = ji - 1;
+				jm1i = ji - m_width;
+				jm1im1 = jm1i  - 1;
+				
+				
+			 	g_fluxva[ji]=g_dx[j]*(.125e0*((g_d[jp1i]+g_d[ji])
+									       *g_va[jp1i]+(g_d[ji]+g_d[jm1i])*g_va[ji])
+									      *(g_va[jp1i]+g_va[ji])
+								         -g_d[ji]*2.e0*aam2d*(g_vab[jp1i]-g_vab[ji])/g_dy[j]);
+				
+			}
+		}
+		
+		
+		for (int j=1; j<m_height; j++ )
+		{
+			for (int i=1; i<m_width; i++ )
+			{
+				ji = j * m_width + i;
+				jp1i = ji + m_width;
+				jip1 = ji + 1;
+				jim1 = ji - 1;
+				jm1i = ji - m_width;
+				jm1im1 = jm1i  - 1;
+				
+				
+				g_fluxua[ji]=(.125e0*((g_d[ji]+g_d[jim1])*g_ua[ji]
+									         +(g_d[jm1i]+g_d[jm1im1])*g_ua[jm1i])*
+							                        (g_va[jim1]+g_va[ji])
+							  -g_tps[ji])*g_dy[j];
+			}
+		}
+		
+		for (int j=1; j<(m_height-1); j++ )
+		{
+			for (int i=1; i<(m_width-1); i++ )
+			{
+				ji = j * m_width + i;
+				jp1i = ji + m_width;
+				jip1 = ji + 1;
+				jim1 = ji - 1;
+				jm1i = ji - m_width;
+				jm1im1 = jm1i  - 1;
+				
+				g_advva[ji]=(g_fluxua[jip1]-g_fluxua[ji]
+							 1         +g_fluxva[ji]-g_fluxva[jm1i])/g_arv[j];
+			}
+		}
 	
+		
+		for (int j=1; j<(m_height-1); j++ )
+		{
+			for (int i=1; i<(m_width-1); i++ )
+			{
+				ji = j * m_width + i;
+				jp1i = ji + m_width;
+				jip1 = ji + 1;
+				jim1 = ji - 1;
+				jm1i = ji - m_width;
+				jm1im1 = jm1i  - 1;
+				
+				jp1im1 = jp1i - 1;
+				jm1ip1 = jm1i + 1;
+
+				g_wubot[ji]=-0.5e0*(g_cbc[ji]+g_cbc[jim1])
+				     *sqrtf(g_uab[ji]**2+(.25e0*(g_vab[ji]
+											  +g_vab[jp1i]+g_vab[jim1]+g_vab[jp1im1]))**2)*g_uab[ji];
+				
+				g_wvbot[ji]=-0.5e0*(g_cbc[ji]+g_cbc[jm1i])
+				    *sqrtf((.25e0*(g_uab[ji]+g_uab[jip1]
+								  +g_uab[jm1i]+g_uab[jm1ip1]))**2+g_vab[ji]**2)*g_vab[ji];
+				
+			}
+		}
+		
+		
+		
 	}
 	
 	
