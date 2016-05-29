@@ -581,11 +581,11 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		}
 		else
 		{
-			uaf[j2]=0.0f;
+			g_uaf[j2]=0.0f;
 		}
 		
-		uaf[j1]=uaf[j2];
-		vaf[j1]=0.0;
+		g_uaf[j1]=g_uaf[j2];
+		g_vaf[j1]=0.0;
 		
 	}
 	
