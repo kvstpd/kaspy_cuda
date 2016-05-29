@@ -128,7 +128,7 @@ void KaspyCycler::sendDataToGPU()
     g_fluxva = &m_fArrays->fluxva[0][0];
 	
 	g_advua = &m_fArrays->advua[0][0];
-	g_advva = &m_fArrays->advua[0][0];
+	g_advva = &m_fArrays->advva[0][0];
 	
     g_ua = &m_fArrays->ua[0][0];
     g_va = &m_fArrays->va[0][0];
@@ -434,9 +434,9 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 			}
 		}
 		
-		ADVAVE();
+		//ADVAVE();
 		
-		/*for (int j=1; j<(m_height-1); j++ )
+		for (int j=1; j<(m_height-1); j++ )
 		{
 			for (int i=1; i<(m_width-1); i++ )
 			{
@@ -451,7 +451,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 							         +g_fluxva[ji]-g_fluxva[jm1i])/g_arv[j];
 			}
 		}
-	
+	/*
 		
 		for (int j=1; j<(m_height-1); j++ )
 		{
