@@ -508,7 +508,7 @@ c--------------------end of continuity equation---------------------------------
 
 ccc      CALL BCOND(1) !!boundary condition: elevevation
 C
-c      IF(MOD(IINT,ISPADV).EQ.0) CALL ADVAVE()
+     IF(MOD(IINT,ISPADV).EQ.0) CALL ADVAVE()
 C  Note that ALPHA = 0. is perfectly acceptable. The value, ALPHA = .225
 C  permits a longer time step.
 c=======================main momentum update: cycles 420 and 430=================
