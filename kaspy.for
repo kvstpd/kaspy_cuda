@@ -808,12 +808,12 @@ c      ADVVA=0.0
 c      FLUXVA=0.0
 C
 C------- ADD VISCOUS FLUXES -----------------------------------
-      DO  860 J=2,JMM1
-      DO  860 I=2,IM
- 860  FLUXVA(I,J)=DX(J)*(.125E0*((D(I,J+1)+D(I,J))
-     1       *VA(I,J+1)+(D(I,J)+D(I,J-1))*VA(I,J))
-     2      *(VA(I,J+1)+VA(I,J))
-     1        -D(I,J)*2.E0*AAM2D*(VAB(I,J+1)-VAB(I,J))/DY(j))
+c      DO  860 J=2,JMM1
+c      DO  860 I=2,IM
+c 860  FLUXVA(I,J)=DX(J)*(.125E0*((D(I,J+1)+D(I,J))
+c     1       *VA(I,J+1)+(D(I,J)+D(I,J-1))*VA(I,J))
+c     2      *(VA(I,J+1)+VA(I,J))
+c     1        -D(I,J)*2.E0*AAM2D*(VAB(I,J+1)-VAB(I,J))/DY(j))
       DO  870 J=2,JM
       DO  870 I=2,IM
       FLUXUA(I,J)=(.125E0*((D(I,J)+D(I-1,J))*UA(I,J)
