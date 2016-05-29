@@ -822,10 +822,10 @@ c     2                        (VA(I-1,J)+VA(I,J))
 c     3  -TPS(I,J))*DY(j)
 c870   CONTINUE     
 C---------------------------------------------------------------
-      DO  880 J=2,JMM1
-      DO  880 I=2,IMM1
- 880  ADVVA(I,J)=(FLUXUA(I+1,J)-FLUXUA(I,J)
-     1          +FLUXVA(I,J)-FLUXVA(I,J-1))/arv(j)
+c      DO  880 J=2,JMM1
+c      DO  880 I=2,IMM1
+c 880  ADVVA(I,J)=(FLUXUA(I+1,J)-FLUXUA(I,J)
+c     1          +FLUXVA(I,J)-FLUXVA(I,J-1))/arv(j)
 C
 C---------------------------------------------------------------
 c      IF(MODE.NE.2) GO TO 5000
