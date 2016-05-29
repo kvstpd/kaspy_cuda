@@ -72,6 +72,9 @@ float * g_cbc;
 
 float * g_cor;
 
+float * g_h;
+
+
 void KaspyCycler::findElves()
 {
     //printf("arrays is set to %llxd \n", (long long)m_fArrays );
@@ -113,7 +116,8 @@ void KaspyCycler::sendDataToGPU()
     
     g_fb = &m_fFloats->fb[0][0];
     g_ff = &m_fFloats->ff[0][0];
-    
+	
+	g_h = &m_fArrays->wusurf[0][0];
     
     g_wusurf = &m_fArrays->wusurf[0][0];
     g_wvsurf = &m_fArrays->wvsurf[0][0];
