@@ -360,7 +360,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 				g_fluxva[ji]=(.125e0*((g_d[ji]+g_d[jm1i])*g_va[ji]
 									  +(g_d[jim1]+g_d[jm1im1])*g_va[jim1])
 							  *(g_ua[ji]+g_ua[jm1i])
-							  -g_tps[ji])*g_dx[j]
+							  -g_tps[ji])*g_dx[j];
 				
 			}
 		}
