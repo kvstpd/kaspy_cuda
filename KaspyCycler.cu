@@ -318,11 +318,18 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 			for (int i=1; i<(m_width-1); i++ )
 			{
 				ji = j * m_width + i;
+				jip1 = ji + 1;
+				jim1 = ji - 1;
 				
-				g_fluxua[ji] = g_dy[j] * (.125f * ((g_d[ji + 1]+g_d[ji])*g_ua[ji + 1]
+				/*g_fluxua[ji] = g_dy[j] * (.125f * ((g_d[ji + 1]+g_d[ji])*g_ua[ji + 1]
 						+(g_d[ji]+g_d[ji - 1])*g_ua[ji])
 										  *(g_ua[ji + 1]+g_ua[ji])
-										  - g_d[ji]*2.0f*aam2d*(g_uab[ji + 1]-g_uab[ji])/g_dx[j]);
+										  - g_d[ji]*2.0f*aam2d*(g_uab[ji + 1]-g_uab[ji])/g_dx[j]);*/
+				g_fluxua[ji]=g_dy[j]*(.125e0*((g_d[jip1]+g_d[ji])*g_ua[jip1]
+											  +(g_d[ji]+g_d[jim1])*g_ua[ji])
+									  *(g_ua[jip1]+g_ua[ji])
+									  -g_d[ji]*2.e0*aam2d*(g_uab[jip1]-g_uab[ji])/g_dx[j]);
+				
 				
 			}
 		}
