@@ -305,10 +305,8 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		//       ADVUA=0
 		//		FLUXUA=0
 		
-		memset(g_advua, 0, F_DATA_SIZE * sizeof(float));
-		//memset(g_advva, 0, F_DATA_SIZE * sizeof(float));
-		memset(g_fluxua, 0, F_DATA_SIZE * sizeof(float));
-		//memset(g_fluxva, 0, F_DATA_SIZE * sizeof(float));
+		//memset(g_advua, 0, F_DATA_SIZE * sizeof(float));
+		//memset(g_fluxua, 0, F_DATA_SIZE * sizeof(float));
 		
 		
 		float aam2d = m_fArrays->aam2d;
@@ -346,12 +344,24 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 				jm1i = ji - m_width;
 				jm1im1 = jm1i  - 1;
 				
-				g_tps[ji] =(g_d[ji]+g_d[jim1]+g_d[jm1i]+g_d[jm1im1]) *aam2d
+				/*g_tps[ji] =(g_d[ji]+g_d[jim1]+g_d[jm1i]+g_d[jm1im1]) *aam2d
 				*((g_uab[ji]-g_uab[jm1i]) /(4.0f*g_dy[j])+(g_vab[ji]-g_vab[jim1]) /(4.0f*g_dx[j]) );
 				
 				g_fluxva[ji]=(.125f*((g_d[ji]+g_d[jm1i])*g_va[ji]
 									 +(g_d[jim1]+g_d[jm1im1])*g_va[jim1])
-							  *(g_ua[ji]+g_va[jm1i]) - g_tps[ji])*g_dx[j];
+							  *(g_ua[ji]+g_va[jm1i]) - g_tps[ji])*g_dx[j];*/
+				
+				g_tps[ji]=(g_d[ji]+g_d[jim1]+g_d[jm1i]+g_d[jm1im1])
+				*aam2d
+				*((g_uab[ji]-g_uab[jm1i])
+				  /(4*g_dy[j])
+				  +(g_vab[ji]-g_vab[jim1])
+				  /(4*g_dx[j]) )
+				g_fluxva[ji]=(.125e0*((g_d[ji]+g_d[jm1i])*g_va[ji]
+									  +(g_d[jim1]+g_d[jm1im1])*g_va[jim1])
+							  *(g_ua[ji]+g_ua[jm1i])
+							  -g_tps[ji])*g_dx[j]
+				
 			}
 		}
 
@@ -364,14 +374,14 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 				jim1 = ji - 1;
 				jp1i = ji + m_width;
 				
-				g_advua[ji] = (g_fluxua[ji]-g_fluxua[jim1]
-							   +g_fluxva[jp1i]-g_fluxva[ji])/g_aru[j];
+				g_advua[ji]=(g_fluxua[ji]-g_fluxua[jim1]
+						   +g_fluxva[jp1i]-g_fluxva[ji])/g_aru[j];
 			}
 			
 		}
 		
-		memset(g_advva, 0, F_DATA_SIZE * sizeof(float));
-		memset(g_fluxva, 0, F_DATA_SIZE * sizeof(float));
+		//memset(g_advva, 0, F_DATA_SIZE * sizeof(float));
+		//memset(g_fluxva, 0, F_DATA_SIZE * sizeof(float));
 		
 	
 	}
