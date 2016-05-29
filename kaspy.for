@@ -527,20 +527,20 @@ c     1         ((H(I,J)+ELB(I,J)+H(I-1,J)+ELB(I-1,J))*UAB(I,J)
 c     2                -4.E0*DTE*UAF1)
 c     3        /(H(I,J)+ELF(I,J)+H(I-1,J)+ELF(I-1,J))
 c420    CONTINUE
-      DO 430 J=2,JM
-      DO 430 I=2,IMM1
-      VAF1=ADVVA(I,J)  
-     1    +.25*(  COR(J)*D(I,J)*(UA(I+1,J)+UA(I,J))
-     2               +COR(J-1)*D(I,J-1)*(UA(I+1,J-1)+UA(I,J-1)) )
-     3         +.5E0*GRAV*DX(j)/arv(j)*(D(I,J)+D(I,J-1))
-     4             *( (1.E0-2.E0*ALPHA)*(EL(I,J)-EL(I,J-1))
-     4            +ALPHA*(ELB(I,J)-ELB(I,J-1)+ELF(I,J)-ELF(I,J-1)) )
-     6    + WVSURF(I,J)-WVBOT(I,J)   
-
-      VAF(I,J)=
-     1        ((H(I,J)+ELB(I,J)+H(I,J-1)+ELB(I,J-1))*VAB(I,J)
-     2              -4.E0*DTE*VAF1)
-     3       /(H(I,J)+ELF(I,J)+H(I,J-1)+ELF(I,J-1))
+c      DO 430 J=2,JM
+c      DO 430 I=2,IMM1
+c      VAF1=ADVVA(I,J)
+c     1    +.25*(  COR(J)*D(I,J)*(UA(I+1,J)+UA(I,J))
+c     2               +COR(J-1)*D(I,J-1)*(UA(I+1,J-1)+UA(I,J-1)) )
+c     3         +.5E0*GRAV*DX(j)/arv(j)*(D(I,J)+D(I,J-1))
+c     4             *( (1.E0-2.E0*ALPHA)*(EL(I,J)-EL(I,J-1))
+c     4            +ALPHA*(ELB(I,J)-ELB(I,J-1)+ELF(I,J)-ELF(I,J-1)) )
+c     6    + WVSURF(I,J)-WVBOT(I,J)
+c
+c      VAF(I,J)=
+c     1        ((H(I,J)+ELB(I,J)+H(I,J-1)+ELB(I,J-1))*VAB(I,J)
+c     2              -4.E0*DTE*VAF1)
+c     3       /(H(I,J)+ELF(I,J)+H(I,J-1)+ELF(I,J-1))
 
 c      call display_show_f(display)
   430 CONTINUE
