@@ -219,7 +219,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	
 	
     float uw, vw, speed, windc;
-    int ji, jp1i, jip1, jim1, jm1i, jp1ip1, jm1im1, jp1im1, jm1ip1;
+    int ji, jp1i, jip1, jim1, jm1i, jp1ip1, jm1im1, jp1im1, jm1ip1, jl, jlm1, j1, j2, j3;
 
 
     
@@ -547,23 +547,49 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		
 	}
 	
-	/*c      DO 430 J=2,JM
-	c      DO 430 I=2,IMM1
-	c      VAF1=ADVVA(I,J)
-	c     1    +.25*(  COR(J)*D(I,J)*(UA(I+1,J)+UA(I,J))
-					 c     2               +COR(J-1)*D(I,J-1)*(UA(I+1,J-1)+UA(I,J-1)) )
-	c     3         +.5E0*GRAV*DX(j)/arv(j)*(D(I,J)+D(I,J-1))
-	c     4             *( (1.E0-2.E0*ALPHA)*(EL(I,J)-EL(I,J-1))
-						  c     4            +ALPHA*(ELB(I,J)-ELB(I,J-1)+ELF(I,J)-ELF(I,J-1)) )
-	c     6    + WVSURF(I,J)-WVBOT(I,J)
-	c
-	c      VAF(I,J)=
-	c     1        ((H(I,J)+ELB(I,J)+H(I,J-1)+ELB(I,J-1))*VAB(I,J)
-					c     2              -4.E0*DTE*VAF1)
-	c     3       /(H(I,J)+ELF(I,J)+H(I,J-1)+ELF(I,J-1))
 	
-	c      call display_show_f(display)
-	430 CONTINUE*/
+	
+		/// BCOND 2
+	float gae;
+	
+	for (int j=1; j<(m_height-1); j++ )
+	{
+		j1 =  j * m_width;
+		j2 =  j1 + 1;
+		j3 =  j1 + 2;
+		
+		jl = j1 + m_width -1;
+		jlm1 = jl - 1;
+		
+		if(g_dum[jl] > 0.5f)
+		{
+			gae = dte*sqrtf(grav*g_h[jl])/g_dx[j];
+			
+			g_uaf[jl] = gae*g_ua[jlm1]+(1.0f-gae)*g_ua[jl];
+		}
+		else
+		{
+			g_uaf[jl] = 0.0f;
+		}
+
+		g_vaf[jl]=0.0f;
+		
+		if(g_dum[j2] > 0.5f)
+		{
+			gae = dte*sqrtf(grav*g_h[j2])/g_dx[j];
+			g_uaf[j2]=gae*g_ua[j3]+(1.-gae)*g_ua[j2];
+		}
+		else
+		{
+			uaf[j2]=0.0f;
+		}
+		
+		uaf[j1]=uaf[j2];
+		vaf[j1]=0.0;
+		
+	}
+	
+
 	
 	
 	

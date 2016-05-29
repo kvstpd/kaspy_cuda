@@ -512,7 +512,7 @@ c      IF(MOD(IINT,ISPADV).EQ.0) CALL ADVAVE()
 C  Note that ALPHA = 0. is perfectly acceptable. The value, ALPHA = .225
 C  permits a longer time step.
 c=======================main momentum update: cycles 420 and 430=================
-      ALPHA=0.225     
+c      ALPHA=0.225
 c      DO 420 J=2,JMM1
 c      DO 420 I=2,IM
 c      UAF1=ADVUA(I,J)
@@ -543,7 +543,7 @@ c     2              -4.E0*DTE*VAF1)
 c     3       /(H(I,J)+ELF(I,J)+H(I,J-1)+ELF(I,J-1))
 
 c      call display_show_f(display)
-  430 CONTINUE
+c  430 CONTINUE
       CALL BCOND(2)  ! boundary conditions for velocities
 C
 C
@@ -865,29 +865,29 @@ C
  20   CONTINUE
 C---------- VELOCITY --------------        
 C          A4 set
-      DO 210 J=2,JMM1
-C            EAST
-      if(dum(im,j).gt.0.5) then
-      GAE=DTE*SQRT(GRAV*H(IM,j))/DX(j)
-	UAF(IM,J)=GAE*UA(IMM1,j)+(1.-GAE)*UA(IM,j)
-      else
-	uaf(im,j)=0.0
-	end if   
-c	VAF(I,JM)=0.0
-c      UAF(IM,J)=UAF(IMM1,J)
-      VAF(IM,J)=0.0
-C            WEST
-      if(dum(2,j).gt.0.5) then  
-      GAE=DTE*SQRT(GRAV*H(2,j))/DX(j)
-	UAF(2,J)=GAE*UA(3,j)+(1.-GAE)*UA(2,j)
-	else
-	uaf(2,j)=0.0
-	end if
-c      UAF(2,J)=UAF(3,J)
-      UAF(1,J)=UAF(2,J)
-      VAF(1,J)=0.0
-
- 210  CONTINUE
+c!c      DO 210 J=2,JMM1
+c!cC            EAST
+c!c      if(dum(im,j).gt.0.5) then
+c!c      GAE=DTE*SQRT(GRAV*H(IM,j))/DX(j)
+c!c	UAF(IM,J)=GAE*UA(IMM1,j)+(1.-GAE)*UA(IM,j)
+c!c      else
+c!c	uaf(im,j)=0.0
+c!c	end if
+c!cc	VAF(I,JM)=0.0
+c!cc      UAF(IM,J)=UAF(IMM1,J)
+c!c      VAF(IM,J)=0.0
+c!cC            WEST
+c!c      if(dum(2,j).gt.0.5) then
+c!c      GAE=DTE*SQRT(GRAV*H(2,j))/DX(j)
+c!c	UAF(2,J)=GAE*UA(3,j)+(1.-GAE)*UA(2,j)
+c!c	else
+c!c	uaf(2,j)=0.0
+c!c	end if
+c!cc      UAF(2,J)=UAF(3,J)
+c!c      UAF(1,J)=UAF(2,J)
+c!c      VAF(1,J)=0.0
+c!c
+c!c 210  CONTINUE
 C-----------------------------------
 c      A4 set
       DO 220 I=2,IMM1
