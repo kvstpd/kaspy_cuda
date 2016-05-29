@@ -65,6 +65,9 @@ float * g_advva;
 float * g_aru;
 float * g_arv;
 
+float * g_wubot;
+float * g_wvbot;
+float * g_cbc;
 
 void KaspyCycler::findElves()
 {
@@ -147,6 +150,11 @@ void KaspyCycler::sendDataToGPU()
 	g_aru = &m_fArrays->aru[0];
 	g_arv = &m_fArrays->arv[0];
 
+	
+	g_wubot = &m_fArrays->wubot[0][0];
+	g_wvbot = &m_fArrays->wvbot[0][0];
+
+	g_cbc = &m_fArrays->cbc[0][0];
 }
 
 void KaspyCycler::getDataToCPU()
@@ -437,7 +445,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 				jm1im1 = jm1i  - 1;
 				
 				g_advva[ji]=(g_fluxua[jip1]-g_fluxua[ji]
-							 1         +g_fluxva[ji]-g_fluxva[jm1i])/g_arv[j];
+							         +g_fluxva[ji]-g_fluxva[jm1i])/g_arv[j];
 			}
 		}
 	
