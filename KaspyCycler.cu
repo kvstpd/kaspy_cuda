@@ -11,6 +11,7 @@
 void getbicubic(int nx, int ny, int nd, float * z, float * c);
 void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float * cc);
 
+void ADVAVE();
 
 
 
@@ -433,7 +434,9 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 			}
 		}
 		
-		for (int j=1; j<(m_height-1); j++ )
+		ADVAVE();
+		
+		/*for (int j=1; j<(m_height-1); j++ )
 		{
 			for (int i=1; i<(m_width-1); i++ )
 			{
@@ -450,7 +453,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		}
 	
 		
-		/*for (int j=1; j<(m_height-1); j++ )
+		for (int j=1; j<(m_height-1); j++ )
 		{
 			for (int i=1; i<(m_width-1); i++ )
 			{

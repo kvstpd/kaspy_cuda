@@ -508,7 +508,7 @@ c--------------------end of continuity equation---------------------------------
 
 ccc      CALL BCOND(1) !!boundary condition: elevevation
 C
-      IF(MOD(IINT,ISPADV).EQ.0) CALL ADVAVE()
+c      IF(MOD(IINT,ISPADV).EQ.0) CALL ADVAVE()
 C  Note that ALPHA = 0. is perfectly acceptable. The value, ALPHA = .225
 C  permits a longer time step.
 c=======================main momentum update: cycles 420 and 430=================
@@ -822,11 +822,11 @@ c     2                        (VA(I-1,J)+VA(I,J))
 c     3  -TPS(I,J))*DY(j)
 c870   CONTINUE     
 C---------------------------------------------------------------
-c      DO  880 J=2,JMM1
-c      DO  880 I=2,IMM1
-c 880  ADVVA(I,J)=(FLUXUA(I+1,J)-FLUXUA(I,J)
-c     1          +FLUXVA(I,J)-FLUXVA(I,J-1))/arv(j)
-C
+      DO  880 J=2,JMM1
+      DO  880 I=2,IMM1
+ 880  ADVVA(I,J)=(FLUXUA(I+1,J)-FLUXUA(I,J)
+     1          +FLUXVA(I,J)-FLUXVA(I,J-1))/arv(j)
+
 C---------------------------------------------------------------
 c      IF(MODE.NE.2) GO TO 5000
       DO 102 J=2,JMM1
