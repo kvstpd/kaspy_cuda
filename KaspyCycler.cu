@@ -525,7 +525,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		{
 			float vaf1=g_advva[ji]
 			+.25f*(  g_cor[j]*g_d[ji]*(g_ua[jip1]+g_ua[ji])
-				  +g_cor(j-1)*g_d[jm1i]*(g_ua[jm1ip1]+g_ua[jm1i]) )
+				  +g_cor[j-1]*g_d[jm1i]*(g_ua[jm1ip1]+g_ua[jm1i]) )
 			+0.5f*grav*g_dx[j]/g_arv[j]*(g_d[ji]+g_d[jm1i])
 			*( (1.0f-2.0f*alpha)*(g_el[ji]-g_el[jm1i])
 			  +alpha*(g_elb[ji]-g_elb[jm1i]+g_elf[ji]-g_elf[jm1i]) )
