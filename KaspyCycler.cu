@@ -523,6 +523,15 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	{
 		for (int i=1; i<(m_width-1); i++ )
 		{
+			ji = j * m_width + i;
+			jp1i = ji + m_width;
+			jip1 = ji + 1;
+			jim1 = ji - 1;
+			jm1i = ji - m_width;
+			jm1im1 = jm1i  - 1;
+			jp1im1 = jp1i - 1;
+			jm1ip1 = jm1i + 1;
+			
 			float vaf1=g_advva[ji]
 			+.25f*(  g_cor[j]*g_d[ji]*(g_ua[jip1]+g_ua[ji])
 				  +g_cor[j-1]*g_d[jm1i]*(g_ua[jm1ip1]+g_ua[jm1i]) )
@@ -538,7 +547,23 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		
 	}
 	
-
+	/*c      DO 430 J=2,JM
+	c      DO 430 I=2,IMM1
+	c      VAF1=ADVVA(I,J)
+	c     1    +.25*(  COR(J)*D(I,J)*(UA(I+1,J)+UA(I,J))
+					 c     2               +COR(J-1)*D(I,J-1)*(UA(I+1,J-1)+UA(I,J-1)) )
+	c     3         +.5E0*GRAV*DX(j)/arv(j)*(D(I,J)+D(I,J-1))
+	c     4             *( (1.E0-2.E0*ALPHA)*(EL(I,J)-EL(I,J-1))
+						  c     4            +ALPHA*(ELB(I,J)-ELB(I,J-1)+ELF(I,J)-ELF(I,J-1)) )
+	c     6    + WVSURF(I,J)-WVBOT(I,J)
+	c
+	c      VAF(I,J)=
+	c     1        ((H(I,J)+ELB(I,J)+H(I,J-1)+ELB(I,J-1))*VAB(I,J)
+					c     2              -4.E0*DTE*VAF1)
+	c     3       /(H(I,J)+ELF(I,J)+H(I,J-1)+ELF(I,J-1))
+	
+	c      call display_show_f(display)
+	430 CONTINUE*/
 	
 	
 	
