@@ -814,13 +814,13 @@ c 860  FLUXVA(I,J)=DX(J)*(.125E0*((D(I,J+1)+D(I,J))
 c     1       *VA(I,J+1)+(D(I,J)+D(I,J-1))*VA(I,J))
 c     2      *(VA(I,J+1)+VA(I,J))
 c     1        -D(I,J)*2.E0*AAM2D*(VAB(I,J+1)-VAB(I,J))/DY(j))
-      DO  870 J=2,JM
-      DO  870 I=2,IM
-      FLUXUA(I,J)=(.125E0*((D(I,J)+D(I-1,J))*UA(I,J)
-     1         +(D(I,J-1)+D(I-1,J-1))*UA(I,J-1))*
-     2                        (VA(I-1,J)+VA(I,J))
-     3  -TPS(I,J))*DY(j)
-870   CONTINUE     
+c      DO  870 J=2,JM
+c      DO  870 I=2,IM
+c      FLUXUA(I,J)=(.125E0*((D(I,J)+D(I-1,J))*UA(I,J)
+c     1         +(D(I,J-1)+D(I-1,J-1))*UA(I,J-1))*
+c     2                        (VA(I-1,J)+VA(I,J))
+c     3  -TPS(I,J))*DY(j)
+c870   CONTINUE     
 C---------------------------------------------------------------
       DO  880 J=2,JMM1
       DO  880 I=2,IMM1

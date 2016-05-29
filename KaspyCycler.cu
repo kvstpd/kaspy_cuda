@@ -331,10 +331,10 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 						+(g_d[ji]+g_d[ji - 1])*g_ua[ji])
 										  *(g_ua[ji + 1]+g_ua[ji])
 										  - g_d[ji]*2.0f*aam2d*(g_uab[ji + 1]-g_uab[ji])/g_dx[j]);*/
-				g_fluxua[ji]=g_dy[j]*(.125e0*((g_d[jip1]+g_d[ji])*g_ua[jip1]
+				g_fluxua[ji]=g_dy[j]*(.125f*((g_d[jip1]+g_d[ji])*g_ua[jip1]
 											  +(g_d[ji]+g_d[jim1])*g_ua[ji])
 									  *(g_ua[jip1]+g_ua[ji])
-									  -g_d[ji]*2.e0*aam2d*(g_uab[jip1]-g_uab[ji])/g_dx[j]);
+									  -g_d[ji]*2.0f*aam2d*(g_uab[jip1]-g_uab[ji])/g_dx[j]);
 				
 				
 			}
@@ -366,7 +366,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 				  +(g_vab[ji]-g_vab[jim1])
 				  /(4*g_dx[j]) );
 				
-				g_fluxva[ji]=(.125e0*((g_d[ji]+g_d[jm1i])*g_va[ji]
+				g_fluxva[ji]=(.125f*((g_d[ji]+g_d[jm1i])*g_va[ji]
 									  +(g_d[jim1]+g_d[jm1im1])*g_va[jim1])
 							  *(g_ua[ji]+g_ua[jm1i])
 							  -g_tps[ji])*g_dx[j];
@@ -414,7 +414,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		}
 		
 		
-		/*for (int j=1; j<m_height; j++ )
+		for (int j=1; j<m_height; j++ )
 		{
 			for (int i=1; i<m_width; i++ )
 			{
@@ -426,14 +426,14 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 				jm1im1 = jm1i  - 1;
 				
 				
-				g_fluxua[ji]=(.125e0*((g_d[ji]+g_d[jim1])*g_ua[ji]
+				g_fluxua[ji]=(.125f*((g_d[ji]+g_d[jim1])*g_ua[ji]
 									         +(g_d[jm1i]+g_d[jm1im1])*g_ua[jm1i])*
 							                        (g_va[jim1]+g_va[ji])
 							  -g_tps[ji])*g_dy[j];
 			}
 		}
 		
-		for (int j=1; j<(m_height-1); j++ )
+		/*for (int j=1; j<(m_height-1); j++ )
 		{
 			for (int i=1; i<(m_width-1); i++ )
 			{
