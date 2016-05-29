@@ -434,7 +434,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 			}
 		}
 		
-		//ADVAVE();
+		//
 		
 		for (int j=1; j<(m_height-1); j++ )
 		{
@@ -451,6 +451,8 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 							         +g_fluxva[ji]-g_fluxva[jm1i])/g_arv[j];
 			}
 		}
+		
+		ADVAVE();
 	/*
 		
 		for (int j=1; j<(m_height-1); j++ )
