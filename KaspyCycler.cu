@@ -489,6 +489,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	setbuf(stdout,NULL);
 	
 	surf_and_flux_1<<<4, 8>>>(ftim, ro_ratio);
+	cudaDeviceSynchronize();
 	
 	setbuf(stdout,NULL);
 	printf("after call\n");
