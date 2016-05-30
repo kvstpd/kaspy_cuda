@@ -173,7 +173,7 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpy(g_wvsurf,&m_fArrays->wvsurf[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_dum,&m_fArrays->dum[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_dvm,&m_fArrays->dvm[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
-		&& (cudaMemcpy(g_d, m_pitch,&m_fArrays->d[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy(g_d, &m_fArrays->d[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		
 		&& (cudaMemcpy(g_fluxua,&m_fArrays->fluxua[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_fluxva,&m_fArrays->fluxva[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
@@ -310,11 +310,11 @@ void KaspyCycler::makeWsurf(float ro_ratio)
         memcpy(g_fbu, g_ffu, F_DATA_SIZE * sizeof(float));
         memcpy(g_fbv, g_ffv, F_DATA_SIZE * sizeof(float));*/
 		
-		if ( (cudaMemcpy(g_fxb,g_fxf, s_data_size, cudaMemcpyDeviceToDevice) == cudaSuccess)
-			&& (cudaMemcpy(g_fyb,g_fyf, s_data_size, cudaMemcpyDeviceToDevice) == cudaSuccess)
-			&& (cudaMemcpy(g_fb,g_ff, s_data_size, cudaMemcpyDeviceToDevice) == cudaSuccess)
-			&& (cudaMemcpy(g_fbu,g_ffu, s_data_size, cudaMemcpyDeviceToDevice) == cudaSuccess)
-			&& (cudaMemcpy(g_fbv,g_ffv, s_data_size, cudaMemcpyDeviceToDevice) == cudaSuccess)
+		if ( (cudaMemcpy(g_fxb,g_fxf, F_DATA_SIZE * sizeof(float)), cudaMemcpyDeviceToDevice) == cudaSuccess)
+			&& (cudaMemcpy(g_fyb,g_fyf, F_DATA_SIZE * sizeof(float)), cudaMemcpyDeviceToDevice) == cudaSuccess)
+			&& (cudaMemcpy(g_fb,g_ff, F_DATA_SIZE * sizeof(float)), cudaMemcpyDeviceToDevice) == cudaSuccess)
+			&& (cudaMemcpy(g_fbu,g_ffu, F_DATA_SIZE * sizeof(float)), cudaMemcpyDeviceToDevice) == cudaSuccess)
+			&& (cudaMemcpy(g_fbv,g_ffv, F_DATA_SIZE * sizeof(float)), cudaMemcpyDeviceToDevice) == cudaSuccess)
 			)
 		{
 			printf("ff arrays reset\n");
