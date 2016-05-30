@@ -112,7 +112,7 @@ __global__ void surf_and_flux_1(float ftim, float ro_ratio, float * g_fbu, float
 	float btim = 1.0f - ftim;
 	
 	
-	if (i < g_widthm1 && j < g_heightm1)
+	/*if (i < g_widthm1 && j < g_heightm1)
 	{
 		float uw = btim * (g_fbu[ji]) + ftim * (g_ffu[ji]);
 		float vw = btim * (g_fbv[ji]) + ftim * (g_ffv[ji]);
@@ -133,7 +133,7 @@ __global__ void surf_and_flux_1(float ftim, float ro_ratio, float * g_fbu, float
 	{
 		g_fluxua[ji] = 0.25f * (g_d[ji] + g_d[jim1]) * (g_dy[j] + g_dy[j] ) * g_ua[ji];
 		g_fluxva[ji] = 0.25f * (g_d[ji] + g_d[jm1i]) * (g_dx[j] + g_dx[j-1] ) * g_va[ji];
-	}
+	}*/
 }
 
 
