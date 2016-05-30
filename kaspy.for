@@ -102,7 +102,7 @@ c        ! ALL TOGETHER 8760 hours
      9     ssuv(im,jm),ssue(im,jm),ssve(im,jm)
       
       REAL, ALLOCATABLE :: PRESS(:,:,:),uwd(:,:,:),vwd(:,:,:)
-      REAL, ALLOCATABLE :: PRESS0(:,:),uwd0(:,:),vwd0(:,:)
+c      REAL, ALLOCATABLE :: PRESS0(:,:),uwd0(:,:),vwd0(:,:)
 
        real*8  ff_marker,ff_end
 
@@ -130,10 +130,11 @@ C--------------------------------------------------------------------
 
       namep='pr1979.GR3'
       CALL READDIMGR3(KX,KY,KT,namep)
-      ALLOCATE (PRESS(KX,KY,KT),PRESS0(KX,KY))
+      ALLOCATE (PRESS(KX,KY,KT))
+c ,PRESS0(KX,KY))
       CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
 ccc      NH6=KT   1 DURATION !!!
-      NH6=100    !
+      NH6=10    !
       PRESS=PRESS/1000
    
       dht=(tka-tki)/(kt-1)
@@ -147,7 +148,8 @@ ccc      NH6=KT   1 DURATION !!!
 C     READ wind DATA
       nameu='u1979.GR3'
       CALL READDIMGR3(KXU,KYU,KTU,nameu)
-      ALLOCATE (UWD(KXU,KYU,KTU),UWD0(KXU,KYU))
+      ALLOCATE (UWD(KXU,KYU,KTU))
+c ,UWD0(KXU,KYU))
       CALL READGR3
      1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
 C  береп б 0 !!!!!!
@@ -159,7 +161,8 @@ C      UWD=0
 
       namev='v1979.GR3'
       CALL READDIMGR3(KXV,KYV,KTV,namev)
-      ALLOCATE (VWD(KXV,KYV,KTV),VWD0(KXV,KYV))
+      ALLOCATE (VWD(KXV,KYV,KTV))
+c ,VWD0(KXV,KYV))
       CALL READGR3
      1 (KXV,KYV,KTV,XKVI,XKVA,YKVI,YKVA,TKVI,TKVA,namev,VWD)
       VWD=0
@@ -172,8 +175,7 @@ C      UWD=0
        ff_end = 100.001
 
        icycler =cycler_create(dht, arrays_marker,
-     1  ff_marker, kx, PRESS(1,1,1), PRESS0(1,1),
-     2  uwd(1,1,1), uwd0(1,1), vwd(1,1,1), vwd0(1,1))
+     1  ff_marker, kx, PRESS(1,1,1), uwd(1,1,1), vwd(1,1,1))
 
 C
 C     READ IN GRID DATA AND INITIAL AND LATERAL BOUNDARY CONDITIONS
@@ -349,7 +351,7 @@ C
         call cycler_load(icycler)
 
 c call display(surf,im,jm,im,jm,-1.0,1.0,0)
-ccc        iold=0
+        iold=0
 
                      DO 9000 IINT=1,IEND
 
@@ -361,28 +363,28 @@ ccc        iold=0
       if(iwrite.eq.1) then
 
 		 call cycler_find_elves(icycler)
-		write(6,1117) 'tE=',timeh,'hE','Sea level=',elfmax,elfmin,'m'
+		write(6,1117) 't=',timeh,'h','Sea level=',elfmax,elfmin,'m'
 
 
 1117   FORMAT(a3,f12.4,1x,a1,5x,a10,f8.4,1x,f8.4,1x,a1,a1)
       end if
 c*************************************************
 
-ccc      itimeh=int(timeh)
+      itimeh=int(timeh)
 
 
 
-cccc     	if(itimeh.gt.iold) then  !! writing to file and compute statiatics,
+     	if(itimeh.gt.iold) then  !! writing to file and compute statiatics,
 c STATISTICS WAS HERE
-c
-c	write(77,'(101f10.3)') timeh,(elf(stx(kk),sty(kk)),kk=1,nstation)
-cccc	end if
+
+		write(77,'(101f10.3)') timeh,(elf(stx(kk),sty(kk)),kk=1,nstation)
+	   end if
 
 
        call cycler_wsurf(icycler, ro_ratio)
 
 
-cccc       iold=itimeh
+       iold=itimeh
 
 
 C

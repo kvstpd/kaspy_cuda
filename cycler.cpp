@@ -70,11 +70,10 @@ extern "C" void cycler_time_()
 
 int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats_marker,
                 int * wind_marker,
-                   float * press, float * press0,
-                   float * uwd, float * uwd0, float * vwd, float * vwd0)
+                   float * press,  float * uwd, float * vwd)
 {
     if ((vars_marker == 0) || (arrays_marker == 0)
-        || (ffloats_marker == 0) || (press == 0) || (press0 == 0)
+        || (ffloats_marker == 0) || (press == 0)
         || (wind_marker == 0))
     {
         return -1;
@@ -86,7 +85,7 @@ int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats
     cycler = new KaspyCycler((fortran_common_vars *)vars_marker,
                              (fortran_common_arrays *)arrays_marker, (fortran_ffloats *)ffloats_marker,
                              (fortran_wind_data *)wind_marker,
-                             press, press0, uwd, uwd0, vwd, vwd0);
+                             press, uwd, vwd);
      
     
     return 0;
@@ -96,21 +95,19 @@ int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats
 // Intel Fortran WIN naming
 extern "C" int CYCLER_CREATE(float * vars_marker, double * arrays_marker, double * ffloats_marker,
                              int * wind_marker,
-                             float * press, float * press0,
-                             float * uwd, float * uwd0, float * vwd, float * vwd0)
+                             float * press, float * uwd, float * vwd)
 {
     return _i_cycler_init(vars_marker, arrays_marker, ffloats_marker, wind_marker,
-                          press, press0, uwd, uwd0, vwd, vwd0);
+                          press, uwd, vwd);
 }
 
 // GFortran Unix naming
 extern "C" int cycler_create_(float * vars_marker, double * arrays_marker, double * ffloats_marker,
                               int * wind_marker,
-                              float * press, float * press0,
-                              float * uwd, float * uwd0, float * vwd, float * vwd0)
+                              float * press,  float * uwd,  float * vwd)
 {
     return _i_cycler_init(vars_marker, arrays_marker, ffloats_marker, wind_marker,
-                          press, press0, uwd, uwd0, vwd, vwd0);
+                          press, uwd,  vwd);
 }
 
 
@@ -120,7 +117,15 @@ extern "C" void cycler_load_(int * icycler)
 {
     if (cycler)
     {
-        cycler->sendDataToGPU();
+		if (cycler->init_device() >= 0)
+		{
+			cycler->sendDataToGPU();
+		}
+		else
+		{
+			printf("unable to init CUDA device!\n");
+		}
+		
     }
 }
 
@@ -129,7 +134,14 @@ extern "C" void CYCLER_LOAD(int * icycler)
 {
     if (cycler)
     {
-        cycler->sendDataToGPU();
+		if (cycler->init_device() >= 0)
+		{
+			cycler->sendDataToGPU();
+		}
+		else
+		{
+			printf("unable to init CUDA device!\n");
+		}
     }
 }
 
@@ -202,6 +214,8 @@ void _i_cycler_destroy(int * icycler)
     
     if (cycler)
     {
+		cycler->deinit_device();
+		
         delete cycler;
     }
 }

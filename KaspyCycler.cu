@@ -8,6 +8,12 @@
 
 #include "KaspyCycler.h"
 
+
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+
+
+
 void getbicubic(int nx, int ny, int nd, float * z, float * c);
 void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float * cc);
 
@@ -15,81 +21,107 @@ void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float
 float grav = 9.806;
 
 
-float * g_fbu;
-float * g_fbv;
-float * g_ffu;
-float * g_ffv;
+float * g_fbu = 0;
+float * g_fbv = 0;
+float * g_ffu = 0;
+float * g_ffv = 0;
 
-float * g_fxb;
-float * g_fxf;
-float * g_fyb;
-float * g_fyf;
+float * g_fxb = 0;
+float * g_fxf = 0;
+float * g_fyb = 0;
+float * g_fyf = 0;
 
-float * g_fb;
-float * g_ff;
+float * g_fb = 0;
+float * g_ff = 0;
 
-float * g_wusurf;
-float * g_wvsurf;
+float * g_wusurf = 0;
+float * g_wvsurf = 0;
 
-float * g_dum;
-float * g_dvm;
+float * g_dum = 0;
+float * g_dvm = 0;
 
-float * g_d;
-float * g_dx;
-float * g_dy;
+float * g_d = 0;
+float * g_dx = 0;
+float * g_dy = 0;
 
-float * g_fluxua;
-float * g_fluxva;
+float * g_fluxua = 0;
+float * g_fluxva = 0;
 
-float * g_ua;
-float * g_va;
+float * g_ua = 0;
+float * g_va = 0;
 
-float * g_uab;
-float * g_vab;
+float * g_uab = 0;
+float * g_vab = 0;
 
-float * g_uaf;
-float * g_vaf;
-
-
-float * g_el;
-float * g_elf;
-float * g_elb;
-
-float * g_fsm;
-
-float * g_tps;
+float * g_uaf = 0;
+float * g_vaf = 0;
 
 
-float * g_advua;
-float * g_advva;
+float * g_el = 0;
+float * g_elf = 0;
+float * g_elb = 0;
 
-float * g_aru;
-float * g_arv;
+float * g_fsm = 0;
 
-float * g_wubot;
-float * g_wvbot;
-float * g_cbc;
+float * g_tps = 0;
 
-float * g_cor;
 
-float * g_h;
+float * g_advua = 0;
+float * g_advva = 0;
+
+float * g_aru = 0;
+float * g_arv = 0;
+
+float * g_wubot = 0;
+float * g_wvbot = 0;
+float * g_cbc = 0;
+
+float * g_cor = 0;
+
+float * g_h = 0;
+
+float * g_press0 = 0;
+float * g_uwd0 = 0;
+float * g_vwd0 = 0;
+
+
+__constant__ __device__  int  g_width;
+__constant__ __device__  int  g_height;
+
+__constant__ __device__ int g_ewidth;
+
+
+
 
 
 void KaspyCycler::findElves()
 {
-    float elf_min = g_elf[0];
-    float elf_max = g_elf[0];
+	/// DO CUDA REDUCTION instead of copying back to host mem
+	
+	float * h_elf = &m_fArrays->elf[0][0];
+	
+	cudaError_t err = cudaMemcpy2D(h_elf, m_width * sizeof(float), g_elf, m_pitch, m_width * sizeof(float), m_height, cudaMemcpyDeviceToHost);
+	
+	if (err != cudaSuccess)
+	{
+		fprintf(stderr, "Failed to update host array ELF  (error code %s)!\n", cudaGetErrorString(err));
+	}
+	
+
+	
+	float elf_min = h_elf[0];
+    float elf_max = h_elf[0];
     
     for (int i=1; i<F_DATA_SIZE; i++)
     {
-        if (g_elf[i] > elf_max)
+        if (h_elf[i] > elf_max)
         {
-            elf_max = g_elf[i];
+            elf_max = h_elf[i];
         }
         
-        if (g_elf[i] < elf_min)
+        if (h_elf[i] < elf_min)
         {
-            elf_min = g_elf[i];
+            elf_min = h_elf[i];
         }
     }
 	
@@ -97,9 +129,88 @@ void KaspyCycler::findElves()
 	m_fVars->elfmax =  elf_max;
 }
 
+
 void KaspyCycler::sendDataToGPU()
 {
-    g_fbu = &m_fFloats->fbu[0][0];
+	int ewidth = ((int)m_pitch) / sizeof(float);
+	
+	if ( (cudaMemcpyToSymbol(g_width, &m_width, sizeof(int))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(g_height, &m_height, sizeof(int))  == cudaSuccess)
+		
+		&& (cudaMemcpyToSymbol(g_ewidth, &ewidth,  sizeof(int))  == cudaSuccess)
+		)
+	{
+		printf("GPU constant memory filled\n");
+		
+		int test_ewidth = 0;
+		
+		cudaMemcpyFromSymbol(&test_ewidth, g_ewidth, sizeof(int));
+		
+		
+		printf("pitched width is now %d\n", test_ewidth);
+	}
+	else
+	{
+		printf("GPU memory copy error (error code %s)!\n", cudaGetErrorString(cudaGetLastError()));
+	}
+	
+	
+	size_t s_width =  m_width *  sizeof(float);
+	
+	if ( (cudaMemcpy2D(g_fbu, m_pitch, &m_fFloats->fbu[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_fbv, m_pitch, &m_fFloats->fbv[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_ffu, m_pitch, &m_fFloats->ffu[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_ffv, m_pitch, &m_fFloats->ffv[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_fb, m_pitch, &m_fFloats->fb[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_ff, m_pitch, &m_fFloats->ff[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_fxb, m_pitch, &m_fFloats->fxb[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_fxf, m_pitch, &m_fFloats->fxf[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_fyb, m_pitch, &m_fFloats->fyb[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_fyf, m_pitch, &m_fFloats->fyf[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_wusurf, m_pitch, &m_fArrays->wusurf[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_wvsurf, m_pitch, &m_fArrays->wvsurf[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_dum, m_pitch, &m_fArrays->dum[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_dvm, m_pitch, &m_fArrays->dvm[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_d, m_pitch,&m_fArrays->d[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		
+		&& (cudaMemcpy2D(g_fluxua, m_pitch, &m_fArrays->fluxua[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_fluxva, m_pitch, &m_fArrays->fluxva[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		
+		&& (cudaMemcpy2D(g_ua, m_pitch, &m_fArrays->ua[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_va, m_pitch, &m_fArrays->va[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_uab, m_pitch, &m_fArrays->uab[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_vab, m_pitch, &m_fArrays->vab[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_uaf, m_pitch, &m_fArrays->uaf[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_vaf, m_pitch, &m_fArrays->vaf[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_el, m_pitch, &m_fArrays->el[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_elb, m_pitch, &m_fArrays->elb[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_elf, m_pitch, &m_fArrays->elf[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_fsm, m_pitch, &m_fArrays->fsm[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_tps, m_pitch, &m_fArrays->tps[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_advua, m_pitch, &m_fArrays->advua[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_advva, m_pitch, &m_fArrays->advva[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_wubot, m_pitch, &m_fArrays->wubot[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_wvbot, m_pitch, &m_fArrays->wvbot[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_cbc, m_pitch, &m_fArrays->cbc[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy2D(g_h, m_pitch, &m_fArrays->h[0][0], s_width, s_width, m_height, cudaMemcpyHostToDevice) == cudaSuccess)
+		
+		
+		&& (cudaMemcpy(g_cor, &m_fArrays->cor[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy(g_aru, &m_fArrays->aru[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy(g_arv, &m_fArrays->arv[0],  m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy(g_dx, &m_fArrays->dx[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy(g_dy, &m_fArrays->dy[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess))
+		
+	{
+		printf("GPU memory filled\n");
+	}
+	else
+	{
+		printf("GPU memory copy error!\n");
+
+	}
+	
+	/*g_fbu = &m_fFloats->fbu[0][0];
     g_fbv = &m_fFloats->fbv[0][0];
     g_ffu = &m_fFloats->ffu[0][0];
     g_ffv = &m_fFloats->ffv[0][0];
@@ -159,7 +270,7 @@ void KaspyCycler::sendDataToGPU()
 
 	g_cbc = &m_fArrays->cbc[0][0];
 	
-	g_cor = &m_fArrays->cor[0];
+	g_cor = &m_fArrays->cor[0];*/
 }
 
 void KaspyCycler::getDataToCPU()
@@ -179,6 +290,8 @@ void KaspyCycler::makeWsurf(float ro_ratio)
     int pressSize = m_fWindData->kx * m_fWindData->ky;
     int windUSize = m_fWindData->kxu * m_fWindData->kyu;
     int windVSize = m_fWindData->kxv * m_fWindData->kyv;
+	
+	size_t s_width =  m_width *  sizeof(float);
     
     itime6 = (int)timeh6;
 
@@ -189,25 +302,76 @@ void KaspyCycler::makeWsurf(float ro_ratio)
     {
         itime6_old = itime6;
         
-        memcpy(g_fxb, g_fxf, F_DATA_SIZE * sizeof(float));
+        /*memcpy(g_fxb, g_fxf, F_DATA_SIZE * sizeof(float));
         memcpy(g_fyb, g_fyf, F_DATA_SIZE * sizeof(float));
         memcpy(g_fb, g_ff, F_DATA_SIZE * sizeof(float));
         memcpy(g_fbu, g_ffu, F_DATA_SIZE * sizeof(float));
-        memcpy(g_fbv, g_ffv, F_DATA_SIZE * sizeof(float));
+        memcpy(g_fbv, g_ffv, F_DATA_SIZE * sizeof(float));*/
+		
+		if ( (cudaMemcpy2D(g_fxb, m_pitch, g_fxf, s_width, s_width, m_height, cudaMemcpyDeviceToDevice) == cudaSuccess)
+			&& (cudaMemcpy2D(g_fyb, m_pitch, g_fyf, s_width, s_width, m_height, cudaMemcpyDeviceToDevice) == cudaSuccess)
+			&& (cudaMemcpy2D(g_fb, m_pitch, g_ff, s_width, s_width, m_height, cudaMemcpyDeviceToDevice) == cudaSuccess)
+			&& (cudaMemcpy2D(g_fbu, m_pitch, g_ffu, s_width, s_width, m_height, cudaMemcpyDeviceToDevice) == cudaSuccess)
+			&& (cudaMemcpy2D(g_fbv, m_pitch, g_ffv, s_width, s_width, m_height, cudaMemcpyDeviceToDevice) == cudaSuccess)
+			)
+		{
+			printf("ff arrays reset\n");
+		}
+		else
+		{
+			printf("GPU memory copy error!\n");
+		}
+			
+			
 
+		size_t s_p_width = m_fWindData->kx * sizeof(float);
 
-
-        memcpy(m_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
+       // memcpy(g_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
+		
+		if ( (cudaMemcpy2D(g_press0, m_press_pitch, m_press + (itime6 - 1) * pressSize, s_p_width, s_p_width, m_fWindData->ky, cudaMemcpyHostToDevice) == cudaSuccess) )
+		{
+			printf("pressure data copied \n");
+		}
+		else
+		{
+			printf("GPU memory copy error!\n");
+		}
+		
+		
 		
 		getWindPressure('p');
 
 		
-        memcpy(m_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
+
+		size_t s_wu_width = m_fWindData->kxu * sizeof(float);
+		
+		//memcpy(g_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
+		
+		if ( (cudaMemcpy2D(g_uwd0, m_wu_pitch, m_uwd + (itime6 - 1) * windUSize, s_wu_width, s_wu_width, m_fWindData->kyu, cudaMemcpyHostToDevice) == cudaSuccess) )
+		{
+			printf("wind U data copied \n");
+		}
+		else
+		{
+			printf("GPU memory copy error!\n");
+		}
 		
 		
 		getWindPressure('u');
 
-        memcpy(m_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
+        //memcpy(g_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
+		size_t s_wv_width = m_fWindData->kxv * sizeof(float);
+		
+		
+		if ( (cudaMemcpy2D(g_vwd0, m_wv_pitch, m_vwd + (itime6 - 1) * windVSize, s_wv_width, s_wv_width, m_fWindData->kyv, cudaMemcpyHostToDevice) == cudaSuccess) )
+		{
+			printf("wind V data copied \n");
+		}
+		else
+		{
+			printf("GPU memory copy error!\n");
+		}
+		
 		
 		getWindPressure('v');
 
@@ -728,7 +892,7 @@ void KaspyCycler::getWindPressure(char uv)
 	{
 		kx = m_fWindData->kxu;
 		ky = m_fWindData->kyu;
-		pk = m_uwd0;
+		pk = g_uwd0;
 		
 		xki = m_fWindData->xkui;
 		xka = m_fWindData->xkua;
@@ -741,7 +905,7 @@ void KaspyCycler::getWindPressure(char uv)
 	{
 		kx = m_fWindData->kxv;
 		ky = m_fWindData->kyv;
-		pk = m_vwd0;
+		pk = g_vwd0;
 		
 		xki = m_fWindData->xkvi;
 		xka = m_fWindData->xkva;
@@ -755,7 +919,7 @@ void KaspyCycler::getWindPressure(char uv)
 		kx = m_fWindData->kx;
 		ky = m_fWindData->ky;
 		//float kd = kx;
-		pk = m_press0;
+		pk = g_press0;
 		xki = m_fWindData->xki;
 		xka = m_fWindData->xka;
 		yki = m_fWindData->yki;
@@ -1044,6 +1208,345 @@ void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float
 }
 
 
+
+
+
+
+int KaspyCycler::init_device()
+{
+	int device_count = 0;
+	
+	if (m_gpu_device >= 0)
+	{
+		// already initialized
+		printf("CUDA device is already initiaized\n");
+		
+		return m_gpu_device;
+	}
+	
+	
+	cudaGetDeviceCount(&device_count);
+	
+	for (int i = 0 ; i < device_count ; ++i)
+	{
+		cudaDeviceProp properties;
+		cudaGetDeviceProperties(&properties, i);
+		
+		if (properties.major > 1 || (properties.major == 1 && properties.minor >= 1))
+		{
+			m_gpu_device = i;
+			
+			printf("Running on GPU %d (%s) \n",i ,properties.name);
+			break;
+		}
+		else
+		{
+			printf("GPU %d (%s) does not support CUDA Dynamic Parallelism\n", i ,properties.name);
+		}
+	}
+	
+	
+	if (m_gpu_device == -1)
+	{
+		printf("No suitable device found!\n");
+		return m_gpu_device;
+	}
+	
+	if (cudaSetDevice(m_gpu_device) == cudaSuccess)
+	{
+		printf("device set OK\n");
+	}
+	else
+	{
+		printf("unable to set device!\n");
+		m_gpu_device = -1;
+	}
+	
+	
+	
+	// Allocate GPU memory.
+	if ( (cudaMallocPitch((void **)&g_fbu, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_fbv, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_ffu, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_ffv, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_fb, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_ff, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_fxb, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_fxf, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_fyb, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_fyf, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_wusurf, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_wvsurf, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_dum, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_dvm, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_d, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		
+		&& (cudaMallocPitch((void **)&g_fluxua, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_fluxva, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		
+		&& (cudaMallocPitch((void **)&g_ua, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_va, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_uab, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_vab, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_uaf, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_vaf, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_el, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_elb, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_elf, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_fsm, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_tps, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_advua, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_advva, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_wubot, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_wvbot, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_cbc, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_h, &m_pitch, m_width * sizeof(float),  m_height) == cudaSuccess)
+		
+		&& (cudaMallocPitch((void **)&g_press0, &m_press_pitch, m_fWindData->kx * sizeof(float),  m_fWindData->ky) == cudaSuccess)
+		
+		&& (cudaMallocPitch((void **)&g_uwd0, &m_wu_pitch, m_fWindData->kxu * sizeof(float),  m_fWindData->kyu) == cudaSuccess)
+		&& (cudaMallocPitch((void **)&g_vwd0, &m_wv_pitch, m_fWindData->kxv * sizeof(float),  m_fWindData->kyv) == cudaSuccess)
+
+		
+		&& (cudaMalloc((void **)&g_cor, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_aru, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_arv, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_dx, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_dy, m_height * sizeof(float)) == cudaSuccess))
+	{
+		printf("GPU memory allocated\n");
+		
+	}
+	else
+	{
+		printf("GPU memory allocation error!\n");
+		deinit_device();
+		return m_gpu_device;
+	}
+	
+	
+	
+	
+	return m_gpu_device;
+}
+
+
+void KaspyCycler::deinit_device()
+{
+	if (m_gpu_device >=0)
+	{
+		
+		if (g_fbu)
+		{
+			cudaFree(g_fbu);
+		}
+		
+		if (g_fbv)
+		{
+			cudaFree(g_fbv);
+		}
+		
+		if (g_ffu)
+		{
+			cudaFree(g_ffu);
+		}
+		
+		if (g_ffv)
+		{
+			cudaFree(g_ffv);
+		}
+		
+		
+		if (g_fb)
+		{
+			cudaFree(g_fb);
+		}
+		
+		if (g_ff)
+		{
+			cudaFree(g_ff);
+		}
+		
+		
+		if (g_fxb)
+		{
+			cudaFree(g_fxb);
+		}
+		
+		if (g_fxf)
+		{
+			cudaFree(g_fxf);
+		}
+		
+		if (g_fyb)
+		{
+			cudaFree(g_fyb);
+		}
+		
+		if (g_fyf)
+		{
+			cudaFree(g_fyf);
+		}
+		
+		if (g_wusurf)
+		{
+			cudaFree(g_wusurf);
+		}
+		
+		if (g_wvsurf)
+		{
+			cudaFree(g_wvsurf);
+		}
+		
+		if (g_dum)
+		{
+			cudaFree(g_dum);
+		}
+		
+		if (g_dvm)
+		{
+			cudaFree(g_dvm);
+		}
+		
+		if (g_d)
+		{
+			cudaFree(g_d);
+		}
+		
+		if (g_fluxua)
+		{
+			cudaFree(g_fluxua);
+		}
+		
+		if (g_fluxva)
+		{
+			cudaFree(g_fluxva);
+		}
+		
+		if (g_ua)
+		{
+			cudaFree(g_ua);
+		}
+		
+		if (g_va)
+		{
+			cudaFree(g_va);
+		}
+		
+		if (g_uaf)
+		{
+			cudaFree(g_uaf);
+		}
+		
+		if (g_vaf)
+		{
+			cudaFree(g_vaf);
+		}
+		
+		if (g_uab)
+		{
+			cudaFree(g_uab);
+		}
+		
+		if (g_vab)
+		{
+			cudaFree(g_vab);
+		}
+		
+		if (g_el)
+		{
+			cudaFree(g_el);
+		}
+		
+		if (g_elb)
+		{
+			cudaFree(g_elb);
+		}
+		
+		if (g_elf)
+		{
+			cudaFree(g_elf);
+		}
+		
+		if (g_fsm)
+		{
+			cudaFree(g_fsm);
+		}
+		
+		if (g_tps)
+		{
+			cudaFree(g_tps);
+		}
+		
+		if (g_advua)
+		{
+			cudaFree(g_advua);
+		}
+		
+		if (g_advva)
+		{
+			cudaFree(g_advva);
+		}
+		
+		if (g_aru)
+		{
+			cudaFree(g_aru);
+		}
+		
+		if (g_arv)
+		{
+			cudaFree(g_arv);
+		}
+		
+		if (g_wubot)
+		{
+			cudaFree(g_wubot);
+		}
+		
+		if (g_wvbot)
+		{
+			cudaFree(g_wvbot);
+		}
+		
+		if (g_cbc)
+		{
+			cudaFree(g_cbc);
+		}
+		
+		if (g_h)
+		{
+			cudaFree(g_h);
+		}
+		
+		if (g_cor)
+		{
+			cudaFree(g_cor);
+		}
+		
+		if (g_press0)
+		{
+			cudaFree(g_press0);
+		}
+		
+		
+		if (g_uwd0)
+		{
+			cudaFree(g_uwd0);
+		}
+		
+		if (g_vwd0)
+		{
+			cudaFree(g_vwd0);
+		}
+		
+		if (cudaDeviceReset() == cudaSuccess)
+		{
+			printf("GPU device reset ok\n");
+		}
+		
+		m_gpu_device = -1;
+	}
+}
 
 
 

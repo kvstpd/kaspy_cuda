@@ -20,8 +20,7 @@ public:
     
     KaspyCycler(fortran_common_vars * for_vars, fortran_common_arrays * for_arrays,
                 fortran_ffloats * for_floats, fortran_wind_data * for_wind_data,
-                float * for_press, float * for_press0,
-                float * for_uwd, float * for_uwd0, float * for_vwd, float * for_vwd0) :
+                float * for_press, float * for_uwd, float * for_vwd) :
     m_width(F_DATA_WIDTH),
     m_height(F_DATA_HEIGHT),
     m_fVars(for_vars),
@@ -31,11 +30,12 @@ public:
     itime6(0),
     itime6_old(0),
     m_press(for_press),
-    m_press0(for_press0),
+//    m_press0(for_press0),
     m_uwd(for_uwd),
-    m_uwd0(for_uwd0),
+//    m_uwd0(for_uwd0),
     m_vwd(for_vwd),
-    m_vwd0(for_vwd0)
+//    m_vwd0(for_vwd0),
+	m_gpu_device(-1)
     {
         setbuf(stdout,NULL);
         
@@ -49,6 +49,9 @@ public:
     }
     
  
+	int init_device();
+	void deinit_device();
+	
     void sendDataToGPU();
     void getDataToCPU();
 
@@ -72,9 +75,9 @@ public:
     float * m_press;
     float * m_press0;
     float * m_uwd;
-    float * m_uwd0;
+//    float * m_uwd0;
     float * m_vwd;
-    float * m_vwd0;
+//    float * m_vwd0;
     
     
 private:
@@ -83,7 +86,13 @@ private:
     int itime6;
     int itime6_old;
     
+	int m_gpu_device;
 
+	size_t m_pitch;
+	
+	size_t m_press_pitch;
+	size_t m_wu_pitch;
+	size_t m_wv_pitch;
 };
 
 
