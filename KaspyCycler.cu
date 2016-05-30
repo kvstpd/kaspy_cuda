@@ -99,14 +99,14 @@ __constant__ __device__ int g_ewidth;
 
 __global__ void surf_and_flux_1(float ftim, float ro_ratio)
 {
-	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	/*int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * g_width + i;
  	int jp1i = ji + g_width;
  	int jip1 = ji + 1;
  	int jim1 = ji - 1;
- 	int jm1i = ji - g_width;
+ 	int jm1i = ji - g_width;*/
 	
 	float btim = 1.0f - ftim;
 	
@@ -476,7 +476,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	//int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
 	//int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
 	
-	dim3 threadsPerSquareBlock(8, 8);
+	dim3 threadsPerSquareBlock(4, 4);
 	
 	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
