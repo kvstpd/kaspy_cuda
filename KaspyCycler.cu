@@ -488,7 +488,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	printf("before call\n");
 	setbuf(stdout,NULL);
 	
-	surf_and_flux_1<<<4, 8>>>(ftim, ro_ratio);
+	//surf_and_flux_1<<<4, 8>>>(ftim, ro_ratio);
 	
 	setbuf(stdout,NULL);
 	printf("after call\n");
