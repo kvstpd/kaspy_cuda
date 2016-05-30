@@ -485,13 +485,13 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	
 	//surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim, ro_ratio);
 	setbuf(stdout,NULL);
-	printf("before call");
+	printf("before call\n");
 	setbuf(stdout,NULL);
 	
 	surf_and_flux_1<<<4, 8>>>(ftim, ro_ratio);
 	
 	setbuf(stdout,NULL);
-	printf("after call");
+	printf("after call\n");
 	setbuf(stdout,NULL);
 	
 	/*,  g_fbu,  g_ffu,  g_fbv,  g_ffv,  g_dum,  g_dvm,  g_d,  g_wusurf,  g_wvsurf,  g_fluxua,  g_fluxva,  g_dx,  g_dy,  g_ua,  g_va,  g_fxf,  g_fyf, g_fxb,  g_fyb);*/
@@ -538,7 +538,11 @@ void KaspyCycler::makeWsurf(float ro_ratio)
     
     /// HERE SHOULD START A NEW CUDA CALL TO KEEP fluxua fluxva synced
 	
-    
+	
+	setbuf(stdout,NULL);
+	printf("b call 2\n");
+	setbuf(stdout,NULL);
+	
     float dte2 = m_fVars->dte * 2.0f;
     
     for (int j=1; j<(m_height-1); j++ )
@@ -556,6 +560,11 @@ void KaspyCycler::makeWsurf(float ro_ratio)
             
         }
     }
+	
+	
+	setbuf(stdout,NULL);
+	printf("a call 2\n");
+	setbuf(stdout,NULL);
  
 
 
