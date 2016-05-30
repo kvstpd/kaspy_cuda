@@ -484,8 +484,11 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	
 	
 	//surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim, ro_ratio);
+	printf("before call");
 	
 	surf_and_flux_1<<<4, 8>>>(ftim, ro_ratio);
+	
+	printf("after call");
 	
 	/*,  g_fbu,  g_ffu,  g_fbv,  g_ffv,  g_dum,  g_dvm,  g_d,  g_wusurf,  g_wvsurf,  g_fluxua,  g_fluxva,  g_dx,  g_dy,  g_ua,  g_va,  g_fxf,  g_fyf, g_fxb,  g_fyb);*/
 
