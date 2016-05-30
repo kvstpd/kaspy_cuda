@@ -95,9 +95,9 @@ __constant__ __device__  int  g_heightm1;
 __constant__ __device__ int g_ewidth;
 
 
+/*, float * g_fbu, float * g_ffu, float * g_fbv, float * g_ffv, float * g_dum, float * g_dvm, float * g_d, float * g_wusurf, float * g_wvsurf, float * g_fluxua, float * g_fluxva, float * g_dx, float * g_dy, float * g_ua, float * g_va, float * g_fxf, float * g_fyf, float * g_fxb, float *  g_fyb*/
 
-
-__global__ void surf_and_flux_1(float ftim, float ro_ratio, float * g_fbu, float * g_ffu, float * g_fbv, float * g_ffv, float * g_dum, float * g_dvm, float * g_d, float * g_wusurf, float * g_wvsurf, float * g_fluxua, float * g_fluxva, float * g_dx, float * g_dy, float * g_ua, float * g_va, float * g_fxf, float * g_fyf, float * g_fxb, float *  g_fyb)
+__global__ void surf_and_flux_1(float ftim, float ro_ratio)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -483,7 +483,9 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	cudaError_t err = cudaSuccess;
 	
 	
-	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim, ro_ratio,  g_fbu,  g_ffu,  g_fbv,  g_ffv,  g_dum,  g_dvm,  g_d,  g_wusurf,  g_wvsurf,  g_fluxua,  g_fluxva,  g_dx,  g_dy,  g_ua,  g_va,  g_fxf,  g_fyf, g_fxb,  g_fyb);
+	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim, ro_ratio);
+	
+	/*,  g_fbu,  g_ffu,  g_fbv,  g_ffv,  g_dum,  g_dvm,  g_d,  g_wusurf,  g_wvsurf,  g_fluxua,  g_fluxva,  g_dx,  g_dy,  g_ua,  g_va,  g_fxf,  g_fyf, g_fxb,  g_fyb);*/
 
     
     /*
