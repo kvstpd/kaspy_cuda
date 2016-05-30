@@ -77,28 +77,24 @@ float * g_h;
 
 void KaspyCycler::findElves()
 {
-    //printf("arrays is set to %llxd \n", (long long)m_fArrays );
-    
-    
-    float * elves = &(m_fArrays->elf[0][0]);
-    
-    float elf_min = elves[0];
-    float elf_max = elves[0];
+    float elf_min = g_elf[0];
+    float elf_max = g_elf[0];
     
     for (int i=1; i<F_DATA_SIZE; i++)
     {
-        if (elves[i] > elf_max)
+        if (g_elf[i] > elf_max)
         {
-            elf_max = elves[i];
+            elf_max = g_elf[i];
         }
         
-        if (elves[i] < elf_min)
+        if (g_elf[i] < elf_min)
         {
-            elf_min = elves[i];
+            elf_min = g_elf[i];
         }
     }
-    
-    //printf("C SAYS: time is %f, elf min is %f, elf max is %f \n",m_fVars->timeh, elf_min, elf_max);
+	
+	m_fVars->elfmin =  elf_min;
+	m_fVars->elfmax =  elf_max;
 }
 
 void KaspyCycler::sendDataToGPU()
@@ -219,7 +215,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	
 	
     float uw, vw, speed, windc;
-    int ji, jp1i, jip1, jim1, jm1i, jp1ip1, jm1im1, jp1im1, jm1ip1, jl, jlm1, j1, j2, j3;
+    int ji, jp1i, jip1, jim1, jm1i, jp1ip1, jm1im1, jp1im1, jm1ip1, jl, jlm1, j1, j2, j3, jli, jlm1i, j1i, j2i, j3i;
 
 
     
@@ -589,9 +585,124 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		
 	}
 	
+	
+	
+
+	for (int i=1; i<(m_width-1); i++ )
+	{
+		jli = m_width * (m_height - 1) + i;
+		jlm1i = jli - m_width;
+		
+		j1i = i;
+		
+		j2i = m_width + j1i;
+		
+		j3i = m_width + j2i;
+		
+		
+		if (g_dvm[jli] > 0.5f)
+		{
+			gae = dte*sqrtf(grav*g_h[jli])/g_dy[m_height-1];
+			
+			g_vaf[jli] = gae*g_va[jlm1i]+(1.0f-gae)*g_va[jli];
+		}
+		else
+		{
+			g_vaf[jli]=0.0f;
+		}
+
+		g_uaf[jli]=0.0;
+
+		if (g_dvm[j2i] > 0.5f)
+		{
+			gae=dte*sqrtf(grav*g_h[j2i])/g_dy[0];
+			
+			g_vaf[j2i]=gae*g_va[j3i]+(1.-gae)*g_va[j2i];
+		}
+		else
+		{
+			g_vaf[j2i]=0.0f;
+		}
+		
+
+		g_vaf[j1i]=g_vaf[j1i];
+		g_uaf[j1i]=0.0f;
+	}
+	
+	/// must separate cuda calls here
+	
+	for (int j=1; j<m_height; j++ )
+	{
+		for (int i=1; i<m_width; i++ )
+		{
+			ji = j * m_width + i;
+			
+			g_uaf[ji] = g_uaf[ji] * g_dum[ji];
+			g_vaf[ji] = g_vaf[ji] * g_dvm[ji];
+		}
+	}
+	// END BCOND 2
+	
+	
+	
+	float vmaxl = 100.0f;
+	
+	
+	float tpsmax = 0.0f;
+	
+	int imax = 0;
+	int jmax = 0;
+	
+	for (int j=1; j<m_height; j++ )
+	{
+		for (int i=1; i<m_width; i++ )
+		{
+			ji = j * m_width + i;
+			
+			g_tps[ji] = sqrtf(g_uaf[ji]*g_uaf[ji] + g_vaf[ji]*g_vaf[ji]);
+			
+			if (g_tps[ji] > tpsmax)
+			{
+				tpsmax = g_tps[ji];
+				imax = i;
+				jmax = j;
+			}
+		}
+	}
+	
+	
+	if (tpsmax > vmaxl)
+	{
+		setbuf(stdout,NULL);
+		
+		printf("vamax>vmax!!! at i=%d, j=%d \n", imax,jmax);
+		
+		exit(-1);
+	}
 
 	
 	
+	float smoth = 0.10f;
+	
+	
+	for (int j=1; j<m_height; j++ )
+	{
+		for (int i=1; i<m_width; i++ )
+		{
+			ji = j * m_width + i;
+			
+			g_ua[ji]=g_ua[ji]+0.5f*smoth*(g_uab[ji]-2.0f*g_ua[ji]+g_uaf[ji]);
+			g_va[ji]=g_va[ji]+0.5f*smoth*(g_vab[ji]-2.0f*g_va[ji]+g_vaf[ji]);
+			g_el[ji]=g_el[ji]+0.5f*smoth*(g_elb[ji]-2.0f*g_el[ji]+g_elf[ji]);
+			g_elb[ji]=g_el[ji];  // OP
+			g_el[ji]=g_elf[ji];  // OP
+			g_d[ji]=g_h[ji]+g_el[ji];
+			g_uab[ji]=g_ua[ji];  // OP
+			g_ua[ji]=g_uaf[ji];  // OP
+			g_vab[ji]=g_va[ji];  // OP
+			g_va[ji]=g_vaf[ji];  // OP
+		}
+	}
 	
 	
 }

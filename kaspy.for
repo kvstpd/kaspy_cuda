@@ -121,7 +121,6 @@ C--------------------------------------------------------------------
       integer icr,stx(100),sty(100)
       equivalence (icr,crr)
       data icr/13/
-      real*8 time_
       DATA ri/0.01745329252/,GEE/9.807/
       CHARACTER*20 NAME,namep,nameu,namev,nameh
       integer ijloc(2)
@@ -334,7 +333,7 @@ C   Evaluate external CFL time step
       END DO 
       
       open(77,file='wnd_press_90d.txt')
-c!      open(88,file='force1.txt')
+c!      open(88,file='force1.txt') ALSO STATISTICS
 
 C
 c      TIME=TIMEI
@@ -345,272 +344,47 @@ C                                                                      *
 C***********************************************************************
 C
 
-cc!        display = display_init_f()
 
-cc!         display_data_width = im
-cc!         display_data_height = jm
-
-
-cc!        display_res =  display_load_data_f(display, 
-cc!     & display_data_width, display_data_height, 
-cc!     & surf, fsm, display_scale)
 
         call cycler_load(icycler)
 
 c call display(surf,im,jm,im,jm,-1.0,1.0,0)
-        iold=0
+ccc        iold=0
 
                      DO 9000 IINT=1,IEND
-C
 
       timeh=(iint-1)*dti/3600.0
       ihour_s=600/dti
-c      set uwind and current,
-c	 if time less than time0 acceleration otherwise constant current and wind
-c      if (time.le.1) then	    	
-c	   uwind=xwind*time
-c	   vwind=ywind*time
-c	   tide_l=0.5*ampl*(time/time0)**2 
-c	else
-c	   mtime=time
-c	   uwind=xwind
-c	   vwind=ywind
-c         tide_l=ampl*(time/time0-0.5)
-c	end if
+
 	iwrite=mod(iint,ihour_s)
 
       if(iwrite.eq.1) then
 
-      elfmax=0.0
-	elfmin=0.0
-	DO J=1,JM
-      DO I=1,IM
-        if (elfmax.lt.elf(i,j)) elfmax=elf(i,j)
-        if (elfmin.gt.elf(i,j)) elfmin=elf(i,j)
-      end do
-c      call display_show_f(display)
-	end do
-
-
-
-
-        time_=timeh
-        do i=1,im
-        do j=1,jm
-          if(fsm(i,j).gt.0) then
-c            surf(i,j)=10*uf(i,j,1)
-            surf(i,j)=elf(i,j)
-          else
-            surf(i,j)=-1.0
-          end if
-        end do
-c        call display_show_f(display)
-        end do
-c        call display(surf,im,jm,im,jm,-1.0,1.0,0)
-
-
- 
-
-cc!        call display_update_f(display)
-
-cc!        call display_show_f(display)
-    
-        write(6,1117) 't=',timeh,'h','Sea level=',elfmax,elfmin,'m'
+		 call cycler_find_elves(icycler)
+		write(6,1117) 'tE=',timeh,'hE','Sea level=',elfmax,elfmin,'m'
 
 
 1117   FORMAT(a3,f12.4,1x,a1,5x,a10,f8.4,1x,f8.4,1x,a1,a1)
       end if
 c*************************************************
-C------------------------------------------------------------------------
-C
-C------------------------------------------------------------------------
 
-C********** BEGIN EXTERNAL MODE ***************************************
-ccc                      DO 8000 IEXT=1,ISPLIT
-c      TIMEH=(DTI*FLOAT(IINT-1)+(iext-1)*dte)/3600.
-      itimeh=int(timeh)
+ccc      itimeh=int(timeh)
 
 
-CCCC      goto 8787   ! ÎÁÕÎÄ ÑÒÀÒÈÑÒÈÊÈ
-     	if(itimeh.gt.iold) then  !! writing to file and compute statiatics, 
-c                              !!    here every hour
 
-
-	write(77,'(101f10.3)') timeh,(elf(stx(kk),sty(kk)),kk=1,nstation)
-C     AFSM - NUMBER OF NON-ZERO POINTS IN THE FSM ARRAY
-C==============================================CALCULATING STATISTICS===================================
-c        SSPRE=0
-
-      
-c        NSTAT=NSTAT+1
-	end if
-c------------------------------------------------end if statistics------------------------------------
-ccccc    8787  continue     ! Êîíåö îáõîäà ñòàòèñòèêè 
-c      timeh6=timeh/dht+1
-c      itime6=timeh6
-c      ftim=0
-c      ftim=(timeh6-itime6)
-c      btim=1.0-ftim
-      
-c================================================renew forcing fields ==================================
-c      if (itime6.gt.itime6_old) then
-c        itime6_old=itime6
-c        fxb=fxf
-c        fyb=fyf
-c        FB=FF
-c        fbu=ffu
-c        fbv=ffv
-c        press0(:,:)=press(:,:,itime6)
-c        call getnewpressureVAR(kx,ky,XKI,XKA,YKI,YKA,PRESS0,
-c     1 FF,fxf,fyf)
-c        uwd0(:,:)=uwd(:,:,itime6)
-c        call getnewwindVAR(kxu,kyu,XKUI,XKUA,YKUI,YKUA,uwd0,ffu)
-c        vwd0(:,:)=vwd(:,:,itime6)
-c        call getnewwindVAR(kxv,kyv,XKVI,XKVA,YKVI,YKVA,vwd0,ffv)
-c!        write(88,*) fyf(1,1),fyf(im,jm),fxf(1,1),fxf(im,jm)
-c      end if
-c----------------------------------------------------end of renew forcing-------------------------------
+cccc     	if(itimeh.gt.iold) then  !! writing to file and compute statiatics,
+c STATISTICS WAS HERE
+c
+c	write(77,'(101f10.3)') timeh,(elf(stx(kk),sty(kk)),kk=1,nstation)
+cccc	end if
 
 
        call cycler_wsurf(icycler, ro_ratio)
-c====================================================computing wusurf(i,j), wvsurf/(i,j)=================
-c      DO J=2,JMM1
-c      DO I=2,IMM1
-c	uw=(btim*fbu(i,j)+ftim*ffu(i,j))
-c	vw=(btim*fbv(i,j)+ftim*ffv(i,j))
-c	speed=sqrt(uw**2+vw**2) !******************************************************
-c!      speed=0
-c	windc=1.0e-3*(0.8+speed*0.065)*ro_ratio*speed
-c      WUSURF(I,J)=-windc*uw
-c     1 	*.25*(DUM(I,J+1)+DUM(I+1,J)+DUM(I-1,J)+DUM(I,J-1))+
-c     2  0.5*(d(i,j)+d(i-1,j))*(btim*FxB(i,j)+ftim*FxF(i,j))
-c      WVSURF(I,J)=-windc*vw
-c     1 	*.25*(DVM(I,J+1)+DVM(I+1,J)+DVM(I-1,J)+DVM(I,J-1))+
-c     2  0.5*(d(i,j)+d(i,j-1))*(btim*FyB(i,j)+ftim*FyF(i,j))
-c      end do
-c      end do
 
-c     write(6,'('' IEXT,TIME ='',I5,F9.2)') IEXT,TIME      
 
-c======================405 cycle and 410 cycle: computing continuity equation
-c      DO 405 J=2,JM
-c      DO 405 I=2,IM
-c      FLUXUA(I,J)=.25E0*(D(I,J)+D(I-1,J))*(DY(j)+DY(j))*UA(I,J)
-c 405  FLUXVA(I,J)=.25E0*(D(I,J)+D(I,J-1))*(DX(j)+DX(j-1))*VA(I,J)
-C
-c      DO 410 J=2,JMM1
-c      DO 410 I=2,IMM1
-c  410 ELF(I,J)=ELB(I,J)
-c     1    -DTE2*(FLUXUA(I+1,J)-FLUXUA(I,J)+FLUXVA(I,J+1)-FLUXVA(I,J))
-c     2                    /ART(J)
-C
-c--------------------end of continuity equation----------------------------------
+cccc       iold=itimeh
 
-ccc      CALL BCOND(1) !!boundary condition: elevevation
-C
-c      IF(MOD(IINT,ISPADV).EQ.0) CALL ADVAVE()
-C  Note that ALPHA = 0. is perfectly acceptable. The value, ALPHA = .225
-C  permits a longer time step.
-c=======================main momentum update: cycles 420 and 430=================
-c      ALPHA=0.225
-c      DO 420 J=2,JMM1
-c      DO 420 I=2,IM
-c      UAF1=ADVUA(I,J)
-c     1    -.25*(COR(j)*D(I,J)*(VA(I,J+1)+VA(I,J))
-c     2              +cor(j)*D(I-1,J)*(VA(I-1,J+1)+VA(I-1,J)) )
-c     3         +.5E0*GRAV*dy(j)/aru(j)*(D(I,J)+D(I-1,J))
-c     4             *( (1.E0-2.E0*ALPHA)*(EL(I,J)-EL(I-1,J))
-c     4            +ALPHA*(ELB(I,J)-ELB(I-1,J)+ELF(I,J)-ELF(I-1,J)) )
-c     6      +WUSURF(I,J)-WUBOT(I,J)
-c      UAF(I,J)=
-c     1         ((H(I,J)+ELB(I,J)+H(I-1,J)+ELB(I-1,J))*UAB(I,J)
-c     2                -4.E0*DTE*UAF1)
-c     3        /(H(I,J)+ELF(I,J)+H(I-1,J)+ELF(I-1,J))
-c420    CONTINUE
-c      DO 430 J=2,JM
-c      DO 430 I=2,IMM1
-c      VAF1=ADVVA(I,J)
-c     1    +.25*(  COR(J)*D(I,J)*(UA(I+1,J)+UA(I,J))
-c     2               +COR(J-1)*D(I,J-1)*(UA(I+1,J-1)+UA(I,J-1)) )
-c     3         +.5E0*GRAV*DX(j)/arv(j)*(D(I,J)+D(I,J-1))
-c     4             *( (1.E0-2.E0*ALPHA)*(EL(I,J)-EL(I,J-1))
-c     4            +ALPHA*(ELB(I,J)-ELB(I,J-1)+ELF(I,J)-ELF(I,J-1)) )
-c     6    + WVSURF(I,J)-WVBOT(I,J)
-c
-c      VAF(I,J)=
-c     1        ((H(I,J)+ELB(I,J)+H(I,J-1)+ELB(I,J-1))*VAB(I,J)
-c     2              -4.E0*DTE*VAF1)
-c     3       /(H(I,J)+ELF(I,J)+H(I,J-1)+ELF(I,J-1))
 
-c      call display_show_f(display)
-c  430 CONTINUE
-      CALL BCOND(2)  ! boundary conditions for velocities
-C
-C
-C  TEST FOR CFL VIOLATION. IF SO, PRINT AND STOP
-C
-      VMAXL=100.
-      VAMAX=0.       
-      UAMAX=0.       
-      tps=sqrt(uaf**2+uvf**2)
-      uamax=maxval(tps)
-      ijloc=maxloc(tps)
-      imax=ijloc(1)
-      jmax=ijloc(2)
-c      DO 442 J=1,JM
-c      DO 442 I=1,IM
-c      IF(ABS(VAF(I,J)).GE.VAMAX) THEN
-c        VAMAX=ABS(VAF(I,J))   
-c	  IMAX=I
-c	  JMAX=J
-c	end if
-c      IF(ABS(UAF(I,J)).GE.UAMAX) THEN
-c        UAMAX=ABS(UAF(I,J))   
-c	  IMAX=I
-c	  JMAX=J
-c      ENDIF
-c  442 CONTINUE
-c      IF(VAMAX.GT.VMAXL) GO TO 9001
-      IF(UAMAX.GT.VMAXL) GO TO 9001
-C    
-C       APPLY FILTER TO REMOVE TIME SPLIT. RESET TIME SEQUENCE.
-      DO 445 J=1,JM
-      DO 445 I=1,IM
-      UA(I,J)=UA(I,J)+.5E0*SMOTH*(UAB(I,J)-2.E0*UA(I,J)+UAF(I,J))
-      VA(I,J)=VA(I,J)+.5E0*SMOTH*(VAB(I,J)-2.E0*VA(I,J)+VAF(I,J))
-      EL(I,J)=EL(I,J)+.5E0*SMOTH*(ELB(I,J)-2.E0*EL(I,J)+ELF(I,J))
-      ELB(I,J)=EL(I,J)
-      EL(I,J)=ELF(I,J)
-      D(I,J)=H(I,J)+EL(I,J)
-      UAB(I,J)=UA(I,J)
-      UA(I,J)=UAF(I,J)
-      VAB(I,J)=VA(I,J)
-      VA(I,J)=VAF(I,J)
-  445 CONTINUE
-C
-
-c      print external boundary conditions
-
-c      writing boundary condition
-
-C
-C
-       iold=itimeh
-
-cc!       call display_show_f(display)
-
-cccc 8000                    CONTINUE
-      IF(VAMAX.GT.VMAXL) GO TO 9001
-C---------------------------------------------------------------------
-C          END EXTERNAL (2-D) MODE CALCULATION
-C     AND CONTINUE WITH INTERNAL (3-D) MODE CALCULATION
-C---------------------------------------------------------------------
-c c     IF(IINT.EQ.1) GO TO 8200
-c      IF(MODE.EQ.2) GO TO 8200
-C
-c 8200 CONTINUE
-C
-C
 C
 C--------------------------------------------------------------------
 C           BEGIN PRINT SECTION
@@ -640,23 +414,17 @@ c      end if
  956  format(1x,13f8.4)
 
  952  format(1x,10f8.4)
- 9001 CONTINUE
-      IF(VAMAX.GT.VMAXL) THEN
-      write(*,*) imax,jmax
-      write(*,*) 'vamax>vmax!!!'
-c      STOP
-      ENDIF
-      IF(UAMAX.GT.VMAXL) THEN
-      write(*,*) imax,jmax
-       write(*,*) 'uamax>umax!!!'
-c      STOP
-      ENDIF
+
+
+
  7000 CONTINUE
 C--------------------------------------------------------------------
 C             END PRINT SECTION
 C--------------------------------------------------------------------
  9000                     CONTINUE
 
+
+       call cycler_get_data_back(icycler)
 
          
 C***********************************************************************
@@ -742,186 +510,6 @@ c	end do
 
 
 
-C               
-      SUBROUTINE BCOND(IDX)
-       INCLUDE 'comblk.for'   
-C
-C  Closed boundary conditions are automatically enabled through
-C  specification of the masks, DUM, DVM and FSM in which case open
-C  boundary condition, included below, will be overwritten.
-C
-C
-C*******************************************************************************
-C                            POM (C-Grid)   
-C                          ================
-C
-C    The diagram below and some of the text was provided by D.-S. Ko. 
-C    It is for the case where U and V are the primary boundary conditions
-C    together with T and S (co-located with E). E = EL itself is rather
-C    unimportant and is substituted from an adjacent interior point.
-C    
-C    Inside ....... indicate the interior (non-boundary) grid points.
-C    In general only those variables in the interior are computed and
-C    variables at open boundary have to be specified.
-C    All interpolations are centered in space except those at lateral
-C    open boundary where an upstream scheme is usually used.
-C
-C    Horizontal locations of E(EL), T and S (etc.) are coincident.
-C    NU = Not Used is indicated by *. However, for attractive output
-C    adjacent interior values may be filled in at these points.   
-C
-C    I have been asked many times what kind of B.C. along the side wall
-C    POM uses from people not acquainted with sigma coordinates. Although
-C    the issue is not important as it might be for z-level grids, a direct
-C    answer is "half slip" which, of course, is between free slip and
-C    non-slip B.C.s.
-C
-C-------------------------------------------------------------------------------
-C     |                               N O R T H
-C     |
-C     |    1     2     3           I-1   I    I+1         IM-2  IM-1   IM 
-C-----+-------------------------------------------------------------------------
-C     |   NU BC BC                                                    BC BC
-C     |    v  v  v                                                     v  v
-C     |
-C     |BC> U* E  U  E  U  E  .  .  U  E  U  E  U  E  .  .  U  E  U  E  U  E  <BC
-C     |    |     |     |           |     |     |           |     |     |      
-C  JM |BC> +--V--+--V--+--V--   .  +--V--+--V--+--V--   .  +--V--+--V--+--V- <BC
-C     |    |     | ....|...........|.....|.....|...........|.....|.... |      
-C     |    U* E  U :E  U  E  .  .  U  E  U  E  U  E  .  .  U  E  U  E: U  E 
-C     |    |     | :   |           |     |     |           |     |   : |      
-C JM-1|    +--V--+--V--+--V--   .  +--V--+--V--+--V--   .  +--V--+--V--+--V-
-C     |    |     | :   |           |     |     |           |     |   : |
-C     |    U* E  U :E  U  E  .  .  U  E  U  E  U  E  .  .  U  E  U  E: U  E
-C     |    |     | :   |           |     |     |           |     |   : |
-C JM-2|    +--V--+--V--+--V--   .  +--V--+--V--+--V--   .  +--V--+--V--+--V-
-C     |            :                                                 :          
-C W   |       .  . :.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .: .  .    E
-C E   |            :                    Interior                     :         A
-C S   |       .    :.     .     .     .     .     .     .     .     .:    .    S
-C T   |            :                                                 :         T
-C     |    |     | :   |           |     |     |           |     |   : |
-C     |    U* E  U :E  U  E  .  .  U  E  U  E  U  E  .  .  U  E  U  E: U  E
-C     |    |     | :   |           |     |     |           |     |   : |
-C   3 |    +--V--+--V--+--V--   .  +--V--+--V--+--V--   .  +--V--+--V--+--V-
-C     |    |     | :   |           |     |     |           |     |   : |      
-C     |    U* E  U :E  U  E  .  .  U  E  U  E  U  E  .  .  U  E  U  E: U  E
-C     |    |     | ....|...........|.....|.....|...........|.....|.... |      
-C   2 |BC> +--V--+--V--+--V--   .  +--V--+--V--+--V--   .  +--V--+--V--+--V- <BC
-C     |    |     |     |           |     |     |           |     |     |      
-C     |BC> U* E  U  E  U  E  .  .  U  E  U  E  U  E  .  .  U  E  U  E  U  E  <BC
-C     |    |     |     |           |     |     |           |     |     |      --
-C   1 |NU> +--V*-+--V*-+--V*-   .  +--V*-+--V*-+--V*-   .  +--V*-+--V*-+--V* <NU
-C     |
-C     |    ^  ^  ^                                                     ^  ^
-C     |   NU BC BC                                                    BC BC
-C-----+-------------------------------------------------------------------------
-C     |    1     2     3           I-1   I     I+1         IM-2  IM-1  IM
-C     |
-C     |                                S O U T H
-C-------------------------------------------------------------------------------
-C
-C
-C
-	real*8 time_,timei
-C
-C
-      GO TO (10,20,30), IDX
-C
-C-----------------------------------------------------------------------
-C                   EXTERNAL B.C.'S
-C  In this example the governing boundary conditions are a radiation   
-C  condition on UAF in the east and in the west and VAF in the north
-C  and south. The tangential velocities are set to zero on both boundaries.
-C  These are only one set of possibilities and may not represent a choice
-C  which yields the most physically realistic result.
-C-----------------------------------------------------------------------
-C
-C
- 10   CONTINUE
-C---------ELEVATION --------------------
-C  A4 BC     
-c      tide_l=0.5
-	DO 120 J=1,JM
-	elf(2,j)=tide_l
-	elf(imm1,j)=tide_l
-      ELF(1,J)=ELF(2,J)
-      ELF(IM,J)=elf(imm1,j)
-120   CONTINUE
-c   A2 set
-      DO 130 I=1,IM
-c        ELF(I,1)=TIDE_L
-        ELF(I,1)=elf(i,2)
-c      ELF(I,JM)=tide_l
-      elf(i,jm)=elf(i,jmm1)
-130   CONTINUE
-C
-      DO 140 J=1,JM
-      DO 140 I=1,IM
- 140  ELF(I,J)=ELF(I,J)*FSM(I,J)
-      RETURN
-C
-C
- 20   CONTINUE
-C---------- VELOCITY --------------        
-C          A4 set
-c!c      DO 210 J=2,JMM1
-c!cC            EAST
-c!c      if(dum(im,j).gt.0.5) then
-c!c      GAE=DTE*SQRT(GRAV*H(IM,j))/DX(j)
-c!c	UAF(IM,J)=GAE*UA(IMM1,j)+(1.-GAE)*UA(IM,j)
-c!c      else
-c!c	uaf(im,j)=0.0
-c!c	end if
-c!cc	VAF(I,JM)=0.0
-c!cc      UAF(IM,J)=UAF(IMM1,J)
-c!c      VAF(IM,J)=0.0
-c!cC            WEST
-c!c      if(dum(2,j).gt.0.5) then
-c!c      GAE=DTE*SQRT(GRAV*H(2,j))/DX(j)
-c!c	UAF(2,J)=GAE*UA(3,j)+(1.-GAE)*UA(2,j)
-c!c	else
-c!c	uaf(2,j)=0.0
-c!c	end if
-c!cc      UAF(2,J)=UAF(3,J)
-c!c      UAF(1,J)=UAF(2,J)
-c!c      VAF(1,J)=0.0
-c!c
-c!c 210  CONTINUE
-C-----------------------------------
-c      A4 set
-      DO 220 I=2,IMM1
-C            NORTH
-      if (dvm(i,jm).gt.0.5) then 
-      GAE=DTE*SQRT(GRAV*H(I,JM))/DY(JM)
-	VAF(I,JM)=GAE*VA(I,JMM1)+(1.-GAE)*VA(I,JM)
-	else
-	vaf(i,jm)=0.0
-	end if
-	UAF(I,JM)=0.0
-C            SOUTH
-      if (dvm(i,2).gt.0.5) then 
-      GAE=DTE*SQRT(GRAV*H(I,2))/DY(1)
-	VAF(I,2)=GAE*VA(I,3)+(1.-GAE)*VA(I,2)
-	else
-	vaf(i,2)=0.0
-	end if
-	vaf(i,1)=vaf(i,1)
-	UAF(I,1)=0.0
- 220  CONTINUE
-C---------------------------
-C
-      DO 240 J=1,JM
-      DO 240 I=1,IM
-      UAF(I,J)=UAF(I,J)*DUM(I,J)
- 240  VAF(I,J)=VAF(I,J)*DVM(I,J)
-      RETURN
-C
-C
- 30   CONTINUE
-      RETURN
-      END
-C
 C               
 C                  
       SUBROUTINE SLPMIN(H,IM,JM,FSM,SL)

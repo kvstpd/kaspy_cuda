@@ -175,6 +175,27 @@ extern "C" void CYCLER_WSURF(int * icycler, float * ro_ratio)
 }
 
 
+// GFortran Unix naming
+extern "C" void cycler_find_elves_(int * icycler)
+{
+	if (cycler)
+	{
+		cycler->findElves();
+	}
+}
+
+// Intel Fortran WIN naming
+extern "C" void CYCLER_FIND_ELVES(int * icycler)
+{
+	if (cycler)
+	{
+		cycler->findElves();
+	}
+}
+
+
+
+
 void _i_cycler_destroy(int * icycler)
 {
     _i_cycler_time();

@@ -3,8 +3,8 @@
       PARAMETER (IMM2=IM-2,JMM2=JM-2)
       PARAMETER (LIJ=IM*JM)
       COMMON/BLKCON/
-     1          dht,GRAV,timeh,timeh6,tide_l,tide_l0,
-     2          IINT,IPRINT,DTE,DTI,TPRNI,UMOL,xmi,xma,ymi,yma
+     1     dht,GRAV,timeh,timeh6,tide_l,tide_l0,elfmin, elfmax,
+     2     IINT,IPRINT,DTE,DTI,TPRNI,UMOL,xmi,xma,ymi,yma
 C---------------- 2-D ARRAYS --------------------------------------
       COMMON/BLK2D/arrays_marker,H(IM,JM),DX(JM),DY(JM),D(IM,JM),
      1     ART(JM),ARU(JM),ARV(JM),CBC(IM,JM),

@@ -27,6 +27,8 @@ typedef struct{
     double timeh6;
     double tide_l;
     double tide_l0;
+	float elfmin;
+	float elfmax;
     int iint;
     int iprint;
     double dte;
