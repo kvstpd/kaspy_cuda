@@ -493,6 +493,8 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	setbuf(stdout,NULL);
 	printf("after call\n");
 	setbuf(stdout,NULL);
+	printf("after call %f\n", g_elb[0]);
+	
 	
 	/*,  g_fbu,  g_ffu,  g_fbv,  g_ffv,  g_dum,  g_dvm,  g_d,  g_wusurf,  g_wvsurf,  g_fluxua,  g_fluxva,  g_dx,  g_dy,  g_ua,  g_va,  g_fxf,  g_fyf, g_fxb,  g_fyb);*/
 
@@ -538,11 +540,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
     
     /// HERE SHOULD START A NEW CUDA CALL TO KEEP fluxua fluxva synced
 	
-	
-	setbuf(stdout,NULL);
-	printf("b call 2\n");
-	setbuf(stdout,NULL);
-	
+    
     float dte2 = m_fVars->dte * 2.0f;
     
     for (int j=1; j<(m_height-1); j++ )
@@ -555,16 +553,11 @@ void KaspyCycler::makeWsurf(float ro_ratio)
             jp1i = ji + m_width;
             jip1 = ji + 1;
             
-			g_elf[ji] = g_elb[ji] - dte2;// *
-                //(g_fluxua[jip1] - g_fluxua[ji] + g_fluxva[jp1i] - g_fluxva[ji]) /  artj;
+            g_elf[ji] = g_elb[ji] - dte2 *
+                (g_fluxua[jip1] - g_fluxua[ji] + g_fluxva[jp1i] - g_fluxva[ji]) /  artj;
             
         }
     }
-	
-	
-	setbuf(stdout,NULL);
-	printf("a call 2\n");
-	setbuf(stdout,NULL);
  
 
 
