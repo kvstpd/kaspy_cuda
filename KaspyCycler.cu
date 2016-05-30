@@ -97,7 +97,6 @@ __constant__ __device__ int g_ewidth;
 
 
 
-// Kernel definition
 __global__ void surf_and_flux_1(float ftim, float ro_ratio, float * g_fbu, float * g_ffu, float * g_fbv, float * g_ffv, float * g_dum, float * g_dvm, float * g_d, float * g_wusurf, float * g_wvsurf, float * g_fluxua, float * g_fluxva, float * g_dx, float * g_dy, float * g_ua, float * g_va, float * g_fxf, float * g_fyf, float * g_fxb, float *  g_fyb)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -472,12 +471,12 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	
 	float ftim = fmodf(timeh6, 1.0f);
 	
-	int threadsPerBlock = 64;
+	//int threadsPerBlock = 64;
 	
 	//int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
 	//int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
 	
-	dim3 threadsPerSquareBlock(128, 8);
+	dim3 threadsPerSquareBlock(8, 8);
 	
 	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
