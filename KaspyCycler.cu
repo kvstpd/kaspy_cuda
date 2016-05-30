@@ -472,11 +472,19 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	
 	float ftim = fmodf(timeh6, 1.0f);
 	
-	int threadsPerBlock = 32;
-	int blocksPerGrid = (F_DATA_SIZE + threadsPerBlock - 1) / threadsPerBlock;
+	int threadsPerBlock = 64;
 	
-
-	surf_and_flux_1<<<blocksPerGrid, threadsPerBlock>>>(ftim, ro_ratio,  g_fbu,  g_ffu,  g_fbv,  g_ffv,  g_dum,  g_dvm,  g_d,  g_wusurf,  g_wvsurf,  g_fluxua,  g_fluxva,  g_dx,  g_dy,  g_ua,  g_va,  g_fxf,  g_fyf, g_fxb,  g_fyb);
+	//int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
+	//int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
+	
+	dim3 threadsPerSquareBlock(128, 8);
+	
+	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
+	
+	cudaError_t err = cudaSuccess;
+	
+	
+	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim, ro_ratio,  g_fbu,  g_ffu,  g_fbv,  g_ffv,  g_dum,  g_dvm,  g_d,  g_wusurf,  g_wvsurf,  g_fluxua,  g_fluxva,  g_dx,  g_dy,  g_ua,  g_va,  g_fxf,  g_fyf, g_fxb,  g_fyb);
 
     
     /*
