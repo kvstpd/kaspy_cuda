@@ -89,8 +89,91 @@ __constant__ __device__  float g_grav = 9.806;
 
 __constant__ __device__  int  g_width;
 __constant__ __device__  int  g_height;
+__constant__ __device__  int  g_widthm1;
+__constant__ __device__  int  g_heightm1;
 
 __constant__ __device__ int g_ewidth;
+
+
+
+
+// Kernel definition
+__global__ void surf_and_flux_1(float ftim, float ro_ratio)
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * g_width + i;
+ 	int jp1i = ji + g_width;
+ 	int jip1 = ji + 1;
+ 	int jim1 = ji - 1;
+ 	int jm1i = ji - g_width;
+	
+	float btim = 1.0f - ftim;
+	
+	
+	if (i < g_widthm1 && j < g_heightm1)
+	{
+		float uw = btim * (g_fbu[ji]) + ftim * (g_ffu[ji]);
+		float vw = btim * (g_fbv[ji]) + ftim * (g_ffv[ji]);
+		
+		float speed = sqrtf(uw*uw + vw*vw);
+		float windc = 0.001f * (0.8f + speed * 0.065f) * ro_ratio * speed;
+		
+		g_wusurf[ji] = -windc * uw *
+		0.25f * (g_dum[jp1i]+g_dum[jip1]+g_dum[jim1]+g_dum[jm1i])
+		+ 0.5f * (g_d[ji] + g_d[jim1]) * (btim * g_fxb[ji] + ftim * g_fxf[ji]);
+		
+		g_wvsurf[ji] = -windc * vw *
+		0.25f * (g_dvm[jp1i]+g_dvm[jip1]+g_dvm[jim1]+g_dvm[jm1i])
+		+ 0.5f * (g_d[ji] + g_d[jm1i]) * (btim * g_fyb[ji] + ftim * g_fyf[ji]);
+	}
+	
+	if (i < g_width && j < g_height)
+	{
+		g_fluxua[ji] = 0.25f * (g_d[ji] + g_d[jim1]) * (g_dy[j] + g_dy[j] ) * g_ua[ji];
+		g_fluxva[ji] = 0.25f * (g_d[ji] + g_d[jm1i]) * (g_dx[j] + g_dx[j-1] ) * g_va[ji];
+	}
+}
+
+
+/*
+ btim = 1.0f - ftim;
+ 
+ for (int j=1; j<m_height; j++ )
+ {
+ for (int i=1; i<m_width; i++ )
+ {
+ if ((j<(m_height-1)) && i<(m_width-1))
+ {
+ ji = j * m_width + i;
+ jp1i = ji + m_width;
+ jip1 = ji + 1;
+ jim1 = ji - 1;
+ jm1i = ji - m_width;
+ 
+ uw = btim * (g_fbu[ji]) + ftim * (g_ffu[ji]);
+ vw = btim * (g_fbv[ji]) + ftim * (g_ffv[ji]);
+ 
+ speed = sqrtf(uw*uw + vw*vw);
+ windc = 0.001f * (0.8f + speed * 0.065f) * ro_ratio * speed;
+ 
+ g_wusurf[ji] = -windc * uw *
+ 0.25f * (g_dum[jp1i]+g_dum[jip1]+g_dum[jim1]+g_dum[jm1i])
+ + 0.5f * (g_d[ji] + g_d[jim1]) * (btim * g_fxb[ji] + ftim * g_fxf[ji]);
+ 
+ g_wvsurf[ji] = -windc * vw *
+ 0.25f * (g_dvm[jp1i]+g_dvm[jip1]+g_dvm[jim1]+g_dvm[jm1i])
+ + 0.5f * (g_d[ji] + g_d[jm1i]) * (btim * g_fyb[ji] + ftim * g_fyf[ji]);
+ }
+ 
+ 
+ 
+ g_fluxua[ji] = 0.25f * (g_d[ji] + g_d[jim1]) * (g_dy[j] + g_dy[j] ) * g_ua[ji];
+ g_fluxva[ji] = 0.25f * (g_d[ji] + g_d[jm1i]) * (g_dx[j] + g_dx[j-1] ) * g_va[ji];
+ 
+ }
+ }*/
 
 
 
@@ -135,10 +218,13 @@ void KaspyCycler::findElves()
 void KaspyCycler::sendDataToGPU()
 {
 	//int ewidth = ((int)m_pitch) / sizeof(float);
+	int wm1 = m_width - 1 ;
+	int hm1 = m_height - 1 ;
 	
 	if ( (cudaMemcpyToSymbol(g_width, &m_width, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(g_height, &m_height, sizeof(int))  == cudaSuccess)
-		
+		&&(cudaMemcpyToSymbol(g_widthm1, &wm1, sizeof(int))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(g_heightm1, &hm1, sizeof(int))  == cudaSuccess)
 		//&& (cudaMemcpyToSymbol(g_ewidth, &ewidth,  sizeof(int))  == cudaSuccess)
 		)
 	{
@@ -287,7 +373,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 {
     m_fVars->timeh6 = (m_fVars->timeh / m_fVars->dht) + 1.0f;
 
-    float timeh6 = m_fVars->timeh6;
+    float timeh6 = (float)m_fVars->timeh6;
 	
     int pressSize = m_fWindData->kx * m_fWindData->ky;
     int windUSize = m_fWindData->kxu * m_fWindData->kyu;
@@ -297,8 +383,8 @@ void KaspyCycler::makeWsurf(float ro_ratio)
     
     itime6 = (int)timeh6;
 
-    ftim = (timeh6 - itime6);
-    btim = 1.0f - ftim;
+    //ftim = (timeh6 - itime6);
+    //btim = 1.0f - ftim;
     
     if (itime6 > itime6_old)
     {
@@ -382,10 +468,18 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	
     float uw, vw, speed, windc;
     int ji, jp1i, jip1, jim1, jm1i, jp1ip1, jm1im1, jp1im1, jm1ip1, jl, jlm1, j1, j2, j3, jli, jlm1i, j1i, j2i, j3i;
+	
+	
+	float ftim = fmodf(timeh6, 1.0f);
+	
+	int threadsPerBlock = 32;
+	int blocksPerGrid = (F_DATA_SIZE + threadsPerBlock - 1) / threadsPerBlock;
+	
 
+	surf_and_flux_1<<<blocksPerGrid, threadsPerBlock>>>(ftim, ro_ratio);
 
     
-    ftim = fmodf((float)m_fVars->timeh6, 1.0f);
+    /*
     btim = 1.0f - ftim;
     
     for (int j=1; j<m_height; j++ )
@@ -421,7 +515,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
             g_fluxva[ji] = 0.25f * (g_d[ji] + g_d[jm1i]) * (g_dx[j] + g_dx[j-1] ) * g_va[ji];
             
         }
-    }
+    }*/
     
     
     /// HERE SHOULD START A NEW CUDA CALL TO KEEP fluxua fluxva synced

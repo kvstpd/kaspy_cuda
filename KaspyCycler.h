@@ -81,8 +81,8 @@ public:
     
     
 private:
-    float ftim;
-    float btim;
+    //float ftim;
+    //float btim;
     int itime6;
     int itime6_old;
     
