@@ -83,6 +83,8 @@ __device__ float * dev_press0 = 0;
 __device__ float * dev_uwd0 = 0;
 __device__ float * dev_vwd0 = 0;
 
+__device__ float * dev_art = 0;
+
 
 float * g_fbu = 0;
 float * g_fbv = 0;
@@ -147,6 +149,8 @@ float * g_press0 = 0;
 float * g_uwd0 = 0;
 float * g_vwd0 = 0;
 
+float * g_art = 0;
+
 
 __constant__ __device__  float g_grav = 9.806;
 __constant__ __device__  float dev_ro_ratio = 1.29/1020.0;
@@ -158,6 +162,8 @@ __constant__ __device__  int  dev_heightm1;
 
 __constant__ __device__ int dev_ewidth;
 
+
+__constant__ __device__ int dev_dte2;
 
 /**/
 
@@ -198,6 +204,25 @@ __global__ void surf_and_flux_1(float ftim)
 		dev_fluxva[ji] = 0.25f * (dev_d[ji] + dev_d[jm1i]) * (dev_dx[j] + dev_dx[j-1] ) * dev_va[ji];
 	}
 }
+
+
+__global__ void elf_and_flux_2()
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * m_width + i;
+	int jp1i = ji + m_width;
+	int jip1 = ji + 1;
+	
+	if (i > 0 && j > 0 && i < dev_widthm1 && j < dev_heightm1)
+	{		
+		dev_elf[ji] = dev_elb[ji] - dev_dte2 *
+		(dev_fluxua[jip1] - dev_fluxua[ji] + dev_fluxva[jp1i] - dev_fluxva[ji]) / dev_art[j];
+	}
+
+}
+
 
 
 /*
@@ -283,11 +308,13 @@ void KaspyCycler::sendDataToGPU()
 	//int ewidth = ((int)m_pitch) / sizeof(float);
 	int wm1 = m_width - 1 ;
 	int hm1 = m_height - 1 ;
+	float dte2 = m_fVars->dte * 2.0f;
 	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_height, &m_height, sizeof(int))  == cudaSuccess)
 		&&(cudaMemcpyToSymbol(dev_widthm1, &wm1, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_heightm1, &hm1, sizeof(int))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_dte2, &dte2, sizeof(float))  == cudaSuccess)
 		//&& (cudaMemcpyToSymbol(dev_ewidth, &ewidth,  sizeof(int))  == cudaSuccess)
 		)
 	{
@@ -349,6 +376,7 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpy(g_cor, &m_fArrays->cor[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_aru, &m_fArrays->aru[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_arv, &m_fArrays->arv[0],  m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy(g_art, &m_fArrays->art[0],  m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_dx, &m_fArrays->dx[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_dy, &m_fArrays->dy[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess))
 		
@@ -549,24 +577,10 @@ void KaspyCycler::makeWsurf()
     
     /// HERE SHOULD START A NEW CUDA CALL TO KEEP fluxua fluxva synced
 	
-    
-    float dte2 = m_fVars->dte * 2.0f;
-    
-    for (int j=1; j<(m_height-1); j++ )
-    {
-        float artj = m_fArrays->art[j];
-        
-        for (int i=1; i<(m_width-1); i++ )
-        {
-            ji = j * m_width + i;
-            jp1i = ji + m_width;
-            jip1 = ji + 1;
-            
-            g_elf[ji] = g_elb[ji] - dte2 *
-                (g_fluxua[jip1] - g_fluxua[ji] + g_fluxva[jp1i] - g_fluxva[ji]) /  artj;
-            
-        }
-    }
+	elf_and_flux_2<<<numSquareBlocks, threadsPerSquareBlock>>>();
+	cudaDeviceSynchronize();
+
+
  
 
 
@@ -1436,6 +1450,8 @@ int KaspyCycler::init_device()
 		&& (cudaMallocManaged((void **)&g_cor, m_height * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
 		&& (cudaMallocManaged((void **)&g_aru, m_height * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
 		&& (cudaMallocManaged((void **)&g_arv, m_height * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
+		&& (cudaMallocManaged((void **)&g_art, m_height * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
+		
 		&& (cudaMallocManaged((void **)&g_dx, m_height * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
 		&& (cudaMallocManaged((void **)&g_dy, m_height * sizeof(float), cudaMemAttachGlobal) == cudaSuccess))
 	{
@@ -1487,6 +1503,7 @@ int KaspyCycler::init_device()
 		&& (cudaMemcpyToSymbol(dev_advva, &g_advva, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_aru, &g_aru, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_arv, &g_arv, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_art, &g_art, sizeof(float *)) == cudaSuccess)
 
 		&& (cudaMemcpyToSymbol(dev_wubot, &g_wubot, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_wvbot, &g_wvbot, sizeof(float *)) == cudaSuccess)
@@ -1678,6 +1695,11 @@ void KaspyCycler::deinit_device()
 		if (g_arv)
 		{
 			cudaFree(g_arv);
+		}
+		
+		if (g_art)
+		{
+			cudaFree(g_art);
 		}
 		
 		if (g_wubot)
