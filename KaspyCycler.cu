@@ -1523,6 +1523,38 @@ int KaspyCycler::init_device()
 		&& (cudaMemcpyToSymbol(dev_dum, &g_dum, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_dvm, &g_dvm, sizeof(float *)) == cudaSuccess)
 
+		&& (cudaMemcpyToSymbol(dev_d, &g_d, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_dx, &g_dx, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_dy, &g_dy, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_fluxua, &g_fluxua, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_fluxva, &g_fluxva, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_ua, &g_ua, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_va, &g_va, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_uab, &g_uab, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_vab, &g_vab, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_uaf, &g_uaf, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_vaf, &g_vaf, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_el, &g_el, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_elf, &g_elf, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_elb, &g_elb, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_fsm, &g_fsm, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_tps, &g_tps, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_advua, &g_advua, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_advva, &g_advva, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_aru, &g_aru, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_arv, &g_arv, sizeof(float *)) == cudaSuccess)
+
+		&& (cudaMemcpyToSymbol(dev_wubot, &g_wubot, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_wvbot, &g_wvbot, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_cbc, &g_cbc, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_cor, &g_cor, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_h, &g_h, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_press0, &g_press0, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_uwd0, &g_uwd0, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_vwd0, &g_vwd0, sizeof(float *)) == cudaSuccess)
+
+		
+		
 		)
 	{
 		printf("Device pointers initialized\n");
@@ -1534,57 +1566,6 @@ int KaspyCycler::init_device()
 		return m_gpu_device;
 	}
 	
-	/*
-
-	 
-	 __device__ float * dev_ = 0;
-	 __device__ float * dev_ = 0;
-	 
-	 __device__ float * dev_d = 0;
-	 __device__ float * dev_dx = 0;
-	 __device__ float * dev_dy = 0;
-	 
-	 __device__ float * dev_fluxua = 0;
-	 __device__ float * dev_fluxva = 0;
-	 
-	 __device__ float * dev_ua = 0;
-	 __device__ float * dev_va = 0;
-	 
-	 __device__ float * dev_uab = 0;
-	 __device__ float * dev_vab = 0;
-	 
-	 __device__ float * dev_uaf = 0;
-	 __device__ float * dev_vaf = 0;
-	 
-	 
-	 __device__ float * dev_el = 0;
-	 __device__ float * dev_elf = 0;
-	 __device__ float * dev_elb = 0;
-	 
-	 __device__ float * dev_fsm = 0;
-	 
-	 __device__ float * dev_tps = 0;
-	 
-	 
-	 __device__ float * dev_advua = 0;
-	 __device__ float * dev_advva = 0;
-	 
-	 __device__ float * dev_aru = 0;
-	 __device__ float * dev_arv = 0;
-	 
-	 __device__ float * dev_wubot = 0;
-	 __device__ float * dev_wvbot = 0;
-	 __device__ float * dev_cbc = 0;
-	 
-	 __device__ float * dev_cor = 0;
-	 
-	 __device__ float * dev_h = 0;
-	 
-	 __device__ float * dev_press0 = 0;
-	 __device__ float * dev_uwd0 = 0;
-	 __device__ float * dev_vwd0 = 0;
-	 
-	 */
 	
 	
 	return m_gpu_device;
