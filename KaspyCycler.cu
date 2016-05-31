@@ -163,7 +163,7 @@ __constant__ __device__  int  dev_heightm1;
 __constant__ __device__ int dev_ewidth;
 
 
-__constant__ __device__ int dev_dte2;
+__constant__ __device__ float dev_dte2;
 
 /**/
 
@@ -226,33 +226,23 @@ __global__ void elf_and_flux_2()
 
 
 /*
- btim = 1.0f - ftim;
+ float dte2 = m_fVars->dte * 2.0f;
  
- for (int j=1; j<m_height; j++ )
+ for (int j=1; j<(m_height-1); j++ )
  {
- for (int i=1; i<m_width; i++ )
- {
- if ((j<(m_height-1)) && i<(m_width-1))
+ float artj = m_fArrays->art[j];
+ 
+ for (int i=1; i<(m_width-1); i++ )
  {
  ji = j * m_width + i;
  jp1i = ji + m_width;
  jip1 = ji + 1;
- jim1 = ji - 1;
- jm1i = ji - m_width;
  
- uw = btim * (g_fbu[ji]) + ftim * (g_ffu[ji]);
- vw = btim * (g_fbv[ji]) + ftim * (g_ffv[ji]);
+ g_elf[ji] = g_elb[ji] - dte2 *
+ (g_fluxua[jip1] - g_fluxua[ji] + g_fluxva[jp1i] - g_fluxva[ji]) /  artj;
  
- speed = sqrtf(uw*uw + vw*vw);
- windc = 0.001f * (0.8f + speed * 0.065f) * ro_ratio * speed;
- 
- g_wusurf[ji] = -windc * uw *
- 0.25f * (g_dum[jp1i]+g_dum[jip1]+g_dum[jim1]+g_dum[jm1i])
- + 0.5f * (g_d[ji] + g_d[jim1]) * (btim * g_fxb[ji] + ftim * g_fxf[ji]);
- 
- g_wvsurf[ji] = -windc * vw *
- 0.25f * (g_dvm[jp1i]+g_dvm[jip1]+g_dvm[jim1]+g_dvm[jm1i])
- + 0.5f * (g_d[ji] + g_d[jm1i]) * (btim * g_fyb[ji] + ftim * g_fyf[ji]);
+ }
+ }
  }
  
  
@@ -571,7 +561,7 @@ void KaspyCycler::makeWsurf()
 	
 	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim);
 	
-	//cudaDeviceSynchronize();
+	cudaDeviceSynchronize();
 	
 	
     
