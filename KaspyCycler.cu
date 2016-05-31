@@ -633,7 +633,7 @@ void KaspyCycler::makeWsurf()
 	bcond_1_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
 
 
-	cudaDeviceSynchronize();
+	
 	
 	if (m_fVars->iint % 10 == 0)
 	{//ADVAVE()
@@ -642,6 +642,8 @@ void KaspyCycler::makeWsurf()
 		
 		//memset(g_advua, 0, F_DATA_SIZE * sizeof(float));
 		//memset(g_fluxua, 0, F_DATA_SIZE * sizeof(float));
+		
+		cudaDeviceSynchronize();
 		
 		
 		float aam2d = m_fArrays->aam2d;
@@ -807,6 +809,8 @@ void KaspyCycler::makeWsurf()
 		
 		// END ADVAVE();
 	}
+	
+	cudaDeviceSynchronize();
 	
 	float alpha =  0.225f;
 	float dte = m_fVars->dte;
