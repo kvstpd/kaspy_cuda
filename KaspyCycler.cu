@@ -247,7 +247,7 @@ __global__ void bcond_1_i()
 	{
 		dev_elf[i] =  dev_elf[i + dev_width];
 		
-		dev_elf[i + dev_width * (dev_height - 1)  ] =  g_elf[i + dev_width * (dev_height - 2)];
+		dev_elf[i + dev_width * (dev_height - 1)  ] =  dev_elf[i + dev_width * (dev_height - 2)];
 	}
 }
 
