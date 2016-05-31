@@ -571,7 +571,7 @@ void KaspyCycler::makeWsurf()
 	
 	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim);
 	
-	cudaDeviceSynchronize();
+	//cudaDeviceSynchronize();
 	
 	
     
