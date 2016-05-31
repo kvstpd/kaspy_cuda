@@ -1449,7 +1449,7 @@ int KaspyCycler::init_device()
 	
 	
 	
-	if (cudaMemcpyToSymbol(dev_fbu, &g_fbu, sizeof(g_fbu)) == cudaSuccess)
+	if ( (cudaMemcpyToSymbol(dev_fbu, &g_fbu, sizeof(g_fbu)) == cudaSuccess)
 		)
 	{
 		printf("Device pointers initialized\n");
