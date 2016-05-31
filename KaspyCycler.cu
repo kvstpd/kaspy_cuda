@@ -164,6 +164,7 @@ __constant__ __device__ int dev_ewidth;
 
 
 __constant__ __device__ float dev_dte2;
+__constant__ __device__ float dev_tide_l;
 
 /**/
 
@@ -224,34 +225,75 @@ __global__ void elf_and_flux_2()
 }
 
 
+__global__ void bcond_1_j()
+{
+	int j = blockDim.x * blockIdx.x + threadIdx.x;
+	
+	if (j > 0 && j < dev_height)
+	{
+		dev_elf[j * dev_width + 1] = dev_tide_l;
+		dev_elf[j * dev_width + dev_width - 2] = dev_tide_l;
+		
+		dev_elf[j * dev_width] = tide_l;
+		dev_elf[j * dev_width + dev_width - 1] = dev_tide_l;
+	}
+}
+
+__global__ void bcond_1_i()
+{
+	int i = blockDim.x * blockIdx.x + threadIdx.x;
+	
+	if (i > 0 && i< dev_width)
+	{
+		dev_elf[i] =  dev_elf[i + dev_width];
+		
+		dev_elf[i + dev_width * (dev_height - 1)  ] =  g_elf[i + dev_width * (dev_height - 2)];
+	}
+}
+
+
+__global__ void bcond_1_ji()
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * dev_width + i;
+	
+	
+	if (i > 0 && j > 0 && i < dev_width && j < dev_height)
+	{
+		dev_elf[ji] *= dev_fsm[ji];
+	}
+	
+}
+
 
 /*
- float dte2 = m_fVars->dte * 2.0f;
+	for (int j=1; j<m_height; j++ )
+	{
+ g_elf[j * m_width + 1] = tide_l;
+ g_elf[j * m_width + m_width - 2] = tide_l;
  
- for (int j=1; j<(m_height-1); j++ )
- {
- float artj = m_fArrays->art[j];
+ g_elf[j * m_width] = tide_l;
+ g_elf[j * m_width + m_width - 1] = tide_l;
+	}
+	
+	for (int i=1; i<m_width; i++ )
+	{
+ g_elf[i] =  g_elf[i + m_width];
  
- for (int i=1; i<(m_width-1); i++ )
+ g_elf[i + m_width * (m_height - 1)  ] =  g_elf[i + m_width * (m_height - 2)];
+	}
+	
+	for (int j=1; j<m_height; j++ )
+	{
+ for (int i=1; i<m_width; i++ )
  {
  ji = j * m_width + i;
- jp1i = ji + m_width;
- jip1 = ji + 1;
  
- g_elf[ji] = g_elb[ji] - dte2 *
- (g_fluxua[jip1] - g_fluxua[ji] + g_fluxva[jp1i] - g_fluxva[ji]) /  artj;
- 
+ g_elf[ji] *= g_fsm[ji];
  }
- }
- }
- 
- 
- 
- g_fluxua[ji] = 0.25f * (g_d[ji] + g_d[jim1]) * (g_dy[j] + g_dy[j] ) * g_ua[ji];
- g_fluxva[ji] = 0.25f * (g_d[ji] + g_d[jm1i]) * (g_dx[j] + g_dx[j-1] ) * g_va[ji];
- 
- }
- }*/
+	}*/
 
 
 
@@ -299,18 +341,20 @@ void KaspyCycler::sendDataToGPU()
 	int wm1 = m_width - 1 ;
 	int hm1 = m_height - 1 ;
 	float dte2 = m_fVars->dte * 2.0f;
+	float tide_l = m_fVars->tide_l;
 	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_height, &m_height, sizeof(int))  == cudaSuccess)
 		&&(cudaMemcpyToSymbol(dev_widthm1, &wm1, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_heightm1, &hm1, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_dte2, &dte2, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_tide_l, &tide_l, sizeof(float))  == cudaSuccess)
 		//&& (cudaMemcpyToSymbol(dev_ewidth, &ewidth,  sizeof(int))  == cudaSuccess)
 		)
 	{
 		printf("GPU constant memory filled\n");
 		
-		//int test_ewidth = 0;
+		//int test_ewidth = 0;dev_dte2
 		
 		//cudaMemcpyFromSymbol(&test_ewidth, g_ewidth, sizeof(int));
 		
@@ -568,41 +612,28 @@ void KaspyCycler::makeWsurf()
     /// HERE SHOULD START A NEW CUDA CALL TO KEEP fluxua fluxva synced
 	
 	elf_and_flux_2<<<numSquareBlocks, threadsPerSquareBlock>>>();
-	cudaDeviceSynchronize();
+	
 
 
  
 
 
 	/// BCOND 1
-	float tide_l = m_fVars->tide_l;
+	//float tide_l = m_fVars->tide_l;
 	
-	for (int j=1; j<m_height; j++ )
-	{
-		g_elf[j * m_width + 1] = tide_l;
-		g_elf[j * m_width + m_width - 2] = tide_l;
-		
-		g_elf[j * m_width] = tide_l;
-		g_elf[j * m_width + m_width - 1] = tide_l;
-	}
+	int threadsPerBlock = 64;
+	//int blocksPerGrid = (data_size + threadsPerBlock - 1) / threadsPerBlock;
 	
-	for (int i=1; i<m_width; i++ )
-	{
-		g_elf[i] =  g_elf[i + m_width];
-		
-		g_elf[i + m_width * (m_height - 1)  ] =  g_elf[i + m_width * (m_height - 2)];
-	}
+	int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
+	int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
 	
-	for (int j=1; j<m_height; j++ )
-	{
-		for (int i=1; i<m_width; i++ )
-		{
-			ji = j * m_width + i;
-			
-			g_elf[ji] *= g_fsm[ji];
-		}
-	}
+	bcond_1_j<<< blocksPerGridJ, threadsPerBlock>>>();
+	bcond_1_i<<< blocksPerGridI, threadsPerBlock>>>();
+	
+	bcond_1_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
 
+
+	cudaDeviceSynchronize();
 	
 	if (m_fVars->iint % 10 == 0)
 	{//ADVAVE()
