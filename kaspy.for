@@ -321,7 +321,7 @@ C   Evaluate external CFL time step
       sue=0
       sve=0
       
-      ro_ratio=1.29/1020.0
+c      ro_ratio=1.29/1020.0
       
       NSTAT=0
       BTIM=1
@@ -381,7 +381,7 @@ c STATISTICS WAS HERE
 	   end if
 
 
-       call cycler_wsurf(icycler, ro_ratio)
+       call cycler_wsurf(icycler)
 
 
        iold=itimeh

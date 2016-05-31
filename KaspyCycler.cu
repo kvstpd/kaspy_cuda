@@ -149,52 +149,53 @@ float * g_vwd0 = 0;
 
 
 __constant__ __device__  float g_grav = 9.806;
+__constant__ __device__  float dev_ro_ratio = 1.29/1020.0;
 
-__constant__ __device__  int  g_width;
-__constant__ __device__  int  g_height;
-__constant__ __device__  int  g_widthm1;
-__constant__ __device__  int  g_heightm1;
+__constant__ __device__  int  dev_width;
+__constant__ __device__  int  dev_height;
+__constant__ __device__  int  dev_widthm1;
+__constant__ __device__  int  dev_heightm1;
 
-__constant__ __device__ int g_ewidth;
+__constant__ __device__ int dev_ewidth;
 
 
 /**/
 
-__global__ void surf_and_flux_1(float ftim, float ro_ratio, float * g_fbu, float * g_ffu, float * g_fbv, float * g_ffv, float * g_dum, float * g_dvm, float * g_d, float * g_wusurf, float * g_wvsurf, float * g_fluxua, float * g_fluxva, float * g_dx, float * g_dy, float * g_ua, float * g_va, float * g_fxf, float * g_fyf, float * g_fxb, float *  g_fyb)
+__global__ void surf_and_flux_1(float ftim)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
-	int ji = j * g_width + i;
- 	int jp1i = ji + g_width;
- 	int jip1 = ji + 1;
- 	int jim1 = ji - 1;
- 	int jm1i = ji - g_width;
+	int ji = j * dev_width + i;
+	int jp1i = ji + dev_width;
+	int jip1 = ji + 1;
+	int jim1 = ji - 1;
+	int jm1i = ji - dev_width;
 	
 	float btim = 1.0f - ftim;
 	
 	
-	if (i < g_widthm1 && j < g_heightm1)
+	if (i < dev_widthm1 && j < dev_heightm1)
 	{
-		float uw = btim * (g_fbu[ji]) + ftim * (g_ffu[ji]);
-		float vw = btim * (g_fbv[ji]) + ftim * (g_ffv[ji]);
+		float uw = btim * (dev_fbu[ji]) + ftim * (dev_ffu[ji]);
+		float vw = btim * (dev_fbv[ji]) + ftim * (dev_ffv[ji]);
 		
 		float speed = sqrtf(uw*uw + vw*vw);
-		float windc = 0.001f * (0.8f + speed * 0.065f) * ro_ratio * speed;
+		float windc = 0.001f * (0.8f + speed * 0.065f) * dev_ro_ratio * speed;
 		
-		g_wusurf[ji] = -windc * uw *
-		0.25f * (g_dum[jp1i]+g_dum[jip1]+g_dum[jim1]+g_dum[jm1i])
-		+ 0.5f * (g_d[ji] + g_d[jim1]) * (btim * g_fxb[ji] + ftim * g_fxf[ji]);
+		dev_wusurf[ji] = -windc * uw *
+		0.25f * (dev_dum[jp1i]+dev_dum[jip1]+dev_dum[jim1]+dev_dum[jm1i])
+		+ 0.5f * (dev_d[ji] + dev_d[jim1]) * (btim * dev_fxb[ji] + ftim * dev_fxf[ji]);
 		
-		g_wvsurf[ji] = -windc * vw *
-		0.25f * (g_dvm[jp1i]+g_dvm[jip1]+g_dvm[jim1]+g_dvm[jm1i])
-		+ 0.5f * (g_d[ji] + g_d[jm1i]) * (btim * g_fyb[ji] + ftim * g_fyf[ji]);
+		dev_wvsurf[ji] = -windc * vw *
+		0.25f * (dev_dvm[jp1i]+dev_dvm[jip1]+dev_dvm[jim1]+dev_dvm[jm1i])
+		+ 0.5f * (dev_d[ji] + dev_d[jm1i]) * (btim * dev_fyb[ji] + ftim * dev_fyf[ji]);
 	}
 	
-	if (i < g_width && j < g_height)
+	if (i < dev_width && j < dev_height)
 	{
-		g_fluxua[ji] = 0.25f * (g_d[ji] + g_d[jim1]) * (g_dy[j] + g_dy[j] ) * g_ua[ji];
-		g_fluxva[ji] = 0.25f * (g_d[ji] + g_d[jm1i]) * (g_dx[j] + g_dx[j-1] ) * g_va[ji];
+		dev_fluxua[ji] = 0.25f * (dev_d[ji] + dev_d[jim1]) * (dev_dy[j] + dev_dy[j] ) * dev_ua[ji];
+		dev_fluxva[ji] = 0.25f * (dev_d[ji] + dev_d[jm1i]) * (dev_dx[j] + dev_dx[j-1] ) * dev_va[ji];
 	}
 }
 
@@ -283,11 +284,11 @@ void KaspyCycler::sendDataToGPU()
 	int wm1 = m_width - 1 ;
 	int hm1 = m_height - 1 ;
 	
-	if ( (cudaMemcpyToSymbol(g_width, &m_width, sizeof(int))  == cudaSuccess)
-		&& (cudaMemcpyToSymbol(g_height, &m_height, sizeof(int))  == cudaSuccess)
-		&&(cudaMemcpyToSymbol(g_widthm1, &wm1, sizeof(int))  == cudaSuccess)
-		&& (cudaMemcpyToSymbol(g_heightm1, &hm1, sizeof(int))  == cudaSuccess)
-		//&& (cudaMemcpyToSymbol(g_ewidth, &ewidth,  sizeof(int))  == cudaSuccess)
+	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_height, &m_height, sizeof(int))  == cudaSuccess)
+		&&(cudaMemcpyToSymbol(dev_widthm1, &wm1, sizeof(int))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_heightm1, &hm1, sizeof(int))  == cudaSuccess)
+		//&& (cudaMemcpyToSymbol(dev_ewidth, &ewidth,  sizeof(int))  == cudaSuccess)
 		)
 	{
 		printf("GPU constant memory filled\n");
@@ -431,7 +432,7 @@ void KaspyCycler::getDataToCPU()
 
 
 
-void KaspyCycler::makeWsurf(float ro_ratio)
+void KaspyCycler::makeWsurf()
 {
     m_fVars->timeh6 = (m_fVars->timeh / m_fVars->dht) + 1.0f;
 
@@ -445,9 +446,6 @@ void KaspyCycler::makeWsurf(float ro_ratio)
     
     itime6 = (int)timeh6;
 
-    //ftim = (timeh6 - itime6);
-    //btim = 1.0f - ftim;
-    
     if (itime6 > itime6_old)
     {
         itime6_old = itime6;
@@ -465,7 +463,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 			&& (cudaMemcpy(g_fbv,g_ffv, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
 			)
 		{
-			printf("ff arrays reset\n");
+			//printf("ff arrays reset\n");
 		}
 		else
 		{
@@ -480,7 +478,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		
 		if ( (cudaMemcpy(g_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
 		{
-			printf("pressure data copied \n");
+			//printf("pressure data copied \n");
 		}
 		else
 		{
@@ -499,7 +497,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		
 		if ( (cudaMemcpy(g_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
 		{
-			printf("wind U data copied \n");
+			//printf("wind U data copied \n");
 		}
 		else
 		{
@@ -515,7 +513,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 		
 		if ( (cudaMemcpy(g_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
 		{
-			printf("wind V data copied \n");
+			//printf("wind V data copied \n");
 		}
 		else
 		{
@@ -534,10 +532,7 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	
 	float ftim = fmodf(timeh6, 1.0f);
 	
-	//int threadsPerBlock = 64;
-	
-	//int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
-	//int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
+
 	
 	dim3 threadsPerSquareBlock(16, 16);
 	
@@ -546,62 +541,11 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	cudaError_t err = cudaSuccess;
 	
 	
-	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim, ro_ratio,  g_fbu,  g_ffu,  g_fbv,  g_ffv,  g_dum,  g_dvm,  g_d,  g_wusurf,  g_wvsurf,  g_fluxua,  g_fluxva,  g_dx,  g_dy,  g_ua,  g_va,  g_fxf,  g_fyf, g_fxb,  g_fyb);
+	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim);
 	
 	cudaDeviceSynchronize();
 	
-	//setbuf(stdout,NULL);
-	//printf("before call\n");
-	//setbuf(stdout,NULL);
-
 	
-	//setbuf(stdout,NULL);
-	//printf("after call\n");
-	//setbuf(stdout,NULL);
-	//printf("after call %f\n", g_elb[0]);
-	
-	
-	/**/
-
-    
-    /*
-    btim = 1.0f - ftim;
-    
-    for (int j=1; j<m_height; j++ )
-    {
-        for (int i=1; i<m_width; i++ )
-        {
-            if ((j<(m_height-1)) && i<(m_width-1))
-            {
-                ji = j * m_width + i;
-                jp1i = ji + m_width;
-                jip1 = ji + 1;
-                jim1 = ji - 1;
-                jm1i = ji - m_width;
-                
-                uw = btim * (g_fbu[ji]) + ftim * (g_ffu[ji]);
-                vw = btim * (g_fbv[ji]) + ftim * (g_ffv[ji]);
-                
-                speed = sqrtf(uw*uw + vw*vw);
-                windc = 0.001f * (0.8f + speed * 0.065f) * ro_ratio * speed;
-                
-                g_wusurf[ji] = -windc * uw *
-                0.25f * (g_dum[jp1i]+g_dum[jip1]+g_dum[jim1]+g_dum[jm1i])
-                + 0.5f * (g_d[ji] + g_d[jim1]) * (btim * g_fxb[ji] + ftim * g_fxf[ji]);
-                
-                g_wvsurf[ji] = -windc * vw *
-                0.25f * (g_dvm[jp1i]+g_dvm[jip1]+g_dvm[jim1]+g_dvm[jm1i])
-                + 0.5f * (g_d[ji] + g_d[jm1i]) * (btim * g_fyb[ji] + ftim * g_fyf[ji]);
-            }
-            
-
-
-            g_fluxua[ji] = 0.25f * (g_d[ji] + g_d[jim1]) * (g_dy[j] + g_dy[j] ) * g_ua[ji];
-            g_fluxva[ji] = 0.25f * (g_d[ji] + g_d[jm1i]) * (g_dx[j] + g_dx[j-1] ) * g_va[ji];
-            
-        }
-    }*/
-    
     
     /// HERE SHOULD START A NEW CUDA CALL TO KEEP fluxua fluxva synced
 	
@@ -1552,9 +1496,6 @@ int KaspyCycler::init_device()
 		&& (cudaMemcpyToSymbol(dev_press0, &g_press0, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_uwd0, &g_uwd0, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_vwd0, &g_vwd0, sizeof(float *)) == cudaSuccess)
-
-		
-		
 		)
 	{
 		printf("Device pointers initialized\n");

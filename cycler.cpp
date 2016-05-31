@@ -169,20 +169,20 @@ extern "C" void CYCLER_GET_DATA_BACK(int * icycler)
 
 
 // GFortran Unix naming
-extern "C" void cycler_wsurf_(int * icycler, float * ro_ratio)
+extern "C" void cycler_wsurf_(int * icycler)
 {
     if (cycler)
     {
-        cycler->makeWsurf(*ro_ratio);
+        cycler->makeWsurf();
     }
 }
 
 // Intel Fortran WIN naming
-extern "C" void CYCLER_WSURF(int * icycler, float * ro_ratio)
+extern "C" void CYCLER_WSURF(int * icycler)
 {
     if (cycler)
     {
-        cycler->makeWsurf(*ro_ratio);
+        cycler->makeWsurf();
     }
 }
 

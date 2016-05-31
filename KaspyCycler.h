@@ -60,7 +60,7 @@ public:
 
     void findElves();
     
-    void makeWsurf(float ro_ratio);
+    void makeWsurf();
     
     
     
