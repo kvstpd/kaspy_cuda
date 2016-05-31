@@ -95,23 +95,23 @@ __constant__ __device__  int  g_heightm1;
 __constant__ __device__ int g_ewidth;
 
 
-/*, float * g_fbu, float * g_ffu, float * g_fbv, float * g_ffv, float * g_dum, float * g_dvm, float * g_d, float * g_wusurf, float * g_wvsurf, float * g_fluxua, float * g_fluxva, float * g_dx, float * g_dy, float * g_ua, float * g_va, float * g_fxf, float * g_fyf, float * g_fxb, float *  g_fyb*/
+/**/
 
-__global__ void surf_and_flux_1(float ftim, float ro_ratio)
+__global__ void surf_and_flux_1(float ftim, float ro_ratio, float * g_fbu, float * g_ffu, float * g_fbv, float * g_ffv, float * g_dum, float * g_dvm, float * g_d, float * g_wusurf, float * g_wvsurf, float * g_fluxua, float * g_fluxva, float * g_dx, float * g_dy, float * g_ua, float * g_va, float * g_fxf, float * g_fyf, float * g_fxb, float *  g_fyb)
 {
-	/*int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * g_width + i;
  	int jp1i = ji + g_width;
  	int jip1 = ji + 1;
  	int jim1 = ji - 1;
- 	int jm1i = ji - g_width;*/
+ 	int jm1i = ji - g_width;
 	
 	float btim = 1.0f - ftim;
 	
 	
-	/*if (i < g_widthm1 && j < g_heightm1)
+	if (i < g_widthm1 && j < g_heightm1)
 	{
 		float uw = btim * (g_fbu[ji]) + ftim * (g_ffu[ji]);
 		float vw = btim * (g_fbv[ji]) + ftim * (g_ffv[ji]);
@@ -132,7 +132,7 @@ __global__ void surf_and_flux_1(float ftim, float ro_ratio)
 	{
 		g_fluxua[ji] = 0.25f * (g_d[ji] + g_d[jim1]) * (g_dy[j] + g_dy[j] ) * g_ua[ji];
 		g_fluxva[ji] = 0.25f * (g_d[ji] + g_d[jm1i]) * (g_dx[j] + g_dx[j-1] ) * g_va[ji];
-	}*/
+	}
 }
 
 
@@ -476,28 +476,26 @@ void KaspyCycler::makeWsurf(float ro_ratio)
 	//int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
 	//int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
 	
-	/*dim3 threadsPerSquareBlock(4, 4);
+	dim3 threadsPerSquareBlock(16, 16);
 	
 	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
-	cudaError_t err = cudaSuccess;*/
+	cudaError_t err = cudaSuccess;
 	
 	
-	//surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim, ro_ratio);
-	setbuf(stdout,NULL);
-	printf("before call\n");
-	setbuf(stdout,NULL);
+	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim, ro_ratio,  g_fbu,  g_ffu,  g_fbv,  g_ffv,  g_dum,  g_dvm,  g_d,  g_wusurf,  g_wvsurf,  g_fluxua,  g_fluxva,  g_dx,  g_dy,  g_ua,  g_va,  g_fxf,  g_fyf, g_fxb,  g_fyb);
+	//setbuf(stdout,NULL);
+	//printf("before call\n");
+	//setbuf(stdout,NULL);
+
 	
-	surf_and_flux_1<<<4, 8>>>(ftim, ro_ratio);
-	cudaDeviceSynchronize();
-	
-	setbuf(stdout,NULL);
-	printf("after call\n");
-	setbuf(stdout,NULL);
-	printf("after call %f\n", g_elb[0]);
+	//setbuf(stdout,NULL);
+	//printf("after call\n");
+	//setbuf(stdout,NULL);
+	//printf("after call %f\n", g_elb[0]);
 	
 	
-	/*,  g_fbu,  g_ffu,  g_fbv,  g_ffv,  g_dum,  g_dvm,  g_d,  g_wusurf,  g_wvsurf,  g_fluxua,  g_fluxva,  g_dx,  g_dy,  g_ua,  g_va,  g_fxf,  g_fyf, g_fxb,  g_fyb);*/
+	/**/
 
     
     /*
