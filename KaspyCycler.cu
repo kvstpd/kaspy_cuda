@@ -20,6 +20,11 @@ void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float
 
 float grav = 9.806;
 
+__device__ float * dev_fbu = 0;
+__device__ float * dev_fbv = 0;
+__device__ float * dev_ffu = 0;
+__device__ float * dev_ffv = 0;
+
 
 float * g_fbu = 0;
 float * g_fbv = 0;
@@ -1443,6 +1448,18 @@ int KaspyCycler::init_device()
 	}
 	
 	
+	
+	if (cudaMemcpyToSymbol(dev_fbu, &g_fbu, sizeof(g_fbu)) == cudaSuccess)
+		)
+	{
+		printf("Device pointers initialized\n");
+	}
+	else
+	{
+		printf("Pointer init error!\n");
+		deinit_device();
+		return m_gpu_device;
+	}
 	
 	
 	return m_gpu_device;
