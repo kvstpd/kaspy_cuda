@@ -234,7 +234,7 @@ __global__ void bcond_1_j()
 		dev_elf[j * dev_width + 1] = dev_tide_l;
 		dev_elf[j * dev_width + dev_width - 2] = dev_tide_l;
 		
-		dev_elf[j * dev_width] = tide_l;
+		dev_elf[j * dev_width] = dev_tide_l;
 		dev_elf[j * dev_width + dev_width - 1] = dev_tide_l;
 	}
 }
