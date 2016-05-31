@@ -211,12 +211,12 @@ __global__ void elf_and_flux_2()
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
-	int ji = j * m_width + i;
-	int jp1i = ji + m_width;
+	int ji = j * dev_width + i;
+	int jp1i = ji + dev_width;
 	int jip1 = ji + 1;
 	
 	if (i > 0 && j > 0 && i < dev_widthm1 && j < dev_heightm1)
-	{		
+	{
 		dev_elf[ji] = dev_elb[ji] - dev_dte2 *
 		(dev_fluxua[jip1] - dev_fluxua[ji] + dev_fluxva[jp1i] - dev_fluxva[ji]) / dev_art[j];
 	}
