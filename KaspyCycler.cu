@@ -208,8 +208,8 @@ __constant__ __device__ float dev_wt[] = {
 };
 
 
-__device__ float dev_pkk[50][50];
-__device__ float dev_c[50][50][4][4];
+__device__ float dev_pkk[50 * 50];
+__device__ float dev_c[50 * 50 * 4 * 4];
 
 
 
@@ -256,7 +256,7 @@ __device__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1
 }
 
 
-__global__ void dev_bicubic(int nx, int ny)
+__global__ void dev_bicubic(int nx, int ny, int nd)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -277,31 +277,31 @@ __global__ void dev_bicubic(int nx, int ny)
 	if (i > 0 && j > 0 && i < (nx - 2) && j < (ny - 2))
 	{
 		
-		y[0] = dev_pkk[j][i];
-		y[1] = dev_pkk[j][ i + 1];
-		y[2] = dev_pkk[j+1][i + 1];
-		y[3] = dev_pkk[j+1] [i];
+		y[0] = dev_pkk[j * nd + i];
+		y[1] = dev_pkk[j * nd + i + 1];
+		y[2] = dev_pkk[(j+1) * nd + i + 1];
+		y[3] = dev_pkk[(j+1) * nd + i];
 		
-		y1[0] = 0.5f * (dev_pkk[j][i + 1] - dev_pkk[j][i - 1]);
-		y1[3] = 0.5f * (dev_pkk[(j+1) ][i + 1] - dev_pkk[(j+1)][ i - 1]);
-		y1[1] = 0.5f * (dev_pkk[j][i + 2] - dev_pkk[j][i]);
-		y1[2] = 0.5f * (dev_pkk[(j+1)][ i + 2] - dev_pkk[(j+1) ][ i]);
-		
-		
-		y2[0] = 0.5f * (dev_pkk[(j+1) ][i] - dev_pkk[(j-1)][ i]);
-		y2[1] = 0.5f * (dev_pkk[(j+1) ][ i + 1] - dev_pkk[(j-1) ][ i + 1]);
-		y2[2] = 0.5f * (dev_pkk[(j+2) ][ i + 1] - dev_pkk[(j) ][ i + 1]);
-		y2[3] = 0.5f * (dev_pkk[(j+2) ][ i] - dev_pkk[j ][ i]);
+		y1[0] = 0.5f * (dev_pkk[j * nd + i + 1] - dev_pkk[j * nd + i - 1]);
+		y1[3] = 0.5f * (dev_pkk[(j+1) * nd + i + 1] - dev_pkk[(j+1) * nd + i - 1]);
+		y1[1] = 0.5f * (dev_pkk[j * nd + i + 2] - dev_pkk[j * nd + i]);
+		y1[2] = 0.5f * (dev_pkk[(j+1) * nd + i + 2] - dev_pkk[(j+1) * nd + i]);
 		
 		
-		y12[0] = 0.25f * (dev_pkk[(j+1) ][ i + 1] - dev_pkk[(j-1) ][ i + 1]
-						  - dev_pkk[(j+1) ][ i - 1] + dev_pkk[(j-1) ][ i - 1]);
-		y12[1] = 0.25f * (dev_pkk[(j+1) ][ i + 2] - dev_pkk[(j-1) ][ i + 2]
-						  - dev_pkk[(j+1) ][ i] + dev_pkk[(j-1) ][ i]);
-		y12[2] = 0.25f * (dev_pkk[(j+2) ][ i + 2] - dev_pkk[(j) ][ i + 2]
-						  - dev_pkk[(j+2) ][ i] + dev_pkk[j ][ i]);
-		y12[3] = 0.25f * (dev_pkk[(j+2) ][ i + 1] - dev_pkk[(j) ][ i + 1]
-						  - dev_pkk[(j+2) ][ i -1] + dev_pkk[(j) ][ i -1]);
+		y2[0] = 0.5f * (dev_pkk[(j+1) * nd + i] - dev_pkk[(j-1) * nd + i]);
+		y2[1] = 0.5f * (dev_pkk[(j+1) * nd + i + 1] - dev_pkk[(j-1) * nd + i + 1]);
+		y2[2] = 0.5f * (dev_pkk[(j+2) * nd + i + 1] - dev_pkk[(j) * nd + i + 1]);
+		y2[3] = 0.5f * (dev_pkk[(j+2) * nd + i] - dev_pkk[j * nd + i]);
+		
+		
+		y12[0] = 0.25f * (dev_pkk[(j+1) * nd + i + 1] - dev_pkk[(j-1) * nd + i + 1]
+						  - dev_pkk[(j+1) * nd + i - 1] + dev_pkk[(j-1) * nd + i - 1]);
+		y12[1] = 0.25f * (dev_pkk[(j+1) * nd + i + 2] - dev_pkk[(j-1) * nd + i + 2]
+						  - dev_pkk[(j+1) * nd + i] + dev_pkk[(j-1) * nd + i]);
+		y12[2] = 0.25f * (dev_pkk[(j+2) * nd + i + 2] - dev_pkk[(j) * nd + i + 2]
+						  - dev_pkk[(j+2) * nd + i] + dev_pkk[j * nd + i]);
+		y12[3] = 0.25f * (dev_pkk[(j+2) * nd + i + 1] - dev_pkk[(j) * nd + i + 1]
+						  - dev_pkk[(j+2) * nd + i -1] + dev_pkk[(j) * nd + i -1]);
 		
 		
 		dev_bcucof(&y[0],&y1[0],&y2[0],&y12[0],d1,d2,&cc[0][0]);
@@ -311,7 +311,7 @@ __global__ void dev_bicubic(int nx, int ny)
 			for (int l=0; l<4; l++ )
 			{
 				//printf("\nk is %d l is %d\n", k, l);
-				dev_c[(j-1)][ (i-1)][ l ][ k ] = cc[l][k];
+				dev_c[(j-1)* 800 + (i-1) * 16 + l * 4 + k ] = cc[l][k];
 			}
 		}
 	}
@@ -327,7 +327,7 @@ __global__ void dev_pkk_ij(int kx, int ky, int kd, float * pk)
 	
 	if (i > 0 && j > 0 && i <= kx && j <= ky)
 	{
-		dev_pkk[j ][ i] = pk[(j - 1) * kd + i - 1];
+		dev_pkk[j * 50 + i] = pk[(j - 1) * kd + i - 1];
 	}
 }
 
@@ -344,7 +344,7 @@ __global__ void dev_pkk_j(int kx, int ky)
 }
 
 
-__global__ dev_pkk_i(int kx, int ky)
+__global__ void dev_pkk_i(int kx, int ky)
 {
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	
