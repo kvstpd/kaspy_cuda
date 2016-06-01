@@ -203,7 +203,7 @@ __constant__ __device__ float dev_wt[] = {
 
 
 
-__global__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float * cc)
+__device__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float * cc)
 {
 	float xx;
 	float cl[16];
@@ -1401,12 +1401,11 @@ void getbicubic(int nx, int ny, int nd, float * z, float * c)
 
 
 void getbicubic_g(int nx, int ny, int nd, float * z, float * c)
-{
-	
+{	
 	
 	dim3 threadsPerSquareBlock(8, 8);
 	
-	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
+	dim3 numSquareBlocks(((nx - 2) + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, ((ny - 2) + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
 	
 	dev_bucubic<<<numSquareBlocks, threadsPerSquareBlock>>>(nx, ny, nd, z, c);
