@@ -1195,6 +1195,12 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	int kd = kx;
 	
 	
+	float xmi = m_fVars->xmi;
+	float xma = m_fVars->xma;
+	float ymi = m_fVars->ymi;
+	float yma = m_fVars->yma;
+	
+	
 	float dky=(yka-yki)/(ky-1.0f);
 	float  dkx=(xka-xki)/(kx-1.0f);
  
