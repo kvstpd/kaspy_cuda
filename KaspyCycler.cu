@@ -1195,7 +1195,7 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	int kd = kx;
 	
 	
-	float xmi = m_fVars->xmi;
+	/*float xmi = m_fVars->xmi;
 	float xma = m_fVars->xma;
 	float ymi = m_fVars->ymi;
 	float yma = m_fVars->yma;
@@ -1205,7 +1205,7 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	float  dkx=(xka-xki)/(kx-1.0f);
  
 	float dy=(yma-ymi)/(ny-1.0f);
-	float dx=(xma-xmi)/(nx-1.0f);
+	float dx=(xma-xmi)/(nx-1.0f);*/
 	
 	int threadsPerBlock = 64;
 	
