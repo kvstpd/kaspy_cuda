@@ -170,7 +170,7 @@ __constant__ __device__ float dev_alpha = 0.225f;
 
 __constant__ __device__ float dev_vmaxl = 100.0f;;
 
-__constant__ __device__ int dev_should_stop = 0;
+__device__ int dev_should_stop = 0;
 
 __constant__ __device__ float dev_smoth = 0.10f;
 
