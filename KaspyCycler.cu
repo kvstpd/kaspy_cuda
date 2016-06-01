@@ -256,6 +256,146 @@ __device__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1
 }
 
 
+__global__ void dev_make_p(int nx, int ny, float dx, float dy, float dkx, float dky, float * p, float * px, float * py)
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	
+	if (i < nx && j < ny)
+	{
+		float y = dev_ymi + j*dy;
+		int j0 = (int)((y - dev_yki)/dky);
+		
+		if (j0 < 0)
+		{
+			j0 = 0;
+		}
+		
+		if (j0 > ky-2)
+		{
+			j0 = ky-2;
+		}
+		
+		float u = (y - (dev_yki + j0*dky))/dky;
+		
+		
+		float x = dev_xmi + i * dx;
+		
+		int i0 = (int)((x - dev_xki)/dkx);
+		
+		if (i0 < 0) i0 = 0;
+		
+		if (i0 > kx-2) i0 = kx-2;
+		
+		float t = ( x - (dev_xki + i0*dkx) )/dkx;
+		
+		float ay = 0.0f;
+		float a2 = 0.0f;
+		float a1 = 0.0f;
+		
+		int ji = j * nx + i;
+		
+		for (int k=3; k>=0; k-- )
+		{
+			ay = t*ay+((dev_c[j0 * 800 + i0 * 16 + 3 * 4 + k] * u + dev_c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u
+					   + dev_c[j0 * 800 + i0 * 16 + 1 * 4 + k])*u + dev_c[j0 * 800 + i0 * 16 + 0 * 4 + k];
+		}
+		
+		
+		if (px != 0)
+		{
+			for (int k=3; k>=0; k-- )
+			{
+				a2 = t*a2 + (3.0f*dev_c[j0 * 800 + i0 * 16 + 3 * 4 + k]*u
+							 + 2.0f*dev_c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u+dev_c[j0 * 800 + i0 * 16 + 1 * 4 + k];
+				
+				a1 = u*a1 + (3.0f*dev_c[j0 * 800 + i0 * 16 + k * 4 + 3]*t +
+							 2.0f*dev_c[j0 * 800 + i0 * 16 + k * 4 + 2])*t+dev_c[j0 * 800 + i0 * 16 + k * 4 + 1];
+				
+			}
+			
+			a1 = a1/dkx/dev_c2/cosf(dev_c1*y);
+			a2 = a2/dky/dev_c2;
+			
+			px[ji] = a1;
+			py[ji] = a2;
+		}
+		
+		p[ji] = ay;
+		
+	}
+}
+
+
+/*
+	for (int j=0; j<ny; j++ )
+	{
+ float y = ymi + j*dy;
+ int j0 = (int)((y - yki)/dky);
+ 
+ if (j0 < 0)
+ {
+ j0 = 0;
+ }
+ 
+ if (j0 > ky-2)
+ {
+ j0 = ky-2;
+ }
+ 
+ float u = (y - (yki + j0*dky))/dky;
+ 
+ for (int i=0; i<nx; i++ )
+ {
+ float x = xmi + i * dx;
+ int i0 = (int)((x - xki)/dkx);
+ 
+ if (i0 < 0) i0 = 0;
+ 
+ if (i0 > kx-2) i0 = kx-2;
+ 
+ float t = ( x - (xki + i0*dkx) )/dkx;
+ 
+ float ay = 0.0f;
+ float a2 = 0.0f;
+ float a1 = 0.0f;
+ 
+ int ji = j * nx + i;
+ 
+ for (int k=3; k>=0; k-- )
+ {
+ ay = t*ay+((c[j0 * 800 + i0 * 16 + 3 * 4 + k] * u + c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u
+ + c[j0 * 800 + i0 * 16 + 1 * 4 + k])*u + c[j0 * 800 + i0 * 16 + 0 * 4 + k];
+ }
+ 
+ if (uv == 'p')
+ {
+ for (int k=3; k>=0; k-- )
+ {
+ a2 = t*a2 + (3.0f*c[j0 * 800 + i0 * 16 + 3 * 4 + k]*u
+ + 2.0f*c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u+c[j0 * 800 + i0 * 16 + 1 * 4 + k];
+ 
+ a1 = u*a1 + (3.0f*c[j0 * 800 + i0 * 16 + k * 4 + 3]*t +
+ 2.0f*c[j0 * 800 + i0 * 16 + k * 4 + 2])*t+c[j0 * 800 + i0 * 16 + k * 4 + 1];
+ 
+ }
+ 
+ a1 = a1/dkx/c2/cosf(c1*y);
+ a2 = a2/dky/c2;
+ 
+ px[ji] = a1;
+ py[ji] = a2;
+ }
+ 
+ p[ji] = ay;
+ 
+ }
+ 
+	}
+ 
+ */
+
 __global__ void dev_bicubic(int nx, int ny, int nd)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1223,10 +1363,12 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	//getbicubic(,, 50, pkk,c);
 	
 	
-	dim3 numNBlocks(((nx - 2) + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, ((ny - 2) + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
+	dim3 numNBlocks(((nx) + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, ((ny) + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
 	
-	dev_bucubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2);
+	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2);
+	
+	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, dx, dy, dxk, dky, p, px, py);
 	
 	
 }
