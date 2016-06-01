@@ -856,8 +856,6 @@ void KaspyCycler::makeWsurf()
 	
 	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
-	cudaError_t err = cudaSuccess;
-	
 	
     
     itime6 = (int)timeh6;
@@ -940,16 +938,16 @@ void KaspyCycler::makeWsurf()
 	}
 
 	
-	err = surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim);
+	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim);
 
-	if (err != cudaSuccess)
+	if (cudaGetLastError() != cudaSuccess)
 	{
 		printf("error calling surf_and_flux_1 kernel! \n");
 	}
 	
-	err = elf_and_flux_2<<<numSquareBlocks, threadsPerSquareBlock>>>();
+	elf_and_flux_2<<<numSquareBlocks, threadsPerSquareBlock>>>();
 	
-	if (err != cudaSuccess)
+	if (cudaGetLastError() != cudaSuccess)
 	{
 		printf("error calling elf_and_flux_2 kernel! \n");
 	}
@@ -957,23 +955,23 @@ void KaspyCycler::makeWsurf()
 	/// BCOND 1
 
 	
-	err = bcond_1_j<<< blocksPerGridJ, threadsPerBlock>>>();
+	bcond_1_j<<< blocksPerGridJ, threadsPerBlock>>>();
 	
-	if (err != cudaSuccess)
+	if (cudaGetLastError() != cudaSuccess)
 	{
 		printf("error calling bcond_1_j kernel! \n");
 	}
 	
-	err = bcond_1_i<<< blocksPerGridI, threadsPerBlock>>>();
+	bcond_1_i<<< blocksPerGridI, threadsPerBlock>>>();
 	
-	if (err != cudaSuccess)
+	if (cudaGetLastError() != cudaSuccess)
 	{
 		printf("error calling bcond_1_i kernel! \n");
 	}
 	
-	err = bcond_1_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
+	bcond_1_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
 	
-	if (err != cudaSuccess)
+	if (cudaGetLastError() != cudaSuccess)
 	{
 		printf("error calling bcond_1_ji kernel! \n");
 	}
@@ -987,38 +985,38 @@ void KaspyCycler::makeWsurf()
 		//		FLUXUA=0 ?
 
 		
-		err = adv_fluxes_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		adv_fluxes_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
 		
-		if (err != cudaSuccess)
+		if (cudaGetLastError() != cudaSuccess)
 		{
 			printf("error calling adv_fluxes_1 kernel! \n");
 		}
 		
-		err = adv_advua_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		adv_advua_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
 		
-		if (err != cudaSuccess)
+		if (cudaGetLastError() != cudaSuccess)
 		{
 			printf("error calling adv_advua_1 kernel! \n");
 		}
 		
-		err = adv_fluxes_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		adv_fluxes_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
 		
-		if (err != cudaSuccess)
+		if (cudaGetLastError() != cudaSuccess)
 		{
 			printf("error calling adv_fluxes_2 kernel! \n");
 		}
 		
-		err = adv_advva_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		adv_advva_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
 		
-		if (err != cudaSuccess)
+		if (cudaGetLastError() != cudaSuccess)
 		{
 			printf("error calling adv_advva_2 kernel! \n");
 		}
 		
 		
-		err =  adv_bot_3<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		 adv_bot_3<<< numSquareBlocks, threadsPerSquareBlock>>>();
 		
-		if (err != cudaSuccess)
+		if (cudaGetLastError() != cudaSuccess)
 		{
 			printf("error calling adv_bot_3 kernel! \n");
 		}
@@ -1028,38 +1026,38 @@ void KaspyCycler::makeWsurf()
 	}
 	
 	
-	err = uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
+	uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
 	
-	if (err != cudaSuccess)
+	if (cudaGetLastError() != cudaSuccess)
 	{
 		printf("error calling uaf_and_vaf_3 kernel! \n");
 	}
 
 	
-	err =  bcond_2_j<<< blocksPerGridJ, threadsPerBlock>>>();
+	 bcond_2_j<<< blocksPerGridJ, threadsPerBlock>>>();
 	
-	if (err != cudaSuccess)
+	if (cudaGetLastError() != cudaSuccess)
 	{
 		printf("error calling bcond_2_j kernel! \n");
 	}
 	
-	err =  bcond_2_i<<< blocksPerGridI, threadsPerBlock>>>();
+	 bcond_2_i<<< blocksPerGridI, threadsPerBlock>>>();
 	
-	if (err != cudaSuccess)
+	if (cudaGetLastError() != cudaSuccess)
 	{
 		printf("error calling bcond_2_i kernel! \n");
 	}
 	
-	err = bcond_2_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
+	bcond_2_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
 	
-	if (err != cudaSuccess)
+	if (cudaGetLastError() != cudaSuccess)
 	{
 		printf("error calling bcond_2_ji kernel! \n");
 	}
 	
-	err = tps_and_other_arrays_4<<<numSquareBlocks, threadsPerSquareBlock>>>();
+	tps_and_other_arrays_4<<<numSquareBlocks, threadsPerSquareBlock>>>();
 	
-	if (err != cudaSuccess)
+	if (cudaGetLastError() != cudaSuccess)
 	{
 		printf("error calling tps_and_other_arrays_4 kernel! \n");
 	}
