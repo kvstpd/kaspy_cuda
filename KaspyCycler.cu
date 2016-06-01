@@ -478,6 +478,12 @@ __global__ void tps_and_other_arrays_4()
 
 __global__ void swap_arrays_5()
 {
+	if (dev_should_stop)
+	{
+		printf("vamax>vmax!!!\n");
+	}
+	
+	
 	dev_temp = dev_elb;
 	dev_elb = dev_el;
 	dev_el=dev_elf;
@@ -1098,7 +1104,7 @@ void KaspyCycler::makeWsurf()
 	
 	tps_and_other_arrays_4<<<numSquareBlocks, threadsPerSquareBlock>>>();
 	
-	swap_arrays_5<<1, 1>>>();
+	swap_arrays_5<<<1, 1>>>();
 	
 	
 	cudaDeviceSynchronize();
