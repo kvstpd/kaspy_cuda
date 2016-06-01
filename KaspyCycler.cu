@@ -431,11 +431,11 @@ void KaspyCycler::sendDataToGPU()
 		cudaMemcpyFromSymbol(&test_i, dev_heightm1, sizeof(int));
 		printf("dev height-1 is now %d\n", test_i);
 		
-		cudaMemcpyFromSymbol(&test_f, dev_dte, sizeof(int));
+		cudaMemcpyFromSymbol(&test_f, dev_dte, sizeof(float));
 		printf("dev dte is now %f\n", test_f);
-		cudaMemcpyFromSymbol(&test_f, dev_dte2, sizeof(int));
+		cudaMemcpyFromSymbol(&test_f, dev_dte2, sizeof(float));
 		printf("dev dte2 is now %f\n", test_f);
-		cudaMemcpyFromSymbol(&test_f, dev_tide_l, sizeof(int));
+		cudaMemcpyFromSymbol(&test_f, dev_tide_l, sizeof(float));
 		printf("dev tide_l is now %f\n", test_f);
 		
 		
