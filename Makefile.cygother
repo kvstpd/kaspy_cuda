@@ -8,10 +8,10 @@ C_INCPATH := c:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/include
 
 CUDA_LIBS := cudart_static.lib
 
-F_OPTS := /Zp16
+F_OPTS := /Zp8
 #/arch:SSE4.2 /QxSSE4.2 /O3 /Qparallel /Zp16
 
-C_OPTS := /favor:INTEL64 /Zp16
+C_OPTS := /favor:INTEL64 /Zp8
 #/Ox /favor:INTEL64 /Zp16
 
 NV_OPTS := --machine 64 --optimize 3 -I"$(C_INCPATH)" --compiler-options "$(C_OPTS)"
