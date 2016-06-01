@@ -603,8 +603,8 @@ __global__ void adv_advva_2()
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
-	int jim1 = ji - 1;
-	int jp1i = ji + dev_width;
+	int jip1 = ji + 1;
+	int jm1i = ji - m_width;
 	
 	if (i > 0 && j > 0 && i < dev_widthm1 && j < dev_heightm1)
 	{
