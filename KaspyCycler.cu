@@ -256,7 +256,7 @@ __device__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1
 }
 
 
-__global__ void dev_bicubic(int nx, int ny)
+__global__ void dev_bicubic(int nx, int ny, int nd)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -320,7 +320,7 @@ __global__ void dev_bicubic(int nx, int ny)
 
 
 
-__global__ dev_pkk_ij(int kx, int ky, int kd, float * pk)
+__global__ void dev_pkk_ij(int kx, int ky, int kd, float * pk)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
