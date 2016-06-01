@@ -406,6 +406,7 @@ void KaspyCycler::sendDataToGPU()
 	float tide_l = (float)m_fVars->tide_l;
 	
 	printf("dte is %f dte2 is %f tide_l %f\n", dte, dte2, tide_l);
+	printf("i S is %d, f S is %d dte S is %d devS is %df\n", sizeof(int), sizeof(float), sizeof(dte), sizeof(dev_dte));
 
 	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
