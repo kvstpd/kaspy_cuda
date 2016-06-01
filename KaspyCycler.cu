@@ -179,6 +179,72 @@ __device__ int dev_should_stop = 0;
 
 __constant__ __device__ float dev_smoth = 0.10f;
 
+
+__constant__ __device__ float dev_wt[] = {
+	1,0,-3,2,0,0,0,0,-3,0,9,-6,2,0,-6,4,
+	0,0,0,0,0,0,0,0,3,0,-9,6,-2,0,6,-4,
+	0,0,0,0,0,0,0,0,0,0,9,-6,0,0,-6,4,
+	0,0,3,-2,0,0,0,0,0,0,-9,6,0,0,6,-4,
+	0,0,0,0,1,0,-3,2,-2,0,6,-4,1,0,-3,2,
+	0,0,0,0,0,0,0,0,-1,0,3,-2,1,0,-3,2,
+	0,0,0,0,0,0,0,0,0,0,-3,2,0,0,3,-2,
+	0,0,0,0,0,0,3,-2,0,0,-6,4,0,0,3,-2,
+	0,1,-2,1,0,0,0,0,0,-3,6,-3,0,2,-4,2,
+	0,0,0,0,0,0,0,0,0,3,-6,3,0,-2,4,-2,
+	0,0,0,0,0,0,0,0,0,0,-3,3,0,0,2,-2,
+	0,0,-1,1,0,0,0,0,0,0,3,-3,0,0,-2,2,
+	0,0,0,0,0,1,-2,1,0,-2,4,-2,0,1,-2,1,
+	0,0,0,0,0,0,0,0,0,-1,2,-1,0,1,-2,1,
+	0,0,0,0,0,0,0,0,0,0,1,-1,0,0,-1,1,
+	0,0,0,0,0,0,-1,1,0,0,2,-2,0,0,-1,1
+};
+
+
+
+__global__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float * cc)
+{
+	float xx;
+	float cl[16];
+	
+	float x[16];
+	
+	
+	float d1d2 = d1 * d2;
+	
+	for (int i=0; i<4; i++ )
+	{
+		x[i] = y[i];
+		x[i + 4] = y1[i] * d1;
+		x[i + 8] = y2[i] * d2;
+		x[i + 12] = y12[i] * d1d2;
+	}
+	
+	for (int i=0; i<16; i++ )
+	{
+		xx = 0.0f;
+		
+		for (int k=0; k<16; k++ )
+		{
+			xx += dev_wt[i + k*16] * x[k];
+		}
+		
+		cl[i] = xx;
+	}
+	
+	int l = 0;
+	
+	for (int i=0; i<4; i++ )
+	{
+		for (int j=0; j<4; j++ )
+		{
+			cc[j*4 + i] = cl[l++];
+		}
+	}
+	
+}
+
+
+
 /**/
 
 __global__ void surf_and_flux_1(float ftim)
@@ -291,7 +357,7 @@ __global__ void uaf_and_vaf_3()
  	int jip1 = ji + 1;
  	int jim1 = ji - 1;
  	int jm1i = ji - dev_width;
- 	int jm1im1 = jm1i  - 1;
+ 	//int jm1im1 = jm1i  - 1;
  	int jp1im1 = jp1i - 1;
  	int jm1ip1 = jm1i + 1;
 	
@@ -457,10 +523,10 @@ __global__ void tps_and_other_arrays_4()
 	{
 		dev_tps[ji] = sqrtf(dev_uaf[ji]*dev_uaf[ji] + dev_vaf[ji]*dev_vaf[ji]);
 		
-		if (dev_tps[ji] > dev_vmaxl)
+		/*if (dev_tps[ji] > dev_vmaxl)
 		{
 			dev_should_stop = 1;
-		}
+		}*/
 		
 		dev_ua[ji]=dev_ua[ji]+0.5f*dev_smoth*(dev_uab[ji]-2.0f*dev_ua[ji]+dev_uaf[ji]);
 		dev_va[ji]=dev_va[ji]+0.5f*dev_smoth*(dev_vab[ji]-2.0f*dev_va[ji]+dev_vaf[ji]);
@@ -478,22 +544,6 @@ __global__ void tps_and_other_arrays_4()
 }
 
 
-__global__ void swap_arrays_5()
-{
-	if (dev_should_stop)
-	{
-		printf("vamax>vmax!!!\n");
-	}
-	
-	
-	//dev_temp = dev_elb;
-	//dev_elb = dev_el;
-	//dev_el=dev_elf;
-	//dev_elf = dev_elb;
-
-}
-
-
 
 __global__ void adv_fluxes_1()
 {
@@ -503,7 +553,6 @@ __global__ void adv_fluxes_1()
 	int ji = j * dev_width + i;
 	int jip1 = ji + 1;
 	int jim1 = ji - 1;
-	int jp1i = ji + dev_width;
 	int jm1i = ji - dev_width;
 	int jm1im1 = jm1i  - 1;
  
@@ -565,7 +614,6 @@ __global__ void adv_fluxes_2()
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
-	int jip1 = ji + 1;
 	int jim1 = ji - 1;
 	int jp1i = ji + dev_width;
 	int jm1i = ji - dev_width;
@@ -624,7 +672,6 @@ __global__ void adv_bot_3()
  	int jip1 = ji + 1;
  	int jim1 = ji - 1;
  	int jm1i = ji - dev_width;
- 	int jm1im1 = jm1i  - 1;
  
  	int jp1im1 = jp1i - 1;
  	int jm1ip1 = jm1i + 1;
@@ -640,26 +687,6 @@ __global__ void adv_bot_3()
 						   +dev_uab[jm1i]+dev_uab[jm1ip1]), 2)+dev_vab[ji]*dev_vab[ji])*dev_vab[ji];
 	}
 }
-
-
-
-/*for (int j=1; j<(m_height-1); j++ )
- {
- for (int i=1; i<(m_width-1); i++ )
- {
- ji = j * m_width + i;
-
- 
- g_wubot[ji]=-0.5e0*(g_cbc[ji]+g_cbc[jim1])
- *sqrtf(g_uab[ji]*g_uab[ji]+powf(.25e0*(g_vab[ji]
- +g_vab[jp1i]+g_vab[jim1]+g_vab[jp1im1]), 2) )*g_uab[ji];
- 
- g_wvbot[ji]=-0.5e0*(g_cbc[ji]+g_cbc[jm1i])
- *sqrtf(powf(.25e0*(g_uab[ji]+g_uab[jip1]
- +g_uab[jm1i]+g_uab[jm1ip1]), 2)+g_vab[ji]*g_vab[ji])*g_vab[ji];
- 
- }
- }*/
 
 
 
@@ -728,8 +755,8 @@ void KaspyCycler::sendDataToGPU()
 		printf("GPU constant memory filled\n");
 		
 		
-		int test_i = 0;
-		int test_f = 0;
+		//int test_i = 0;
+		//int test_f = 0;
 		
 		
 	}
@@ -816,7 +843,7 @@ void KaspyCycler::makeWsurf()
     int windUSize = m_fWindData->kxu * m_fWindData->kyu;
     int windVSize = m_fWindData->kxv * m_fWindData->kyv;
 	
-	size_t s_width =  m_width *  sizeof(float);
+	//size_t s_width =  m_width *  sizeof(float);
     
     itime6 = (int)timeh6;
 
@@ -825,12 +852,7 @@ void KaspyCycler::makeWsurf()
 		cudaDeviceSynchronize();
 		
         itime6_old = itime6;
-        
-        /*memcpy(g_fxb, g_fxf, F_DATA_SIZE * sizeof(float));
-        memcpy(g_fyb, g_fyf, F_DATA_SIZE * sizeof(float));
-        memcpy(g_fb, g_ff, F_DATA_SIZE * sizeof(float));
-        memcpy(g_fbu, g_ffu, F_DATA_SIZE * sizeof(float));
-        memcpy(g_fbv, g_ffv, F_DATA_SIZE * sizeof(float));*/
+		
 		
 		if ( (cudaMemcpy(g_fxb,g_fxf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
 			&& (cudaMemcpy(g_fyb,g_fyf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
@@ -848,7 +870,7 @@ void KaspyCycler::makeWsurf()
 			
 			
 
-		size_t s_p_width = m_fWindData->kx * sizeof(float);
+		//size_t s_p_width = m_fWindData->kx * sizeof(float);
 
        // memcpy(g_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
 		
@@ -867,7 +889,7 @@ void KaspyCycler::makeWsurf()
 
 		
 
-		size_t s_wu_width = m_fWindData->kxu * sizeof(float);
+		//size_t s_wu_width = m_fWindData->kxu * sizeof(float);
 		
 		//memcpy(g_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
 		
@@ -903,13 +925,17 @@ void KaspyCycler::makeWsurf()
 	}
 	
 	
-    float uw, vw, speed, windc;
-    int ji, jp1i, jip1, jim1, jm1i, jp1ip1, jm1im1, jp1im1, jm1ip1, jl, jlm1, j1, j2, j3, jli, jlm1i, j1i, j2i, j3i;
+    //float uw, vw, speed, windc;
+    //int ji, jp1i, jip1, jim1, jm1i, jp1ip1, jm1im1, jp1im1, jm1ip1, jl, jlm1, j1, j2, j3, jli, jlm1i, j1i, j2i, j3i;
 	
 	
 	float ftim = fmodf(timeh6, 1.0f);
 	
 
+	int threadsPerBlock = 64;
+	
+	int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
+	int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
 	
 	dim3 threadsPerSquareBlock(16, 16);
 	
@@ -929,13 +955,9 @@ void KaspyCycler::makeWsurf()
 
 
 	/// BCOND 1
-	//float tide_l = m_fVars->tide_l;
+
 	
-	int threadsPerBlock = 64;
-	//int blocksPerGrid = (data_size + threadsPerBlock - 1) / threadsPerBlock;
-	
-	int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
-	int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
+
 	
 	bcond_1_j<<< blocksPerGridJ, threadsPerBlock>>>();
 	bcond_1_i<<< blocksPerGridI, threadsPerBlock>>>();
@@ -946,7 +968,8 @@ void KaspyCycler::makeWsurf()
 	
 	
 	if (m_fVars->iint % 10 == 0)
-	{//ADVAVE()
+	{
+		//ADVAVE()
 		//       ADVUA=0 ?
 		//		FLUXUA=0 ?
 
@@ -960,38 +983,9 @@ void KaspyCycler::makeWsurf()
 		
 		adv_bot_3<<< numSquareBlocks, threadsPerSquareBlock>>>();
 	
-		
-		/*for (int j=1; j<(m_height-1); j++ )
-		{
-			for (int i=1; i<(m_width-1); i++ )
-			{
-				ji = j * m_width + i;
-				jp1i = ji + m_width;
-				jip1 = ji + 1;
-				jim1 = ji - 1;
-				jm1i = ji - m_width;
-				jm1im1 = jm1i  - 1;
-				
-				jp1im1 = jp1i - 1;
-				jm1ip1 = jm1i + 1;
-
-				g_wubot[ji]=-0.5e0*(g_cbc[ji]+g_cbc[jim1])
-				     *sqrtf(g_uab[ji]*g_uab[ji]+powf(.25e0*(g_vab[ji]
-											  +g_vab[jp1i]+g_vab[jim1]+g_vab[jp1im1]), 2) )*g_uab[ji];
-				
-				g_wvbot[ji]=-0.5e0*(g_cbc[ji]+g_cbc[jm1i])
-				    *sqrtf(powf(.25e0*(g_uab[ji]+g_uab[jip1]
-								  +g_uab[jm1i]+g_uab[jm1ip1]), 2)+g_vab[ji]*g_vab[ji])*g_vab[ji];
-				
-			}
-		}*/
-		
 
 		// END ADVAVE();
 	}
-	
-	
-	
 	
 	
 	uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
@@ -1002,16 +996,9 @@ void KaspyCycler::makeWsurf()
 	
 	bcond_2_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
 	
-	
-	
-	
-	
-	
 	tps_and_other_arrays_4<<<numSquareBlocks, threadsPerSquareBlock>>>();
 	
 	swap_arrays_5<<<1, 1>>>();
-	
-	
 
 }
 
