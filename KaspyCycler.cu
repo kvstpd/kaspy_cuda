@@ -555,6 +555,8 @@ void KaspyCycler::findElves()
 {
 	/// DO CUDA REDUCTION instead of copying back to host mem
 	
+	//cudaDeviceSynchronize();
+	
 	float * h_elf =  &m_fArrays->elf[0][0];
 	
 	cudaError_t err = cudaMemcpy(h_elf, g_elf,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);
@@ -596,8 +598,6 @@ void KaspyCycler::sendDataToGPU()
 	float dte2 = (float)m_fVars->dte * 2.0f;
 	float tide_l = (float)m_fVars->tide_l;
 	
-	//printf("dte is %f dte2 is %f tide_l %f\n", dte, dte2, tide_l);
-	//printf("i S is %d, f S is %d dte S is %d devS is %df\n", sizeof(int), sizeof(float), sizeof(dte), sizeof(dev_dte));
 
 	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
@@ -615,23 +615,6 @@ void KaspyCycler::sendDataToGPU()
 		
 		int test_i = 0;
 		int test_f = 0;
-		
-		/*cudaMemcpyFromSymbol(&test_i, dev_width, sizeof(int));
-		printf("dev width is now %d\n", test_i);
-		cudaMemcpyFromSymbol(&test_i, dev_height, sizeof(int));
-		printf("dev height is now %d\n", test_i);
-		
-		cudaMemcpyFromSymbol(&test_i, dev_widthm1, sizeof(int));
-		printf("dev width-1 is now %d\n", test_i);
-		cudaMemcpyFromSymbol(&test_i, dev_heightm1, sizeof(int));
-		printf("dev height-1 is now %d\n", test_i);
-		
-		cudaMemcpyFromSymbol(&test_f, dev_dte, sizeof(float));
-		printf("dev dte is now %f\n", test_f);
-		cudaMemcpyFromSymbol(&test_f, dev_dte2, sizeof(float));
-		printf("dev dte2 is now %f\n", test_f);
-		cudaMemcpyFromSymbol(&test_f, dev_tide_l, sizeof(float));
-		printf("dev tide_l is now %f\n", test_f);*/
 		
 		
 	}
@@ -697,72 +680,12 @@ void KaspyCycler::sendDataToGPU()
 
 	}
 	
-	/*g_fbu = &m_fFloats->fbu[0][0];
-    g_fbv = &m_fFloats->fbv[0][0];
-    g_ffu = &m_fFloats->ffu[0][0];
-    g_ffv = &m_fFloats->ffv[0][0];
-    
-    g_fxb = &m_fFloats->fxb[0][0];
-    g_fxf = &m_fFloats->fxf[0][0];
-    g_fyb = &m_fFloats->fyb[0][0];
-    g_fyf = &m_fFloats->fyf[0][0];
-    
-    
-    g_fb = &m_fFloats->fb[0][0];
-    g_ff = &m_fFloats->ff[0][0];
 	
-	g_h = &m_fArrays->h[0][0];
-    
-    g_wusurf = &m_fArrays->wusurf[0][0];
-    g_wvsurf = &m_fArrays->wvsurf[0][0];
-    
-    g_dum = &m_fArrays->dum[0][0];
-    g_dvm = &m_fArrays->dvm[0][0];
-    
-    g_d = &m_fArrays->d[0][0];
-    g_dx = &m_fArrays->dx[0];
-    g_dy = &m_fArrays->dy[0];
-
-
-    g_fluxua = &m_fArrays->fluxua[0][0];
-    g_fluxva = &m_fArrays->fluxva[0][0];
-	
-	g_advua = &m_fArrays->advua[0][0];
-	g_advva = &m_fArrays->advva[0][0];
-	
-    g_ua = &m_fArrays->ua[0][0];
-    g_va = &m_fArrays->va[0][0];
-
-	g_uab = &m_fArrays->uab[0][0];
-	g_vab = &m_fArrays->vab[0][0];
-
-	g_uaf = &m_fArrays->uaf[0][0];
-	g_vaf = &m_fArrays->vaf[0][0];
-	
-	
-    g_el = &m_fArrays->el[0][0];
-    g_elf = &m_fArrays->elf[0][0];
-    g_elb = &m_fArrays->elb[0][0];
-	
-	g_fsm = &m_fArrays->fsm[0][0];
-	
-	g_tps = &m_fArrays->tps[0][0];
-	
-	g_aru = &m_fArrays->aru[0];
-	g_arv = &m_fArrays->arv[0];
-
-	
-	g_wubot = &m_fArrays->wubot[0][0];
-	g_wvbot = &m_fArrays->wvbot[0][0];
-
-	g_cbc = &m_fArrays->cbc[0][0];
-	
-	g_cor = &m_fArrays->cor[0];*/
 }
 
 void KaspyCycler::getDataToCPU()
 {
-    
+    cudaDeviceSynchronize();
 }
 
 
@@ -784,6 +707,8 @@ void KaspyCycler::makeWsurf()
 
     if (itime6 > itime6_old)
     {
+		cudaDeviceSynchronize();
+		
         itime6_old = itime6;
         
         /*memcpy(g_fxb, g_fxf, F_DATA_SIZE * sizeof(float));
@@ -859,7 +784,8 @@ void KaspyCycler::makeWsurf()
 		
 		getWindPressure('v');
 
-    }
+		cudaDeviceSynchronize();
+	}
 	
 	
     float uw, vw, speed, windc;
@@ -878,12 +804,7 @@ void KaspyCycler::makeWsurf()
 	
 	
 	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim);
-	
-	//cudaDeviceSynchronize();
-	
-	
-    
-    /// HERE SHOULD START A NEW CUDA CALL TO KEEP fluxua fluxva synced
+
 	
 	elf_and_flux_2<<<numSquareBlocks, threadsPerSquareBlock>>>();
 	
@@ -1106,68 +1027,7 @@ void KaspyCycler::makeWsurf()
 	swap_arrays_5<<<1, 1>>>();
 	
 	
-	cudaDeviceSynchronize();
-	
-	/*float vmaxl = 100.0f;
-	
-	
-	float tpsmax = 0.0f;
-	
-	int imax = 0;
-	int jmax = 0;
-	
-	for (int j=1; j<m_height; j++ )
-	{
-		for (int i=1; i<m_width; i++ )
-		{
-			ji = j * m_width + i;
-			
-			g_tps[ji] = sqrtf(g_uaf[ji]*g_uaf[ji] + g_vaf[ji]*g_vaf[ji]);
-			
-			if (g_tps[ji] > tpsmax)
-			{
-				tpsmax = g_tps[ji];
-				imax = i;
-				jmax = j;
-			}
-		}
-	}
-	
-	
-	if (tpsmax > vmaxl)
-	{
-		setbuf(stdout,NULL);
-		
-		printf("vamax>vmax!!! at i=%d, j=%d \n", imax,jmax);
-		
-		exit(-1);
-	}
 
-	
-	
-	float smoth = 0.10f;
-	
-	
-	for (int j=1; j<m_height; j++ )
-	{
-		for (int i=1; i<m_width; i++ )
-		{
-			ji = j * m_width + i;
-			
-			g_ua[ji]=g_ua[ji]+0.5f*smoth*(g_uab[ji]-2.0f*g_ua[ji]+g_uaf[ji]);
-			g_va[ji]=g_va[ji]+0.5f*smoth*(g_vab[ji]-2.0f*g_va[ji]+g_vaf[ji]);
-			g_el[ji]=g_el[ji]+0.5f*smoth*(g_elb[ji]-2.0f*g_el[ji]+g_elf[ji]);
-			g_elb[ji]=g_el[ji];  // OP
-			g_el[ji]=g_elf[ji];  // OP
-			g_d[ji]=g_h[ji]+g_el[ji];
-			g_uab[ji]=g_ua[ji];  // OP
-			g_ua[ji]=g_uaf[ji];  // OP
-			g_vab[ji]=g_va[ji];  // OP
-			g_va[ji]=g_vaf[ji];  // OP
-		}
-	}
-	
-	*/
 }
 
 
