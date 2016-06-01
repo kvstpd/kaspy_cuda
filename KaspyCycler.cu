@@ -291,10 +291,7 @@ __global__ void uaf_and_vaf_3()
 	{
 		if (i < dev_width && j < dev_heightm1)
 		{
-			/*if (i == 2 && j == 2)
-			{
-				printf("DEV dte is %f dte2 is %f tide_l %f\n", dev_dte, dev_dte2, dev_tide_l);
-			}*/
+
 			
 			
 			float uaf1= dev_advua[ji]   -0.25f*(dev_cor[j]*dev_d[ji]*(dev_va[jp1i]+dev_va[ji])
@@ -309,7 +306,7 @@ __global__ void uaf_and_vaf_3()
 			 -4.e0*dev_dte*uaf1)  /(dev_h[ji]+dev_elf[ji]+dev_h[jim1]+dev_elf[jim1]);
 		}
 		
-		/*if (i < dev_widthm1 && j < dev_height)
+		if (i < dev_widthm1 && j < dev_height)
 		{
 			float vaf1=dev_advva[ji]
 			+.25f*(  dev_cor[j]*dev_d[ji]*(dev_ua[jip1]+dev_ua[ji])
@@ -322,7 +319,7 @@ __global__ void uaf_and_vaf_3()
 			dev_vaf[ji]= ((dev_h[ji]+dev_elb[ji]+dev_h[jm1i]+dev_elb[jm1i])*dev_vab[ji]
 						  -4.0f*dev_dte*vaf1) /(dev_h[ji]+dev_elf[ji]+dev_h[jm1i]+dev_elf[jm1i]);
 			
-		}*/
+		}
 		
 	}
 	
@@ -330,36 +327,7 @@ __global__ void uaf_and_vaf_3()
 
 
 /*
- for (int j=1; j<(m_height-1); j++ )
-	{
- for (int i=1; i<m_width; i++ )
- {
-
- 
-
- 
- }
-	}
-	
-	
-	for (int j=1; j<m_height; j++ )
-	{
- for (int i=1; i<(m_width-1); i++ )
- {
- ji = j * m_width + i;
- jp1i = ji + m_width;
- jip1 = ji + 1;
- jim1 = ji - 1;
- jm1i = ji - m_width;
- jm1im1 = jm1i  - 1;
- jp1im1 = jp1i - 1;
- jm1ip1 = jm1i + 1;
- 
- 
- 
- }
- 
-	}*/
+ */
 
 
 
@@ -410,7 +378,7 @@ void KaspyCycler::sendDataToGPU()
 	float dte2 = (float)m_fVars->dte * 2.0f;
 	float tide_l = (float)m_fVars->tide_l;
 	
-	printf("dte is %f dte2 is %f tide_l %f\n", dte, dte2, tide_l);
+	//printf("dte is %f dte2 is %f tide_l %f\n", dte, dte2, tide_l);
 	//printf("i S is %d, f S is %d dte S is %d devS is %df\n", sizeof(int), sizeof(float), sizeof(dte), sizeof(dev_dte));
 
 	
@@ -430,7 +398,7 @@ void KaspyCycler::sendDataToGPU()
 		int test_i = 0;
 		int test_f = 0;
 		
-		cudaMemcpyFromSymbol(&test_i, dev_width, sizeof(int));
+		/*cudaMemcpyFromSymbol(&test_i, dev_width, sizeof(int));
 		printf("dev width is now %d\n", test_i);
 		cudaMemcpyFromSymbol(&test_i, dev_height, sizeof(int));
 		printf("dev height is now %d\n", test_i);
@@ -445,7 +413,7 @@ void KaspyCycler::sendDataToGPU()
 		cudaMemcpyFromSymbol(&test_f, dev_dte2, sizeof(float));
 		printf("dev dte2 is now %f\n", test_f);
 		cudaMemcpyFromSymbol(&test_f, dev_tide_l, sizeof(float));
-		printf("dev tide_l is now %f\n", test_f);
+		printf("dev tide_l is now %f\n", test_f);*/
 		
 		
 	}
@@ -904,12 +872,12 @@ void KaspyCycler::makeWsurf()
 	
 	uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
 
-	cudaDeviceSynchronize();
 	
-	float alpha =  0.225f;
+	
+	/*float alpha =  0.225f;
 	float dte = m_fVars->dte;
 	
-	/*for (int j=1; j<(m_height-1); j++ )
+	for (int j=1; j<(m_height-1); j++ )
 	{
 		for (int i=1; i<m_width; i++ )
 		{
@@ -935,7 +903,7 @@ void KaspyCycler::makeWsurf()
 			
 		}
 	}
-	*/
+	
 	
 	for (int j=1; j<m_height; j++ )
 	{
@@ -964,12 +932,15 @@ void KaspyCycler::makeWsurf()
 		}
 		
 	}
+	*/
 	
+	
+	cudaDeviceSynchronize();
 	
 	
 		/// BCOND 2
 	float gae;
-	//float dte = m_fVars->dte;
+	float dte = m_fVars->dte;
 	
 	for (int j=1; j<(m_height-1); j++ )
 	{
