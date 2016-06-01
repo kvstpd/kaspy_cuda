@@ -540,53 +540,119 @@ __global__ void adv_fluxes_1()
 }
 
 
-/*float aam2d = m_fArrays->aam2d;
+
+
+__global__ void adv_advua_1()
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * dev_width + i;
+	int jim1 = ji - 1;
+ 	int jp1i = ji + dev_width;
+	
+	if (i > 0 && j > 0 && i < dev_widthm1 && j < dev_heightm1)
+	{
+		dev_advua[ji]=(dev_fluxua[ji]-dev_fluxua[jim1]
+					 +dev_fluxva[jp1i]-dev_fluxva[ji])/dev_aru[j];
+		
+	}
+}
+
+__global__ void adv_fluxes_2()
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * dev_width + i;
+	int jip1 = ji + 1;
+	int jim1 = ji - 1;
+	int jp1i = ji + dev_width;
+	int jm1i = ji - dev_width;
+	int jm1im1 = jm1i  - 1;
  
- for (int j=1; j<m_height; j++ )
- {
- for (int i=1; i<(m_width-1); i++ )
- {
- ji = j * m_width + i;
- jip1 = ji + 1;
- jim1 = ji - 1;
- 
- 
- g_fluxua[ji]=g_dy[j]*(.125f*((g_d[jip1]+g_d[ji])*g_ua[jip1]
- +(g_d[ji]+g_d[jim1])*g_ua[ji])
- *(g_ua[jip1]+g_ua[ji])
- -g_d[ji]*2.0f*aam2d*(g_uab[jip1]-g_uab[ji])/g_dx[j]);
- 
- 
- }
- }
- 
- 
- for (int j=1; j<m_height; j++ )
- {
- for (int i=1; i<m_width; i++ )
- {
- ji = j * m_width + i;
- jp1i = ji + m_width;
- jip1 = ji + 1;
- jim1 = ji - 1;
- jm1i = ji - m_width;
- jm1im1 = jm1i  - 1;
- 
- 
- g_tps[ji]=(g_d[ji]+g_d[jim1]+g_d[jm1i]+g_d[jm1im1])
- *aam2d
- *((g_uab[ji]-g_uab[jm1i])
- /(4*g_dy[j])
- +(g_vab[ji]-g_vab[jim1])
- /(4*g_dx[j]) );
- 
- g_fluxva[ji]=(.125f*((g_d[ji]+g_d[jm1i])*g_va[ji]
- +(g_d[jim1]+g_d[jm1im1])*g_va[jim1])
- *(g_ua[ji]+g_ua[jm1i])
- -g_tps[ji])*g_dx[j];
- 
- }
- }*/
+	
+	
+	if (i > 0 && j > 0)
+	{
+		if (i < dev_width && j < dev_heightm1)
+		{
+			dev_fluxva[ji]=dev_dx[j]*(.125f*((dev_d[jp1i]+dev_d[ji])
+										 *dev_va[jp1i]+(dev_d[ji]+dev_d[jm1i])*dev_va[ji])
+								  *(dev_va[jp1i]+dev_va[ji])
+								  -dev_d[ji]*2.0f*dev_aam2d*(dev_vab[jp1i]-dev_vab[ji])/dev_dy[j]);
+		}
+		
+		
+		if (i < dev_width && j < dev_height)
+		{
+			dev_fluxua[ji]=(.125f*((dev_d[ji]+dev_d[jim1])*dev_ua[ji]
+								 +(dev_d[jm1i]+dev_d[jm1im1])*dev_ua[jm1i])*
+						  (dev_va[jim1]+dev_va[ji])
+						  -dev_tps[ji])*dev_dy[j];
+			
+		}
+		
+	}
+}
+
+
+__global__ void adv_advva_2()
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * dev_width + i;
+	int jim1 = ji - 1;
+	int jp1i = ji + dev_width;
+	
+	if (i > 0 && j > 0 && i < dev_widthm1 && j < dev_heightm1)
+	{
+		dev_advva[ji]=(dev_fluxua[jip1]-dev_fluxua[ji]
+					 +dev_fluxva[ji]-dev_fluxva[jm1i])/dev_arv[j];
+		
+	}
+}
+
+
+
+/* for (int j=1; j<(m_height-1); j++ )
+{
+	for (int i=1; i<m_width; i++ )
+	{
+		ji = j * m_width + i;
+		jp1i = ji + m_width;
+		jip1 = ji + 1;
+		jim1 = ji - 1;
+		jm1i = ji - m_width;
+		jm1im1 = jm1i  - 1;
+		
+		
+
+		
+	}
+}
+
+
+for (int j=1; j<m_height; j++ )
+{
+	for (int i=1; i<m_width; i++ )
+	{
+		ji = j * m_width + i;
+		jp1i = ji + m_width;
+		jip1 = ji + 1;
+		jim1 = ji - 1;
+		jm1i = ji - m_width;
+		jm1im1 = jm1i  - 1;
+		
+		
+		g_fluxua[ji]=(.125f*((g_d[ji]+g_d[jim1])*g_ua[ji]
+							 +(g_d[jm1i]+g_d[jm1im1])*g_ua[jm1i])*
+					  (g_va[jim1]+g_va[ji])
+					  -g_tps[ji])*g_dy[j];
+	}
+}
+*/
 
 
 
@@ -887,71 +953,21 @@ void KaspyCycler::makeWsurf()
 		
 		
 
+		adv_advua_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
+	
+		
+		
+		adv_fluxes_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		
+		adv_advva_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
 		
 		cudaDeviceSynchronize();
 		
 		float aam2d = m_fArrays->aam2d;
 		
-		for (int j=1; j<(m_height-1); j++ )
-		{
-			for (int i=1; i<(m_width-1); i++ )
-			{
-				ji = j * m_width + i;
-				jim1 = ji - 1;
-				jp1i = ji + m_width;
-				
-				g_advua[ji]=(g_fluxua[ji]-g_fluxua[jim1]
-						   +g_fluxva[jp1i]-g_fluxva[ji])/g_aru[j];
-			}
-			
-		}
-		
-		//memset(g_advva, 0, F_DATA_SIZE * sizeof(float));
-		//memset(g_fluxva, 0, F_DATA_SIZE * sizeof(float));
-		
-		
-		for (int j=1; j<(m_height-1); j++ )
-		{
-			for (int i=1; i<m_width; i++ )
-			{
-				ji = j * m_width + i;
-				jp1i = ji + m_width;
-				jip1 = ji + 1;
-				jim1 = ji - 1;
-				jm1i = ji - m_width;
-				jm1im1 = jm1i  - 1;
-				
-				
-			 	g_fluxva[ji]=g_dx[j]*(.125f*((g_d[jp1i]+g_d[ji])
-									       *g_va[jp1i]+(g_d[ji]+g_d[jm1i])*g_va[ji])
-									      *(g_va[jp1i]+g_va[ji])
-								         -g_d[ji]*2.0f*aam2d*(g_vab[jp1i]-g_vab[ji])/g_dy[j]);
-				
-			}
-		}
-		
-		
-		for (int j=1; j<m_height; j++ )
-		{
-			for (int i=1; i<m_width; i++ )
-			{
-				ji = j * m_width + i;
-				jp1i = ji + m_width;
-				jip1 = ji + 1;
-				jim1 = ji - 1;
-				jm1i = ji - m_width;
-				jm1im1 = jm1i  - 1;
-				
-				
-				g_fluxua[ji]=(.125f*((g_d[ji]+g_d[jim1])*g_ua[ji]
-									         +(g_d[jm1i]+g_d[jm1im1])*g_ua[jm1i])*
-							                        (g_va[jim1]+g_va[ji])
-							  -g_tps[ji])*g_dy[j];
-			}
-		}
 
 		
-		for (int j=1; j<(m_height-1); j++ )
+		/*for (int j=1; j<(m_height-1); j++ )
 		{
 			for (int i=1; i<(m_width-1); i++ )
 			{
@@ -965,7 +981,7 @@ void KaspyCycler::makeWsurf()
 				g_advva[ji]=(g_fluxua[jip1]-g_fluxua[ji]
 							         +g_fluxva[ji]-g_fluxva[jm1i])/g_arv[j];
 			}
-		}
+		}*/
 		
 	
 		
