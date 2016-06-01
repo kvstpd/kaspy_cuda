@@ -86,6 +86,12 @@ __device__ float * dev_vwd0 = 0;
 __device__ float * dev_art = 0;
 
 
+__device__ float * dev_p = 0;
+__device__ float * dev_pk = 0;
+__device__ float * dev_px = 0;
+__device__ float * dev_py = 0;
+
+
 __device__ float * dev_temp = 0;
 
 
@@ -261,7 +267,7 @@ __device__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1
 }
 
 
-__global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, float dkx, float dky, float * p, float * px, float * py)
+__global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, float dkx, float dky)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -323,11 +329,11 @@ __global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, f
 			a1 = a1/dkx/dev_c2/cosf(dev_c1*y);
 			a2 = a2/dky/dev_c2;
 			
-			px[ji] = a1;
-			py[ji] = a2;
+			dev_px[ji] = a1;
+			dev_py[ji] = a2;
 		}
 		
-		p[ji] = ay;
+		dev_p[ji] = ay;
 		
 	}
 }
@@ -465,14 +471,14 @@ __global__ void dev_bicubic(int nx, int ny, int nd)
 
 
 
-__global__ void dev_pkk_ij(int kx, int ky, int kd, float * pk)
+__global__ void dev_pkk_ij(int kx, int ky, int kd)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	if (i > 0 && j > 0 && i <= kx && j <= ky)
 	{
-		dev_pkk[j * 50 + i] = pk[(j - 1) * kd + i - 1];
+		dev_pkk[j * 50 + i] = dev_pk[(j - 1) * kd + i - 1];
 	}
 }
 
@@ -1340,7 +1346,7 @@ void KaspyCycler::makeWsurf()
 }
 
 
-void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,float xmi, float xma, float ymi, float yma, float * p, float * pk, float * px, float * py)
+void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,float xmi, float xma, float ymi, float yma)
 {
 	int nx = F_DATA_WIDTH;
 	int ny = F_DATA_HEIGHT;
@@ -1361,7 +1367,7 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
 	
 	
-	dev_pkk_ij<<<numSquareBlocks, threadsPerSquareBlock>>>(kx, ky, kd, pk);
+	dev_pkk_ij<<<numSquareBlocks, threadsPerSquareBlock>>>(kx, ky, kd);
 	
 	
 	
@@ -1381,29 +1387,46 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	
 	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, 50);
 	
-	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky, p, px, py);
+	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky);
 	
 	
 }
 
 void KaspyCycler::getWindPressure(char uv)
 {
-
+	float * zero = 0;
+	
 	if (uv == 'u')
 	{
-		wind_pressure_g(m_fWindData->kxu, m_fWindData->kyu, m_fWindData->xkui, m_fWindData->xkua, m_fWindData->ykui, m_fWindData->ykua, m_fVars->xmi, m_fVars->xma, m_fVars->ymi, m_fVars->yma, dev_ffu, dev_uwd0, 0, 0);
+		cudaMemcpyToSymbol(dev_p, &g_ffu, sizeof(float *));
+		cudaMemcpyToSymbol(dev_pk, &g_uwd0, sizeof(float *));
+		cudaMemcpyToSymbol(dev_px, &zero, sizeof(float *));
+		cudaMemcpyToSymbol(dev_py, &zero, sizeof(float *));
+		
+		
+		wind_pressure_g(m_fWindData->kxu, m_fWindData->kyu, m_fWindData->xkui, m_fWindData->xkua, m_fWindData->ykui, m_fWindData->ykua, m_fVars->xmi, m_fVars->xma, m_fVars->ymi, m_fVars->yma);
 		
 
 	}
 	else if (uv == 'v')
 	{
-		wind_pressure_g(m_fWindData->kxv, m_fWindData->kyv, m_fWindData->xkvi, m_fWindData->xkva, m_fWindData->ykvi, m_fWindData->ykva, m_fVars->xmi, m_fVars->xma, m_fVars->ymi, m_fVars->yma, dev_ffv, dev_vwd0, 0, 0);
+		cudaMemcpyToSymbol(dev_p, &g_ffv, sizeof(float *));
+		cudaMemcpyToSymbol(dev_pk, &g_vwd0, sizeof(float *));
+		cudaMemcpyToSymbol(dev_px, &zero, sizeof(float *));
+		cudaMemcpyToSymbol(dev_py, &zero, sizeof(float *));
+		
+		wind_pressure_g(m_fWindData->kxv, m_fWindData->kyv, m_fWindData->xkvi, m_fWindData->xkva, m_fWindData->ykvi, m_fWindData->ykva, m_fVars->xmi, m_fVars->xma, m_fVars->ymi, m_fVars->yma);
 		
 
 	}
 	else if (uv == 'p')
 	{
-		wind_pressure_g(m_fWindData->kx, m_fWindData->ky, m_fWindData->xki, m_fWindData->xka, m_fWindData->yki, m_fWindData->yka, m_fVars->xmi, m_fVars->xma, m_fVars->ymi, m_fVars->yma, dev_ff, dev_press0, dev_fxf, dev_fyf);
+		cudaMemcpyToSymbol(dev_p, &g_ffv, sizeof(float *));
+		cudaMemcpyToSymbol(dev_pk, &g_vwd0, sizeof(float *));
+		cudaMemcpyToSymbol(dev_px, &g_fxf, sizeof(float *));
+		cudaMemcpyToSymbol(dev_py, &g_fyf, sizeof(float *));
+		
+		wind_pressure_g(m_fWindData->kx, m_fWindData->ky, m_fWindData->xki, m_fWindData->xka, m_fWindData->yki, m_fWindData->yka, m_fVars->xmi, m_fVars->xma, m_fVars->ymi, m_fVars->yma);
 		
 
 	}
