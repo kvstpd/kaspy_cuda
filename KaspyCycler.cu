@@ -86,6 +86,9 @@ __device__ float * dev_vwd0 = 0;
 __device__ float * dev_art = 0;
 
 
+__device__ float * dev_temp = 0;
+
+
 float * g_fbu = 0;
 float * g_fbv = 0;
 float * g_ffu = 0;
@@ -460,15 +463,26 @@ __global__ void tps_and_other_arrays_4()
 		dev_ua[ji]=dev_ua[ji]+0.5f*dev_smoth*(dev_uab[ji]-2.0f*dev_ua[ji]+dev_uaf[ji]);
 		dev_va[ji]=dev_va[ji]+0.5f*dev_smoth*(dev_vab[ji]-2.0f*dev_va[ji]+dev_vaf[ji]);
 		dev_el[ji]=dev_el[ji]+0.5f*dev_smoth*(dev_elb[ji]-2.0f*dev_el[ji]+dev_elf[ji]);
-		dev_elb[ji]=dev_el[ji];  // OP
-		dev_el[ji]=dev_elf[ji];  // OP
-		dev_d[ji]=dev_h[ji]+dev_el[ji];
+		//dev_elb[ji]=dev_el[ji];  // OP
+		//dev_el[ji]=dev_elf[ji];  // OP
+		dev_d[ji]=dev_h[ji]+dev_elf[ji];
 		dev_uab[ji]=dev_ua[ji];  // OP
 		dev_ua[ji]=dev_uaf[ji];  // OP
 		dev_vab[ji]=dev_va[ji];  // OP
 		dev_va[ji]=dev_vaf[ji];  // OP
 		
 	}
+	
+}
+
+
+__global__ void swap_arrays_5()
+{
+	dev_temp = dev_elb;
+	dev_elb = dev_el;
+	dev_el=dev_elf;
+	dev_elf = dev_elb;
+	
 	
 }
 
@@ -1079,11 +1093,15 @@ void KaspyCycler::makeWsurf()
 	
 	
 	
-	cudaDeviceSynchronize();
+	
 	
 	
 	tps_and_other_arrays_4<<<numSquareBlocks, threadsPerSquareBlock>>>();
 	
+	swap_arrays_5<<1, 1>>>();
+	
+	
+	cudaDeviceSynchronize();
 	
 	/*float vmaxl = 100.0f;
 	
