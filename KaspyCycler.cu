@@ -415,12 +415,28 @@ void KaspyCycler::sendDataToGPU()
 	{
 		printf("GPU constant memory filled\n");
 		
-		//int test_ewidth = 0;dev_dte2
 		
-		//cudaMemcpyFromSymbol(&test_ewidth, g_ewidth, sizeof(int));
+		int test_i = 0;
+		int test_f = 0;
+		
+		cudaMemcpyFromSymbol(&test_i, dev_width, sizeof(int));
+		printf("dev width is now %d\n", test_i);
+		cudaMemcpyFromSymbol(&test_i, dev_height, sizeof(int));
+		printf("dev height is now %d\n", test_i);
+		
+		cudaMemcpyFromSymbol(&test_i, dev_widthm1, sizeof(int));
+		printf("dev width-1 is now %d\n", test_i);
+		cudaMemcpyFromSymbol(&test_i, dev_heightm1, sizeof(int));
+		printf("dev height-1 is now %d\n", test_i);
+		
+		cudaMemcpyFromSymbol(&test_f, dev_dte, sizeof(int));
+		printf("dev dte is now %f\n", test_f);
+		cudaMemcpyFromSymbol(&test_f, dev_dte2, sizeof(int));
+		printf("dev dte2 is now %f\n", test_f);
+		cudaMemcpyFromSymbol(&test_f, dev_tide_l, sizeof(int));
+		printf("dev tide_l is now %f\n", test_f);
 		
 		
-		//printf("pitched width is now %d\n", test_ewidth);
 	}
 	else
 	{
