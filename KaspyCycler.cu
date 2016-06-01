@@ -291,10 +291,10 @@ __global__ void uaf_and_vaf_3()
 	{
 		if (i < dev_width && j < dev_heightm1)
 		{
-			if (i == 2 && j == 2)
+			/*if (i == 2 && j == 2)
 			{
 				printf("DEV dte is %f dte2 is %f tide_l %f\n", dev_dte, dev_dte2, dev_tide_l);
-			}
+			}*/
 			
 			
 			float uaf1= dev_advua[ji]   -0.25f*(dev_cor[j]*dev_d[ji]*(dev_va[jp1i]+dev_va[ji])
@@ -411,7 +411,7 @@ void KaspyCycler::sendDataToGPU()
 	float tide_l = (float)m_fVars->tide_l;
 	
 	printf("dte is %f dte2 is %f tide_l %f\n", dte, dte2, tide_l);
-	printf("i S is %d, f S is %d dte S is %d devS is %df\n", sizeof(int), sizeof(float), sizeof(dte), sizeof(dev_dte));
+	//printf("i S is %d, f S is %d dte S is %d devS is %df\n", sizeof(int), sizeof(float), sizeof(dte), sizeof(dev_dte));
 
 	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
