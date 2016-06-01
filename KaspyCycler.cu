@@ -876,7 +876,7 @@ void KaspyCycler::makeWsurf()
 
 	
 	/*float alpha =  0.225f;
-	float dte = m_fVars->dte;
+	
 	
 
 	*/
@@ -884,6 +884,7 @@ void KaspyCycler::makeWsurf()
 	
 		/// BCOND 2
 	float gae;
+	float dte = m_fVars->dte;
 	
 	for (int j=1; j<(m_height-1); j++ )
 	{
