@@ -874,6 +874,7 @@ void KaspyCycler::makeWsurf()
 	
 	uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
 
+	cudaDeviceSynchronize();
 	
 	/*float alpha =  0.225f;
 	
