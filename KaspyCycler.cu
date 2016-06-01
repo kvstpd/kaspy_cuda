@@ -604,7 +604,7 @@ __global__ void adv_advva_2()
 	
 	int ji = j * dev_width + i;
 	int jip1 = ji + 1;
-	int jm1i = ji - m_width;
+	int jm1i = ji - dev_width;
 	
 	if (i > 0 && j > 0 && i < dev_widthm1 && j < dev_heightm1)
 	{
