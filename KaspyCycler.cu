@@ -304,7 +304,7 @@ __global__ void uaf_and_vaf_3()
 			 -4.e0*dev_dte*uaf1)  /(dev_h[ji]+dev_elf[ji]+dev_h[jim1]+dev_elf[jim1]);
 		}
 		
-		if (i < dev_widthm1 && j < dev_height)
+		/*if (i < dev_widthm1 && j < dev_height)
 		{
 			float vaf1=dev_advva[ji]
 			+.25f*(  dev_cor[j]*dev_d[ji]*(dev_ua[jip1]+dev_ua[ji])
@@ -317,7 +317,7 @@ __global__ void uaf_and_vaf_3()
 			dev_vaf[ji]= ((dev_h[ji]+dev_elb[ji]+dev_h[jm1i]+dev_elb[jm1i])*dev_vab[ji]
 						  -4.0f*dev_dte*vaf1) /(dev_h[ji]+dev_elf[ji]+dev_h[jm1i]+dev_elf[jm1i]);
 			
-		}
+		}*/
 		
 	}
 	
@@ -875,14 +875,14 @@ void KaspyCycler::makeWsurf()
 	
 	
 	
-	//uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
+	uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
 
 	cudaDeviceSynchronize();
 	
 	float alpha =  0.225f;
 	float dte = m_fVars->dte;
 	
-	for (int j=1; j<(m_height-1); j++ )
+	/*for (int j=1; j<(m_height-1); j++ )
 	{
 		for (int i=1; i<m_width; i++ )
 		{
@@ -908,7 +908,7 @@ void KaspyCycler::makeWsurf()
 			
 		}
 	}
-	
+	*/
 	
 	for (int j=1; j<m_height; j++ )
 	{
