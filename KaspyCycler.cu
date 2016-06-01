@@ -1386,9 +1386,32 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	
 }
 
-
-
 void KaspyCycler::getWindPressure(char uv)
+{
+
+	if (uv == 'u')
+	{
+		wind_pressure_g(m_fWindData->kxu, m_fWindData->kyu, m_fWindData->xkui, m_fWindData->xkua, m_fWindData->ykui, m_fWindData->ykua, m_fVars->xmi, m_fVars->xma, m_fVars->ymi, m_fVars->yma, dev_ffu, dev_uwd0, 0, 0);
+		
+
+	}
+	else if (uv == 'v')
+	{
+		wind_pressure_g(m_fWindData->kxv, m_fWindData->kyv, m_fWindData->xkvi, m_fWindData->xkva, m_fWindData->ykvi, m_fWindData->ykva, m_fVars->xmi, m_fVars->xma, m_fVars->ymi, m_fVars->yma, dev_ffv, dev_vwd0, 0, 0);
+		
+
+	}
+	else if (uv == 'p')
+	{
+		wind_pressure_g(m_fWindData->kx, m_fWindData->ky, m_fWindData->xki, m_fWindData->xka, m_fWindData->yki, m_fWindData->yka, m_fVars->xmi, m_fVars->xma, m_fVars->ymi, m_fVars->yma, dev_ff, dev_press0, dev_fxf, dev_fyf);
+		
+
+	}
+}
+
+
+
+/*void KaspyCycler::getWindPressure(char uv)
 {
 	int kx, ky, kd, nx, ny;//, nd;
 	float * p;
@@ -1586,47 +1609,27 @@ void getbicubic(int nx, int ny, int nd, float * z, float * c)
 	{
 		for (int i=1; i<nx-2; i++ )
 		{
-			/*
-			 Y(1)=Z(I,J)
-			 Y(2)=Z(I+1,J)
-			 Y(3)=Z(I+1,J+1)
-			 Y(4)=Z(I,J+1)
-			 */
+
 			y[0] = z[j * nd + i];
 			y[1] = z[j * nd + i + 1];
 			y[2] = z[(j+1) * nd + i + 1];
 			y[3] = z[(j+1) * nd + i];
 			
-			/*
-			 Y1(1)=0.5*(Z(I+1,J)-Z(I-1,J))
-			 Y1(4)=0.5*(Z(I+1,J+1)-Z(I-1,J+1))
-			 Y1(2)=0.5*(Z(I+2,J)  -Z(I,J))
-			 Y1(3)=0.5*(Z(I+2,J+1)-Z(I,J+1))
-			 */
+
 			y1[0] = 0.5f * (z[j * nd + i + 1] - z[j * nd + i - 1]);
 			y1[3] = 0.5f * (z[(j+1) * nd + i + 1] - z[(j+1) * nd + i - 1]);
 			y1[1] = 0.5f * (z[j * nd + i + 2] - z[j * nd + i]);
 			y1[2] = 0.5f * (z[(j+1) * nd + i + 2] - z[(j+1) * nd + i]);
 
 			
-			/*
-			 Y2(1)=0.5*(Z(I,J+1)  -Z(I,J-1))
-			 Y2(2)=0.5*(Z(I+1,J+1)-Z(I+1,J-1))
-			 Y2(3)=0.5*(Z(I+1,J+2)-Z(I+1,J))
-			 Y2(4)=0.5*(Z(I,J+2)-Z(I,J))
-			 */
+
 			y2[0] = 0.5f * (z[(j+1) * nd + i] - z[(j-1) * nd + i]);
 			y2[1] = 0.5f * (z[(j+1) * nd + i + 1] - z[(j-1) * nd + i + 1]);
 			y2[2] = 0.5f * (z[(j+2) * nd + i + 1] - z[(j) * nd + i + 1]);
 			y2[3] = 0.5f * (z[(j+2) * nd + i] - z[j * nd + i]);
 			
 			
-			/*
-			 Y12(1)=0.25*(Z(I+1,J+1)-Z(I+1,J-1)-Z(I-1,J+1)+Z(I-1,J-1))
-			 Y12(2)=0.25*(Z(I+2,J+1)-Z(I+2,J-1)-Z(I,J+1)+Z(I,J-1))
-			 Y12(3)=0.25*(Z(I+2,J+2)-Z(I+2,J)-Z(I,J+2)+Z(I,J))
-			 Y12(4)=0.25*(Z(I+1,J+2)-Z(I+1,J)-Z(I-1,J+2)+Z(I-1,J))
-			 */
+
 			y12[0] = 0.25f * (z[(j+1) * nd + i + 1] - z[(j-1) * nd + i + 1]
 							  - z[(j+1) * nd + i - 1] + z[(j-1) * nd + i - 1]);
 			y12[1] = 0.25f * (z[(j+1) * nd + i + 2] - z[(j-1) * nd + i + 2]
@@ -1726,7 +1729,7 @@ void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float
 }
 
 
-
+*/
 
 
 
