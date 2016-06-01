@@ -403,6 +403,8 @@ void KaspyCycler::sendDataToGPU()
 	int hm1 = m_height - 1 ;
 	float dte2 = m_fVars->dte * 2.0f;
 	
+	printf("dte is %f dte2 is %f\n", m_fVars->dte, dte2);
+	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_height, &m_height, sizeof(int))  == cudaSuccess)
 		&&(cudaMemcpyToSymbol(dev_widthm1, &wm1, sizeof(int))  == cudaSuccess)
