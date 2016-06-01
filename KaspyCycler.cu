@@ -168,6 +168,12 @@ __constant__ __device__ float dev_tide_l = 0.0f;
 
 __constant__ __device__ float dev_alpha = 0.225f;
 
+__constant__ __device__ float dev_vmaxl = 100.0f;;
+
+__constant__ __device__ int dev_should_stop = 0;
+
+__constant__ __device__ float dev_smoth = 0.10f;
+
 /**/
 
 __global__ void surf_and_flux_1(float ftim)
@@ -425,8 +431,6 @@ __global__ void bcond_2_ji()
 	int ji = j * dev_width + i;
 	
 	
-	ji = j * dev_width + i;
-	
 	if (i > 0 && j > 0 && i < dev_width && j < dev_height)
 	{
 		dev_uaf[ji] = dev_uaf[ji] * dev_dum[ji];
@@ -436,34 +440,91 @@ __global__ void bcond_2_ji()
 
 }
 
+__global__ void tps_and_other_arrays_4()
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * dev_width + i;
+	
+	
+	if (i > 0 && j > 0 && i < dev_width && j < dev_height)
+	{
+		dev_tps[ji] = sqrtf(dev_uaf[ji]*dev_uaf[ji] + dev_vaf[ji]*dev_vaf[ji]);
+		
+		if (dev_tps[ji] > dev_vmaxl)
+		{
+			dev_should_stop = 1;
+		}
+		
+		dev_ua[ji]=dev_ua[ji]+0.5f*dev_smoth*(dev_uab[ji]-2.0f*dev_ua[ji]+dev_uaf[ji]);
+		dev_va[ji]=dev_va[ji]+0.5f*dev_smoth*(dev_vab[ji]-2.0f*dev_va[ji]+dev_vaf[ji]);
+		dev_el[ji]=dev_el[ji]+0.5f*dev_smoth*(dev_elb[ji]-2.0f*dev_el[ji]+dev_elf[ji]);
+		dev_elb[ji]=dev_el[ji];  // OP
+		dev_el[ji]=dev_elf[ji];  // OP
+		dev_d[ji]=dev_h[ji]+dev_el[ji];
+		dev_uab[ji]=dev_ua[ji];  // OP
+		dev_ua[ji]=dev_uaf[ji];  // OP
+		dev_vab[ji]=dev_va[ji];  // OP
+		dev_va[ji]=dev_vaf[ji];  // OP
+		
+	}
+	
+}
+
 
 /*
  
- float gae;
-	float dte = m_fVars->dte;
-	
-	for (int j=1; j<(m_height-1); j++ )
-	{
- 
-	}
+ float vmaxl = 100.0f;
 	
 	
+	float tpsmax = 0.0f;
 	
- 
-	for (int i=1; i<(m_width-1); i++ )
-	{
-
-	}
-	
-	/// must separate cuda calls here
+	int imax = 0;
+	int jmax = 0;
 	
 	for (int j=1; j<m_height; j++ )
 	{
  for (int i=1; i<m_width; i++ )
  {
+ ji = j * m_width + i;
+ 
+ g_tps[ji] = sqrtf(g_uaf[ji]*g_uaf[ji] + g_vaf[ji]*g_vaf[ji]);
+ 
+ if (g_tps[ji] > tpsmax)
+ {
+ tpsmax = g_tps[ji];
+ imax = i;
+ jmax = j;
+ }
+ }
+	}
+	
+	
+	if (tpsmax > vmaxl)
+	{
+ setbuf(stdout,NULL);
+ 
+ printf("vamax>vmax!!! at i=%d, j=%d \n", imax,jmax);
+ 
+ exit(-1);
+	}
+ 
+	
+	
+	float smoth = 0.10f;
+	
+	
+	for (int j=1; j<m_height; j++ )
+	{
+ for (int i=1; i<m_width; i++ )
+ {
+ ji = j * m_width + i;
+ 
 
  }
 	}
+
  
  */
 
@@ -1021,108 +1082,10 @@ void KaspyCycler::makeWsurf()
 	cudaDeviceSynchronize();
 	
 	
-		/// BCOND 2
-	/*float gae;
-	float dte = m_fVars->dte;
-	
-	for (int j=1; j<(m_height-1); j++ )
-	{
-		j1 =  j * m_width;
-		j2 =  j1 + 1;
-		j3 =  j1 + 2;
-		
-		jl = j1 + m_width -1;
-		jlm1 = jl - 1;
-		
-		if(g_dum[jl] > 0.5f)
-		{
-			gae = dte*sqrtf(grav*g_h[jl])/g_dx[j];
-			
-			g_uaf[jl] = gae*g_ua[jlm1]+(1.0f-gae)*g_ua[jl];
-		}
-		else
-		{
-			g_uaf[jl] = 0.0f;
-		}
-
-		g_vaf[jl]=0.0f;
-		
-		if(g_dum[j2] > 0.5f)
-		{
-			gae = dte*sqrtf(grav*g_h[j2])/g_dx[j];
-			g_uaf[j2]=gae*g_ua[j3]+(1.-gae)*g_ua[j2];
-		}
-		else
-		{
-			g_uaf[j2]=0.0f;
-		}
-		
-		g_uaf[j1]=g_uaf[j2];
-		g_vaf[j1]=0.0;
-		
-	}
+	tps_and_other_arrays_4<<<numSquareBlocks, threadsPerSquareBlock>>>();
 	
 	
-	
-
-	for (int i=1; i<(m_width-1); i++ )
-	{
-		jli = m_width * (m_height - 1) + i;
-		jlm1i = jli - m_width;
-		
-		j1i = i;
-		
-		j2i = m_width + j1i;
-		
-		j3i = m_width + j2i;
-		
-		
-		if (g_dvm[jli] > 0.5f)
-		{
-			gae = dte*sqrtf(grav*g_h[jli])/g_dy[m_height-1];
-			
-			g_vaf[jli] = gae*g_va[jlm1i]+(1.0f-gae)*g_va[jli];
-		}
-		else
-		{
-			g_vaf[jli]=0.0f;
-		}
-
-		g_uaf[jli]=0.0;
-
-		if (g_dvm[j2i] > 0.5f)
-		{
-			gae=dte*sqrtf(grav*g_h[j2i])/g_dy[0];
-			
-			g_vaf[j2i]=gae*g_va[j3i]+(1.-gae)*g_va[j2i];
-		}
-		else
-		{
-			g_vaf[j2i]=0.0f;
-		}
-		
-
-		g_vaf[j1i]=g_vaf[j1i];
-		g_uaf[j1i]=0.0f;
-	}
-	
-	/// must separate cuda calls here
-	
-	for (int j=1; j<m_height; j++ )
-	{
-		for (int i=1; i<m_width; i++ )
-		{
-			ji = j * m_width + i;
-			
-			g_uaf[ji] = g_uaf[ji] * g_dum[ji];
-			g_vaf[ji] = g_vaf[ji] * g_dvm[ji];
-		}
-	}
-	// END BCOND 2
-	*/
-	
-	
-	float vmaxl = 100.0f;
+	/*float vmaxl = 100.0f;
 	
 	
 	float tpsmax = 0.0f;
@@ -1181,7 +1144,7 @@ void KaspyCycler::makeWsurf()
 		}
 	}
 	
-	
+	*/
 }
 
 
