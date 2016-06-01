@@ -1110,12 +1110,10 @@ void KaspyCycler::makeWsurf()
 			printf("GPU memory copy error!\n");
 		}
 		
-		
-		cudaDeviceSynchronize();
-		
-		getWindPressureG('p');
 
-		cudaDeviceSynchronize();
+	
+		getWindPressure('p');
+
 		
 
 		//size_t s_wu_width = m_fWindData->kxu * sizeof(float);
@@ -1147,10 +1145,11 @@ void KaspyCycler::makeWsurf()
 			printf("GPU memory copy error!\n");
 		}
 		
-		
-		getWindPressure('v');
-
 		cudaDeviceSynchronize();
+		
+		getWindPressureG('v');
+
+		
 	}
 
 	
