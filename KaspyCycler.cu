@@ -843,7 +843,22 @@ void KaspyCycler::makeWsurf()
     int windUSize = m_fWindData->kxu * m_fWindData->kyu;
     int windVSize = m_fWindData->kxv * m_fWindData->kyv;
 	
-	//size_t s_width =  m_width *  sizeof(float);
+	
+	float ftim = fmodf(timeh6, 1.0f);
+	
+	
+	int threadsPerBlock = 64;
+	
+	int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
+	int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
+	
+	dim3 threadsPerSquareBlock(16, 16);
+	
+	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
+	
+	cudaError_t err = cudaSuccess;
+	
+	
     
     itime6 = (int)timeh6;
 
@@ -906,7 +921,7 @@ void KaspyCycler::makeWsurf()
 		getWindPressure('u');
 
         //memcpy(g_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
-		size_t s_wv_width = m_fWindData->kxv * sizeof(float);
+		//size_t s_wv_width = m_fWindData->kxv * sizeof(float);
 		
 		
 		if ( (cudaMemcpy(g_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
@@ -923,49 +938,47 @@ void KaspyCycler::makeWsurf()
 
 		cudaDeviceSynchronize();
 	}
-	
-	
-    //float uw, vw, speed, windc;
-    //int ji, jp1i, jip1, jim1, jm1i, jp1ip1, jm1im1, jp1im1, jm1ip1, jl, jlm1, j1, j2, j3, jli, jlm1i, j1i, j2i, j3i;
-	
-	
-	float ftim = fmodf(timeh6, 1.0f);
-	
-
-	int threadsPerBlock = 64;
-	
-	int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
-	int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
-	
-	dim3 threadsPerSquareBlock(16, 16);
-	
-	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
-	
-	cudaError_t err = cudaSuccess;
-	
-	
-	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim);
 
 	
-	elf_and_flux_2<<<numSquareBlocks, threadsPerSquareBlock>>>();
+	err = surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim);
+
+	if (err != cudaSuccess)
+	{
+		printf("error calling surf_and_flux_1 kernel! \n");
+	}
 	
-
-
- 
-
+	err = elf_and_flux_2<<<numSquareBlocks, threadsPerSquareBlock>>>();
+	
+	if (err != cudaSuccess)
+	{
+		printf("error calling elf_and_flux_2 kernel! \n");
+	}
 
 	/// BCOND 1
 
 	
-
+	err = bcond_1_j<<< blocksPerGridJ, threadsPerBlock>>>();
 	
-	bcond_1_j<<< blocksPerGridJ, threadsPerBlock>>>();
-	bcond_1_i<<< blocksPerGridI, threadsPerBlock>>>();
+	if (err != cudaSuccess)
+	{
+		printf("error calling bcond_1_j kernel! \n");
+	}
 	
-	bcond_1_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
+	err = bcond_1_i<<< blocksPerGridI, threadsPerBlock>>>();
+	
+	if (err != cudaSuccess)
+	{
+		printf("error calling bcond_1_i kernel! \n");
+	}
+	
+	err = bcond_1_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
+	
+	if (err != cudaSuccess)
+	{
+		printf("error calling bcond_1_ji kernel! \n");
+	}
 
 
-	
 	
 	if (m_fVars->iint % 10 == 0)
 	{
@@ -974,31 +987,83 @@ void KaspyCycler::makeWsurf()
 		//		FLUXUA=0 ?
 
 		
-		adv_fluxes_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
-		adv_advua_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		err = adv_fluxes_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
 		
-		adv_fluxes_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
-		adv_advva_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		if (err != cudaSuccess)
+		{
+			printf("error calling adv_fluxes_1 kernel! \n");
+		}
+		
+		err = adv_advua_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		
+		if (err != cudaSuccess)
+		{
+			printf("error calling adv_advua_1 kernel! \n");
+		}
+		
+		err = adv_fluxes_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		
+		if (err != cudaSuccess)
+		{
+			printf("error calling adv_fluxes_2 kernel! \n");
+		}
+		
+		err = adv_advva_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		
+		if (err != cudaSuccess)
+		{
+			printf("error calling adv_advva_2 kernel! \n");
+		}
 		
 		
-		adv_bot_3<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		err =  adv_bot_3<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		
+		if (err != cudaSuccess)
+		{
+			printf("error calling adv_bot_3 kernel! \n");
+		}
 	
 
 		// END ADVAVE();
 	}
 	
 	
-	uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
+	err = uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
+	
+	if (err != cudaSuccess)
+	{
+		printf("error calling uaf_and_vaf_3 kernel! \n");
+	}
 
 	
-	bcond_2_j<<< blocksPerGridJ, threadsPerBlock>>>();
-	bcond_2_i<<< blocksPerGridI, threadsPerBlock>>>();
+	err =  bcond_2_j<<< blocksPerGridJ, threadsPerBlock>>>();
 	
-	bcond_2_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
+	if (err != cudaSuccess)
+	{
+		printf("error calling bcond_2_j kernel! \n");
+	}
 	
-	tps_and_other_arrays_4<<<numSquareBlocks, threadsPerSquareBlock>>>();
+	err =  bcond_2_i<<< blocksPerGridI, threadsPerBlock>>>();
 	
-	swap_arrays_5<<<1, 1>>>();
+	if (err != cudaSuccess)
+	{
+		printf("error calling bcond_2_i kernel! \n");
+	}
+	
+	err = bcond_2_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
+	
+	if (err != cudaSuccess)
+	{
+		printf("error calling bcond_2_ji kernel! \n");
+	}
+	
+	err = tps_and_other_arrays_4<<<numSquareBlocks, threadsPerSquareBlock>>>();
+	
+	if (err != cudaSuccess)
+	{
+		printf("error calling tps_and_other_arrays_4 kernel! \n");
+	}
+
 
 }
 
@@ -1007,7 +1072,7 @@ void KaspyCycler::makeWsurf()
 
 void KaspyCycler::getWindPressure(char uv)
 {
-	int kx, ky, kd, nx, ny, nd;
+	int kx, ky, kd, nx, ny;//, nd;
 	float * p;
 	float * px;
 	float * py;
@@ -1071,7 +1136,7 @@ void KaspyCycler::getWindPressure(char uv)
 	
 	nx = F_DATA_WIDTH;
 	ny = F_DATA_HEIGHT;
-	nd = F_DATA_WIDTH;
+	//nd = F_DATA_WIDTH;
 	
 	xmi = m_fVars->xmi;
 	xma = m_fVars->xma;
