@@ -152,7 +152,7 @@ float * g_vwd0 = 0;
 float * g_art = 0;
 
 
-__constant__ __device__  float g_grav = 9.806;
+__constant__ __device__  float dev_grav = 9.806;
 __constant__ __device__  float dev_ro_ratio = 1.29/1020.0;
 
 __constant__ __device__  int  dev_width;
