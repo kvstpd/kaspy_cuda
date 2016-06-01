@@ -401,9 +401,12 @@ void KaspyCycler::sendDataToGPU()
 	//int ewidth = ((int)m_pitch) / sizeof(float);
 	int wm1 = m_width - 1 ;
 	int hm1 = m_height - 1 ;
-	float dte = m_fVars->dte;
-	float dte2 = m_fVars->dte * 2.0f;
-	float tide_l = m_fVars->tide_l;
+	float dte = (float)m_fVars->dte;
+	float dte2 = (float)m_fVars->dte * 2.0f;
+	float tide_l = (float)m_fVars->tide_l;
+	
+	printf("dte is %f dte2 is %f tide_l %f\n", dte, dte2, tide_l);
+
 	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_height, &m_height, sizeof(int))  == cudaSuccess)
