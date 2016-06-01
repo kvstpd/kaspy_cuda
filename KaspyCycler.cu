@@ -503,8 +503,8 @@ __global__ void adv_fluxes_1()
 	int ji = j * dev_width + i;
 	int jip1 = ji + 1;
 	int jim1 = ji - 1;
-	int jp1i = ji + m_width;
-	int jm1i = ji - m_width;
+	int jp1i = ji + dev_width;
+	int jm1i = ji - dev_width;
 	int jm1im1 = jm1i  - 1;
  
 	
@@ -889,6 +889,8 @@ void KaspyCycler::makeWsurf()
 
 		
 		cudaDeviceSynchronize();
+		
+		float aam2d = m_fArrays->aam2d;
 		
 		for (int j=1; j<(m_height-1); j++ )
 		{
