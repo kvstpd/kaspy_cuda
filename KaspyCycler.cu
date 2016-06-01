@@ -162,8 +162,8 @@ __constant__ __device__  int  dev_heightm1;
 
 __constant__ __device__ int dev_ewidth;
 
-__device__ float dev_dte;
-__device__ float dev_dte2;
+__constant__ __device__ float dev_dte;
+__constant__ __device__ float dev_dte2;
 __constant__ __device__ float dev_tide_l = 0.0f;
 
 __constant__ __device__ float dev_alpha = 0.225f;
@@ -401,17 +401,17 @@ void KaspyCycler::sendDataToGPU()
 	//int ewidth = ((int)m_pitch) / sizeof(float);
 	int wm1 = m_width - 1 ;
 	int hm1 = m_height - 1 ;
+	float dte = m_fVars->dte;
 	float dte2 = m_fVars->dte * 2.0f;
-	
-	printf("dte is %f dte2 is %f\n", m_fVars->dte, dte2);
+	float tide_l = m_fVars->tide_l;
 	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_height, &m_height, sizeof(int))  == cudaSuccess)
 		&&(cudaMemcpyToSymbol(dev_widthm1, &wm1, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_heightm1, &hm1, sizeof(int))  == cudaSuccess)
-		&& (cudaMemcpyToSymbol(dev_dte, &m_fVars->dte, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_dte, &dte, sizeof(float))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_dte2, &dte2, sizeof(float))  == cudaSuccess)
-		//&& (cudaMemcpyToSymbol(dev_tide_l, &m_fVars->tide_l, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_tide_l, &tide_l, sizeof(float))  == cudaSuccess)
 		//&& (cudaMemcpyToSymbol(dev_ewidth, &ewidth,  sizeof(int))  == cudaSuccess)
 		)
 	{
@@ -435,8 +435,8 @@ void KaspyCycler::sendDataToGPU()
 		printf("dev dte is now %f\n", test_f);
 		cudaMemcpyFromSymbol(&test_f, dev_dte2, sizeof(float));
 		printf("dev dte2 is now %f\n", test_f);
-		//cudaMemcpyFromSymbol(&test_f, dev_tide_l, sizeof(float));
-		//printf("dev tide_l is now %f\n", test_f);
+		cudaMemcpyFromSymbol(&test_f, dev_tide_l, sizeof(float));
+		printf("dev tide_l is now %f\n", test_f);
 		
 		
 	}
