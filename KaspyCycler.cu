@@ -179,6 +179,14 @@ __device__ int dev_should_stop = 0;
 
 __constant__ __device__ float dev_smoth = 0.10f;
 
+__constant__ __device__ float dev_xmi;// = m_fVars->xmi;
+__constant__ __device__ float dev_xma;// = m_fVars->xma;
+__constant__ __device__ float dev_ymi;// = m_fVars->ymi;
+__constant__ __device__ float dev_yma;// = m_fVars->yma;
+
+__constant__ __device__ float dev_c1 = 3.1415926/180.0;
+__constant__ __device__ float dev_c2 = 111111.0f;
+
 
 __constant__ __device__ float dev_wt[] = {
 	1,0,-3,2,0,0,0,0,-3,0,9,-6,2,0,-6,4,
@@ -200,6 +208,8 @@ __constant__ __device__ float dev_wt[] = {
 };
 
 
+__device__ float dev_pkk[50][50];
+__device__ float dev_c[50][50][4][4];
 
 
 
@@ -246,7 +256,7 @@ __device__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1
 }
 
 
-__global__ void dev_bucubic(int nx, int ny, int nd, float * z, float * c)
+__global__ void dev_bicubic(int nx, int ny)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -267,31 +277,31 @@ __global__ void dev_bucubic(int nx, int ny, int nd, float * z, float * c)
 	if (i > 0 && j > 0 && i < (nx - 2) && j < (ny - 2))
 	{
 		
-		y[0] = z[j * nd + i];
-		y[1] = z[j * nd + i + 1];
-		y[2] = z[(j+1) * nd + i + 1];
-		y[3] = z[(j+1) * nd + i];
+		y[0] = dev_pkk[j * nd + i];
+		y[1] = dev_pkk[j * nd + i + 1];
+		y[2] = dev_pkk[(j+1) * nd + i + 1];
+		y[3] = dev_pkk[(j+1) * nd + i];
 		
-		y1[0] = 0.5f * (z[j * nd + i + 1] - z[j * nd + i - 1]);
-		y1[3] = 0.5f * (z[(j+1) * nd + i + 1] - z[(j+1) * nd + i - 1]);
-		y1[1] = 0.5f * (z[j * nd + i + 2] - z[j * nd + i]);
-		y1[2] = 0.5f * (z[(j+1) * nd + i + 2] - z[(j+1) * nd + i]);
-		
-		
-		y2[0] = 0.5f * (z[(j+1) * nd + i] - z[(j-1) * nd + i]);
-		y2[1] = 0.5f * (z[(j+1) * nd + i + 1] - z[(j-1) * nd + i + 1]);
-		y2[2] = 0.5f * (z[(j+2) * nd + i + 1] - z[(j) * nd + i + 1]);
-		y2[3] = 0.5f * (z[(j+2) * nd + i] - z[j * nd + i]);
+		y1[0] = 0.5f * (dev_pkk[j * nd + i + 1] - dev_pkk[j * nd + i - 1]);
+		y1[3] = 0.5f * (dev_pkk[(j+1) * nd + i + 1] - dev_pkk[(j+1) * nd + i - 1]);
+		y1[1] = 0.5f * (dev_pkk[j * nd + i + 2] - dev_pkk[j * nd + i]);
+		y1[2] = 0.5f * (dev_pkk[(j+1) * nd + i + 2] - dev_pkk[(j+1) * nd + i]);
 		
 		
-		y12[0] = 0.25f * (z[(j+1) * nd + i + 1] - z[(j-1) * nd + i + 1]
-						  - z[(j+1) * nd + i - 1] + z[(j-1) * nd + i - 1]);
-		y12[1] = 0.25f * (z[(j+1) * nd + i + 2] - z[(j-1) * nd + i + 2]
-						  - z[(j+1) * nd + i] + z[(j-1) * nd + i]);
-		y12[2] = 0.25f * (z[(j+2) * nd + i + 2] - z[(j) * nd + i + 2]
-						  - z[(j+2) * nd + i] + z[j * nd + i]);
-		y12[3] = 0.25f * (z[(j+2) * nd + i + 1] - z[(j) * nd + i + 1]
-						  - z[(j+2) * nd + i -1] + z[(j) * nd + i -1]);
+		y2[0] = 0.5f * (dev_pkk[(j+1) * nd + i] - dev_pkk[(j-1) * nd + i]);
+		y2[1] = 0.5f * (dev_pkk[(j+1) * nd + i + 1] - dev_pkk[(j-1) * nd + i + 1]);
+		y2[2] = 0.5f * (dev_pkk[(j+2) * nd + i + 1] - dev_pkk[(j) * nd + i + 1]);
+		y2[3] = 0.5f * (dev_pkk[(j+2) * nd + i] - dev_pkk[j * nd + i]);
+		
+		
+		y12[0] = 0.25f * (dev_pkk[(j+1) * nd + i + 1] - dev_pkk[(j-1) * nd + i + 1]
+						  - dev_pkk[(j+1) * nd + i - 1] + dev_pkk[(j-1) * nd + i - 1]);
+		y12[1] = 0.25f * (dev_pkk[(j+1) * nd + i + 2] - dev_pkk[(j-1) * nd + i + 2]
+						  - dev_pkk[(j+1) * nd + i] + dev_pkk[(j-1) * nd + i]);
+		y12[2] = 0.25f * (dev_pkk[(j+2) * nd + i + 2] - dev_pkk[(j) * nd + i + 2]
+						  - dev_pkk[(j+2) * nd + i] + dev_pkk[j * nd + i]);
+		y12[3] = 0.25f * (dev_pkk[(j+2) * nd + i + 1] - dev_pkk[(j) * nd + i + 1]
+						  - dev_pkk[(j+2) * nd + i -1] + dev_pkk[(j) * nd + i -1]);
 		
 		
 		dev_bcucof(&y[0],&y1[0],&y2[0],&y12[0],d1,d2,&cc[0][0]);
@@ -301,12 +311,49 @@ __global__ void dev_bucubic(int nx, int ny, int nd, float * z, float * c)
 			for (int l=0; l<4; l++ )
 			{
 				//printf("\nk is %d l is %d\n", k, l);
-				c[(j-1)* 800 + (i-1) * 16 + l * 4 + k ] = cc[l][k];
+				dev_c[(j-1)* 800 + (i-1) * 16 + l * 4 + k ] = cc[l][k];
 			}
 		}
 	}
 }
 
+
+
+
+__global__ dev_pkk_ij(int kx, int ky, int kd, float * pk)
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	if (i > 0 && j > 0 && i <= kx && j <= ky)
+	{
+		dev_pkk[j * 50 + i] = pk[(j - 1) * kd + i - 1];
+	}
+}
+
+
+__global__ dev_pkk_j(int kx, int ky)
+{
+	int j = blockDim.x * blockIdx.x + threadIdx.x;
+	
+	if (j > 0 && j <= ky)
+	{
+		dev_pkk[j*50+0] = 2.0f*dev_pkk[j*50+1] - dev_pkk[j*50+2];
+		dev_pkk[j*50+kx+1] = 2.0f*dev_pkk[j*50+kx] - dev_pkk[j*50+kx-1];
+	}
+}
+
+
+__global__ dev_pkk_i(int kx, int ky)
+{
+	int i = blockDim.x * blockIdx.x + threadIdx.x;
+	
+	if (i > 0 && i <= kx+1)
+	{
+		dev_pkk[0*50+i] = 2.0f*dev_pkk[1*50+i] - dev_pkk[2*50+i];
+		dev_pkk[(ky+1)*50+i] = 2.0f*dev_pkk[ky*50+i] - dev_pkk[(ky-1)*50+i];
+	}
+}
 
 
 /**/
@@ -804,6 +851,12 @@ void KaspyCycler::sendDataToGPU()
 	
 	float aam2d = m_fArrays->aam2d;
 	
+	float xmi = m_fVars->xmi;
+	float xma = m_fVars->xma;
+	float ymi = m_fVars->ymi;
+	float yma = m_fVars->yma;
+	
+	
 	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_height, &m_height, sizeof(int))  == cudaSuccess)
@@ -813,6 +866,10 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpyToSymbol(dev_dte2, &dte2, sizeof(float))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_tide_l, &tide_l, sizeof(float))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_aam2d, &aam2d, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_xmi, &xmi, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_xma, &xma, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_ymi, &ymi, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_yma, &yma, sizeof(float))  == cudaSuccess)
 		//&& (cudaMemcpyToSymbol(dev_ewidth, &ewidth,  sizeof(int))  == cudaSuccess)
 		)
 	{
@@ -1130,6 +1187,50 @@ void KaspyCycler::makeWsurf()
 }
 
 
+void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka, float * p, float * pk, float * px, float * py)
+{
+	int nx = F_DATA_WIDTH;
+	int ny = F_DATA_HEIGHT;
+	
+	int kd = kx;
+	
+	
+	float dky=(yka-yki)/(ky-1.0f);
+	float  dkx=(xka-xki)/(kx-1.0f);
+ 
+	float dy=(yma-ymi)/(ny-1.0f);
+	float dx=(xma-xmi)/(nx-1.0f);
+	
+	int threadsPerBlock = 64;
+	
+	dim3 threadsPerSquareBlock(8, 8);
+	
+	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
+	
+	
+	dev_pkk_ij<<<numSquareBlocks, threadsPerSquareBlock>>>(kx, ky, kd, pk);
+	
+	
+	
+	
+	int blocksPerGridJ = (ky + threadsPerBlock) / threadsPerBlock;
+	int blocksPerGridI = (kx + 1 + threadsPerBlock) / threadsPerBlock;
+	
+	dev_pkk_j<<<threadsPerBlock, blocksPerGridJ>>>(kx, ky);
+	dev_pkk_i<<<threadsPerBlock, blocksPerGridI>>>(kx, ky);
+	
+
+	getbicubic(,, 50, pkk,c);
+	
+	
+	dim3 numSquareBlocks(((nx - 2) + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, ((ny - 2) + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
+	
+	
+	dev_bucubic<<<numSquareBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2);
+	
+	
+}
+
 
 
 void KaspyCycler::getWindPressure(char uv)
@@ -1400,17 +1501,7 @@ void getbicubic(int nx, int ny, int nd, float * z, float * c)
 
 
 
-void getbicubic_g(int nx, int ny, int nd, float * z, float * c)
-{	
-	
-	dim3 threadsPerSquareBlock(8, 8);
-	
-	dim3 numSquareBlocks(((nx - 2) + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, ((ny - 2) + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
-	
-	
-	dev_bucubic<<<numSquareBlocks, threadsPerSquareBlock>>>(nx, ny, nd, z, c);
-	
-}
+
 
 
 
