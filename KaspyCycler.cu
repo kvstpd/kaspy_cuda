@@ -326,7 +326,145 @@ __global__ void uaf_and_vaf_3()
 }
 
 
+__global__ void bcond_2_j()
+{
+	int j = blockDim.x * blockIdx.x + threadIdx.x;
+	
+	int j1 =  j * dev_width;
+	int j2 =  j1 + 1;
+	int j3 =  j1 + 2;
+	int jl = j1 + dev_widthm1;
+	int jlm1 = jl - 1;
+	
+	float gae;
+	
+	if (j > 0 && j < dev_heightm1)
+	{
+		if(dev__dum[jl] > 0.5f)
+		{
+			gae = dev_dte*sqrtf(dev_grav*dev_h[jl])/dev_dx[j];
+			
+			dev_uaf[jl] = gae*dev_ua[jlm1]+(1.0f-gae)*dev_ua[jl];
+		}
+		else
+		{
+			dev_uaf[jl] = 0.0f;
+		}
+		
+		dev_vaf[jl]=0.0f;
+		
+		if(dev_dum[j2] > 0.5f)
+		{
+			gae = dev_dte*sqrtf(dev_grav*dev_h[j2])/dev_dx[j];
+			dev_uaf[j2]=gae*dev_ua[j3]+(1.0f-gae)*dev_ua[j2];
+		}
+		else
+		{
+			dev_uaf[j2]=0.0f;
+		}
+		
+		dev_uaf[j1]=dev_uaf[j2];
+		dev_vaf[j1]=0.0f;
+
+	}
+}
+
+__global__ void bcond_2_i()
+{
+	int i = blockDim.x * blockIdx.x + threadIdx.x;
+	
+	int jli = dev_width * (dev_heightm1) + i;
+	int jlm1i = jli - dev_width;
+	
+	int j1i = i;
+	
+	int j2i = dev_width + j1i;
+	
+	int j3i = dev_width + j2i;
+	
+	float gae;
+	
+	if (i > 0 && i< dev_widthm1)
+	{
+		if (dev_dvm[jli] > 0.5f)
+		{
+			gae = dev_dte * sqrtf(dev_grav * dev_h[jli]) / dev_dy[dev_heightm1];
+			
+			dev_vaf[jli] = gae * dev_va[jlm1i]+(1.0f-gae)*dev_va[jli];
+		}
+		else
+		{
+			dev_vaf[jli]=0.0f;
+		}
+		
+		dev_uaf[jli]=0.0;
+		
+		if (dev_dvm[j2i] > 0.5f)
+		{
+			gae=dev_dte*sqrtf(dev_grav*dev_h[j2i])/dev_dy[0];
+			
+			dev_vaf[j2i]=gae*dev_va[j3i]+(1.-gae)*dev_va[j2i];
+		}
+		else
+		{
+			dev_vaf[j2i]=0.0f;
+		}
+		
+		
+		dev_vaf[j1i]=dev_vaf[j1i];
+		dev_uaf[j1i]=0.0f;
+	}
+}
+
+
+__global__ void bcond_2_ji()
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * dev_width + i;
+	
+	
+	ji = j * dev_width + i;
+	
+	if (i > 0 && j > 0 && i < dev_width && j < dev_height)
+	{
+		dev_uaf[ji] = dev_uaf[ji] * dev_dum[ji];
+		dev_vaf[ji] = dev_vaf[ji] * dev_dvm[ji];
+	}
+ 
+
+}
+
+
 /*
+ 
+ float gae;
+	float dte = m_fVars->dte;
+	
+	for (int j=1; j<(m_height-1); j++ )
+	{
+ 
+	}
+	
+	
+	
+ 
+	for (int i=1; i<(m_width-1); i++ )
+	{
+
+	}
+	
+	/// must separate cuda calls here
+	
+	for (int j=1; j<m_height; j++ )
+	{
+ for (int i=1; i<m_width; i++ )
+ {
+
+ }
+	}
+ 
  */
 
 
@@ -939,7 +1077,7 @@ void KaspyCycler::makeWsurf()
 	
 	
 		/// BCOND 2
-	float gae;
+	/*float gae;
 	float dte = m_fVars->dte;
 	
 	for (int j=1; j<(m_height-1); j++ )
@@ -1036,7 +1174,7 @@ void KaspyCycler::makeWsurf()
 		}
 	}
 	// END BCOND 2
-	
+	*/
 	
 	
 	float vmaxl = 100.0f;
