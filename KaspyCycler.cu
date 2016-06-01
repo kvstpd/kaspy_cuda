@@ -1147,7 +1147,7 @@ void KaspyCycler::makeWsurf()
 		
 		cudaDeviceSynchronize();
 		
-		getWindPressureG('v');
+		getWindPressure('v');
 
 		
 	}
