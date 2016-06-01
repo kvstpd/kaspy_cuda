@@ -1187,7 +1187,7 @@ void KaspyCycler::makeWsurf()
 }
 
 
-void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka, float * p, float * pk, float * px, float * py)
+void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,float xmi, float xma, float ymi, float yma, float * p, float * pk, float * px, float * py)
 {
 	int nx = F_DATA_WIDTH;
 	int ny = F_DATA_HEIGHT;
@@ -1195,17 +1195,11 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	int kd = kx;
 	
 	
-	/*float xmi = m_fVars->xmi;
-	float xma = m_fVars->xma;
-	float ymi = m_fVars->ymi;
-	float yma = m_fVars->yma;
-	
-	
 	float dky=(yka-yki)/(ky-1.0f);
 	float  dkx=(xka-xki)/(kx-1.0f);
  
 	float dy=(yma-ymi)/(ny-1.0f);
-	float dx=(xma-xmi)/(nx-1.0f);*/
+	float dx=(xma-xmi)/(nx-1.0f);
 	
 	int threadsPerBlock = 64;
 	
@@ -1229,10 +1223,10 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	//getbicubic(,, 50, pkk,c);
 	
 	
-	/*dim3 numSquareBlocks(((nx - 2) + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, ((ny - 2) + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);*/
+	dim3 numNBlocks(((nx - 2) + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, ((ny - 2) + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
 	
-	//dev_bucubic<<<numSquareBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2);
+	dev_bucubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2);
 	
 	
 }
