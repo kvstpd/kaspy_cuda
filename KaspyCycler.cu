@@ -167,6 +167,8 @@ __constant__ __device__ int dev_ewidth;
 
 __constant__ __device__ float dev_dte;
 __constant__ __device__ float dev_dte2;
+__constant__ __device__ float dev_aam2d;
+
 __constant__ __device__ float dev_tide_l = 0.0f;
 
 __constant__ __device__ float dev_alpha = 0.225f;
@@ -492,60 +494,99 @@ __global__ void swap_arrays_5()
 }
 
 
-/*
+
+__global__ void adv_fluxes_1()
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * dev_width + i;
+	int jip1 = ji + 1;
+	int jim1 = ji - 1;
+	int jp1i = ji + m_width;
+	int jm1i = ji - m_width;
+	int jm1im1 = jm1i  - 1;
  
- float vmaxl = 100.0f;
 	
 	
-	float tpsmax = 0.0f;
-	
-	int imax = 0;
-	int jmax = 0;
-	
-	for (int j=1; j<m_height; j++ )
+	if (i > 0 && j > 0)
 	{
+		if (i < dev_widthm1 && j < dev_height)
+		{
+			dev_fluxua[ji]=dev_dy[j]*(.125f*((dev_d[jip1]+dev_d[ji])*dev_ua[jip1]
+										 +(dev_d[ji]+dev_d[jim1])*dev_ua[ji])
+								  *(dev_ua[jip1]+dev_ua[ji])
+								  -dev_d[ji]*2.0f*dev_aam2d*(dev_uab[jip1]-dev_uab[ji])/dev_dx[j]);
+		}
+		
+		
+		if (i < dev_width && j < dev_height)
+		{
+			dev_tps[ji]=(dev_d[ji]+dev_d[jim1]+dev_d[jm1i]+dev_d[jm1im1])
+			*dev_aam2d
+			*((dev_uab[ji]-dev_uab[jm1i])
+			  /(4.0f*dev_dy[j])
+			  +(dev_vab[ji]-dev_vab[jim1])
+			  /(4.0f*dev_dx[j]) );
+			
+			dev_fluxva[ji]=(.125f*((dev_d[ji]+dev_d[jm1i])*dev_va[ji]
+								 +(dev_d[jim1]+dev_d[jm1im1])*dev_va[jim1])
+						  *(dev_ua[ji]+dev_ua[jm1i])
+						  -dev_tps[ji])*dev_dx[j];
+			
+		}
+
+	}
+}
+
+
+/*float aam2d = m_fArrays->aam2d;
+ 
+ for (int j=1; j<m_height; j++ )
+ {
+ for (int i=1; i<(m_width-1); i++ )
+ {
+ ji = j * m_width + i;
+ jip1 = ji + 1;
+ jim1 = ji - 1;
+ 
+ 
+ g_fluxua[ji]=g_dy[j]*(.125f*((g_d[jip1]+g_d[ji])*g_ua[jip1]
+ +(g_d[ji]+g_d[jim1])*g_ua[ji])
+ *(g_ua[jip1]+g_ua[ji])
+ -g_d[ji]*2.0f*aam2d*(g_uab[jip1]-g_uab[ji])/g_dx[j]);
+ 
+ 
+ }
+ }
+ 
+ 
+ for (int j=1; j<m_height; j++ )
+ {
  for (int i=1; i<m_width; i++ )
  {
  ji = j * m_width + i;
+ jp1i = ji + m_width;
+ jip1 = ji + 1;
+ jim1 = ji - 1;
+ jm1i = ji - m_width;
+ jm1im1 = jm1i  - 1;
  
- g_tps[ji] = sqrtf(g_uaf[ji]*g_uaf[ji] + g_vaf[ji]*g_vaf[ji]);
  
- if (g_tps[ji] > tpsmax)
- {
- tpsmax = g_tps[ji];
- imax = i;
- jmax = j;
+ g_tps[ji]=(g_d[ji]+g_d[jim1]+g_d[jm1i]+g_d[jm1im1])
+ *aam2d
+ *((g_uab[ji]-g_uab[jm1i])
+ /(4*g_dy[j])
+ +(g_vab[ji]-g_vab[jim1])
+ /(4*g_dx[j]) );
+ 
+ g_fluxva[ji]=(.125f*((g_d[ji]+g_d[jm1i])*g_va[ji]
+ +(g_d[jim1]+g_d[jm1im1])*g_va[jim1])
+ *(g_ua[ji]+g_ua[jm1i])
+ -g_tps[ji])*g_dx[j];
+ 
  }
- }
-	}
-	
-	
-	if (tpsmax > vmaxl)
-	{
- setbuf(stdout,NULL);
- 
- printf("vamax>vmax!!! at i=%d, j=%d \n", imax,jmax);
- 
- exit(-1);
-	}
- 
-	
-	
-	float smoth = 0.10f;
-	
-	
-	for (int j=1; j<m_height; j++ )
-	{
- for (int i=1; i<m_width; i++ )
- {
- ji = j * m_width + i;
- 
-
- }
-	}
-
- 
- */
+ }*/
 
 
 
@@ -598,7 +639,8 @@ void KaspyCycler::sendDataToGPU()
 	float dte2 = (float)m_fVars->dte * 2.0f;
 	float tide_l = (float)m_fVars->tide_l;
 	
-
+	float aam2d = m_fArrays->aam2d;
+	
 	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_height, &m_height, sizeof(int))  == cudaSuccess)
@@ -607,6 +649,7 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpyToSymbol(dev_dte, &dte, sizeof(float))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_dte2, &dte2, sizeof(float))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_tide_l, &tide_l, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_aam2d, &aam2d, sizeof(float))  == cudaSuccess)
 		//&& (cudaMemcpyToSymbol(dev_ewidth, &ewidth,  sizeof(int))  == cudaSuccess)
 		)
 	{
@@ -838,66 +881,14 @@ void KaspyCycler::makeWsurf()
 		//memset(g_advua, 0, F_DATA_SIZE * sizeof(float));
 		//memset(g_fluxua, 0, F_DATA_SIZE * sizeof(float));
 		
-		cudaDeviceSynchronize();
+		
+		adv_fluxes_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
 		
 		
-		float aam2d = m_fArrays->aam2d;
 		
-		for (int j=1; j<m_height; j++ )
-		{
-			for (int i=1; i<(m_width-1); i++ )
-			{
-				ji = j * m_width + i;
-				jip1 = ji + 1;
-				jim1 = ji - 1;
-				
-				/*g_fluxua[ji] = g_dy[j] * (.125f * ((g_d[ji + 1]+g_d[ji])*g_ua[ji + 1]
-						+(g_d[ji]+g_d[ji - 1])*g_ua[ji])
-										  *(g_ua[ji + 1]+g_ua[ji])
-										  - g_d[ji]*2.0f*aam2d*(g_uab[ji + 1]-g_uab[ji])/g_dx[j]);*/
-				g_fluxua[ji]=g_dy[j]*(.125f*((g_d[jip1]+g_d[ji])*g_ua[jip1]
-											  +(g_d[ji]+g_d[jim1])*g_ua[ji])
-									  *(g_ua[jip1]+g_ua[ji])
-									  -g_d[ji]*2.0f*aam2d*(g_uab[jip1]-g_uab[ji])/g_dx[j]);
-				
-				
-			}
-		}
-		
-		
-		for (int j=1; j<m_height; j++ )
-		{
-			for (int i=1; i<m_width; i++ )
-			{
-				ji = j * m_width + i;
-				jp1i = ji + m_width;
-				jip1 = ji + 1;
-				jim1 = ji - 1;
-				jm1i = ji - m_width;
-				jm1im1 = jm1i  - 1;
-				
-				/*g_tps[ji] =(g_d[ji]+g_d[jim1]+g_d[jm1i]+g_d[jm1im1]) *aam2d
-				*((g_uab[ji]-g_uab[jm1i]) /(4.0f*g_dy[j])+(g_vab[ji]-g_vab[jim1]) /(4.0f*g_dx[j]) );
-				
-				g_fluxva[ji]=(.125f*((g_d[ji]+g_d[jm1i])*g_va[ji]
-									 +(g_d[jim1]+g_d[jm1im1])*g_va[jim1])
-							  *(g_ua[ji]+g_va[jm1i]) - g_tps[ji])*g_dx[j];*/
-				
-				g_tps[ji]=(g_d[ji]+g_d[jim1]+g_d[jm1i]+g_d[jm1im1])
-				*aam2d
-				*((g_uab[ji]-g_uab[jm1i])
-				  /(4*g_dy[j])
-				  +(g_vab[ji]-g_vab[jim1])
-				  /(4*g_dx[j]) );
-				
-				g_fluxva[ji]=(.125f*((g_d[ji]+g_d[jm1i])*g_va[ji]
-									  +(g_d[jim1]+g_d[jm1im1])*g_va[jim1])
-							  *(g_ua[ji]+g_ua[jm1i])
-							  -g_tps[ji])*g_dx[j];
-				
-			}
-		}
 
+		
+		cudaDeviceSynchronize();
 		
 		for (int j=1; j<(m_height-1); j++ )
 		{
