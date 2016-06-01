@@ -614,46 +614,52 @@ __global__ void adv_advva_2()
 	}
 }
 
-
-
-/* for (int j=1; j<(m_height-1); j++ )
+__global__ void adv_bot_3()
 {
-	for (int i=1; i<m_width; i++ )
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * dev_width + i;
+ 	int jp1i = ji + dev_width;
+ 	int jip1 = ji + 1;
+ 	int jim1 = ji - 1;
+ 	int jm1i = ji - dev_width;
+ 	int jm1im1 = jm1i  - 1;
+ 
+ 	int jp1im1 = jp1i - 1;
+ 	int jm1ip1 = jm1i + 1;
+	
+	if (i > 0 && j > 0 && i < dev_widthm1 && j < dev_heightm1)
 	{
-		ji = j * m_width + i;
-		jp1i = ji + m_width;
-		jip1 = ji + 1;
-		jim1 = ji - 1;
-		jm1i = ji - m_width;
-		jm1im1 = jm1i  - 1;
+		dev_wubot[ji]=-0.5f*(dev_cbc[ji]+dev_cbc[jim1])
+		*sqrtf(dev_uab[ji]*dev_uab[ji]+powf(0.25f*(dev_vab[ji]
+											   +dev_vab[jp1i]+dev_vab[jim1]+dev_vab[jp1im1]), 2) )*dev_uab[ji];
 		
-		
-
-		
+		dev_wvbot[ji]=-0.5f*(dev_cbc[ji]+dev_cbc[jm1i])
+		*sqrtf(powf(.25e0*(dev_uab[ji]+dev_uab[jip1]
+						   +dev_uab[jm1i]+dev_uab[jm1ip1]), 2)+dev_vab[ji]*dev_vab[ji])*dev_vab[ji];
 	}
 }
 
 
-for (int j=1; j<m_height; j++ )
-{
-	for (int i=1; i<m_width; i++ )
-	{
-		ji = j * m_width + i;
-		jp1i = ji + m_width;
-		jip1 = ji + 1;
-		jim1 = ji - 1;
-		jm1i = ji - m_width;
-		jm1im1 = jm1i  - 1;
-		
-		
-		g_fluxua[ji]=(.125f*((g_d[ji]+g_d[jim1])*g_ua[ji]
-							 +(g_d[jm1i]+g_d[jm1im1])*g_ua[jm1i])*
-					  (g_va[jim1]+g_va[ji])
-					  -g_tps[ji])*g_dy[j];
-	}
-}
-*/
 
+/*for (int j=1; j<(m_height-1); j++ )
+ {
+ for (int i=1; i<(m_width-1); i++ )
+ {
+ ji = j * m_width + i;
+
+ 
+ g_wubot[ji]=-0.5e0*(g_cbc[ji]+g_cbc[jim1])
+ *sqrtf(g_uab[ji]*g_uab[ji]+powf(.25e0*(g_vab[ji]
+ +g_vab[jp1i]+g_vab[jim1]+g_vab[jp1im1]), 2) )*g_uab[ji];
+ 
+ g_wvbot[ji]=-0.5e0*(g_cbc[ji]+g_cbc[jm1i])
+ *sqrtf(powf(.25e0*(g_uab[ji]+g_uab[jip1]
+ +g_uab[jm1i]+g_uab[jm1ip1]), 2)+g_vab[ji]*g_vab[ji])*g_vab[ji];
+ 
+ }
+ }*/
 
 
 
@@ -941,51 +947,21 @@ void KaspyCycler::makeWsurf()
 	
 	if (m_fVars->iint % 10 == 0)
 	{//ADVAVE()
-		//       ADVUA=0
-		//		FLUXUA=0
-		
-		//memset(g_advua, 0, F_DATA_SIZE * sizeof(float));
-		//memset(g_fluxua, 0, F_DATA_SIZE * sizeof(float));
-		
+		//       ADVUA=0 ?
+		//		FLUXUA=0 ?
+
 		
 		adv_fluxes_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
-		
-		
-		
-
 		adv_advua_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
-	
-		
 		
 		adv_fluxes_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
-		
 		adv_advva_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
 		
-		cudaDeviceSynchronize();
 		
-		float aam2d = m_fArrays->aam2d;
-		
-
-		
-		/*for (int j=1; j<(m_height-1); j++ )
-		{
-			for (int i=1; i<(m_width-1); i++ )
-			{
-				ji = j * m_width + i;
-				jp1i = ji + m_width;
-				jip1 = ji + 1;
-				jim1 = ji - 1;
-				jm1i = ji - m_width;
-				jm1im1 = jm1i  - 1;
-				
-				g_advva[ji]=(g_fluxua[jip1]-g_fluxua[ji]
-							         +g_fluxva[ji]-g_fluxva[jm1i])/g_arv[j];
-			}
-		}*/
-		
+		adv_bot_3<<< numSquareBlocks, threadsPerSquareBlock>>>();
 	
 		
-		for (int j=1; j<(m_height-1); j++ )
+		/*for (int j=1; j<(m_height-1); j++ )
 		{
 			for (int i=1; i<(m_width-1); i++ )
 			{
@@ -1008,9 +984,9 @@ void KaspyCycler::makeWsurf()
 								  +g_uab[jm1i]+g_uab[jm1ip1]), 2)+g_vab[ji]*g_vab[ji])*g_vab[ji];
 				
 			}
-		}
+		}*/
 		
-		cudaDeviceSynchronize();
+
 		// END ADVAVE();
 	}
 	
