@@ -184,6 +184,11 @@ __constant__ __device__ float dev_xma;// = m_fVars->xma;
 __constant__ __device__ float dev_ymi;// = m_fVars->ymi;
 __constant__ __device__ float dev_yma;// = m_fVars->yma;
 
+__constant__ __device__ float dev_xki;// = m_fVars->xmi;
+__constant__ __device__ float dev_xka;// = m_fVars->xma;
+__constant__ __device__ float dev_yki;// = m_fVars->ymi;
+__constant__ __device__ float dev_yka;// = m_fVars->yma;
+
 __constant__ __device__ float dev_c1 = 3.1415926/180.0;
 __constant__ __device__ float dev_c2 = 111111.0f;
 
@@ -256,7 +261,7 @@ __device__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1
 }
 
 
-__global__ void dev_make_p(int nx, int ny, float dx, float dy, float dkx, float dky, float * p, float * px, float * py)
+__global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, float dkx, float dky, float * p, float * px, float * py)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -996,6 +1001,10 @@ void KaspyCycler::sendDataToGPU()
 	float ymi = m_fVars->ymi;
 	float yma = m_fVars->yma;
 	
+	float xki = m_fWindData->xki;
+	float xka = m_fWindData->xka;
+	float yki = m_fWindData->yki;
+	float yka = m_fWindData->xka;
 	
 	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
@@ -1010,6 +1019,10 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpyToSymbol(dev_xma, &xma, sizeof(float))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_ymi, &ymi, sizeof(float))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_yma, &yma, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_xki, &xki, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_xka, &xka, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_yki, &yki, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_yka, &yka, sizeof(float))  == cudaSuccess)
 		//&& (cudaMemcpyToSymbol(dev_ewidth, &ewidth,  sizeof(int))  == cudaSuccess)
 		)
 	{
@@ -1366,9 +1379,9 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	dim3 numNBlocks(((nx) + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, ((ny) + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
 	
-	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2);
+	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, 50);
 	
-	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, dx, dy, dxk, dky, p, px, py);
+	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dxk, dky, p, px, py);
 	
 	
 }
