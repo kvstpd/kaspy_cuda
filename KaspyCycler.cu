@@ -1011,66 +1011,11 @@ void KaspyCycler::makeWsurf()
 	uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
 
 	
+	bcond_2_j<<< blocksPerGridJ, threadsPerBlock>>>();
+	bcond_2_i<<< blocksPerGridI, threadsPerBlock>>>();
 	
-	/*float alpha =  0.225f;
-	float dte = m_fVars->dte;
+	bcond_2_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
 	
-	for (int j=1; j<(m_height-1); j++ )
-	{
-		for (int i=1; i<m_width; i++ )
-		{
-			ji = j * m_width + i;
-			jp1i = ji + m_width;
-			jip1 = ji + 1;
-			jim1 = ji - 1;
-			jm1i = ji - m_width;
-			jm1im1 = jm1i  - 1;
-			jp1im1 = jp1i - 1;
-			jm1ip1 = jm1i + 1;
-			
-			float uaf1= g_advua[ji]   -0.25f*(g_cor[j]*g_d[ji]*(g_va[jp1i]+g_va[ji])
-											  +g_cor[j]*g_d[jim1]*(g_va[jp1im1]+g_va[jim1]) )
-			+0.5f*grav*g_dy[j]/g_aru[j]*(g_d[ji]+g_d[jim1])
-			*( (1.0f-2.0f*alpha)*(g_el[ji]-g_el[jim1])
-			  +alpha*(g_elb[ji]-g_elb[jim1]+g_elf[ji]-g_elf[jim1]) )
-			+g_wusurf[ji]-g_wubot[ji];
-			
-			g_uaf[ji]=
-			((g_h[ji]+g_elb[ji]+g_h[jim1]+g_elb[jim1])*g_uab[ji]
-			 -4.e0*dte*uaf1)  /(g_h[ji]+g_elf[ji]+g_h[jim1]+g_elf[jim1]);
-			
-		}
-	}
-	
-	
-	for (int j=1; j<m_height; j++ )
-	{
-		for (int i=1; i<(m_width-1); i++ )
-		{
-			ji = j * m_width + i;
-			jp1i = ji + m_width;
-			jip1 = ji + 1;
-			jim1 = ji - 1;
-			jm1i = ji - m_width;
-			jm1im1 = jm1i  - 1;
-			jp1im1 = jp1i - 1;
-			jm1ip1 = jm1i + 1;
-			
-			float vaf1=g_advva[ji]
-			+.25f*(  g_cor[j]*g_d[ji]*(g_ua[jip1]+g_ua[ji])
-				   +g_cor[j-1]*g_d[jm1i]*(g_ua[jm1ip1]+g_ua[jm1i]) )
-			+0.5f*grav*g_dx[j]/g_arv[j]*(g_d[ji]+g_d[jm1i])
-			*( (1.0f-2.0f*alpha)*(g_el[ji]-g_el[jm1i])
-			  +alpha*(g_elb[ji]-g_elb[jm1i]+g_elf[ji]-g_elf[jm1i]) )
-			+ g_wvsurf[ji]-g_wvbot[ji];
-			
-			g_vaf[ji]= ((g_h[ji]+g_elb[ji]+g_h[jm1i]+g_elb[jm1i])*g_vab[ji]
-						-4.0f*dte*vaf1) /(g_h[ji]+g_elf[ji]+g_h[jm1i]+g_elf[jm1i]);
-			
-		}
-		
-	}
-	*/
 	
 	
 	cudaDeviceSynchronize();
