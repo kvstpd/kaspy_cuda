@@ -284,11 +284,18 @@ __global__ void uaf_and_vaf_3()
  	int jp1im1 = jp1i - 1;
  	int jm1ip1 = jm1i + 1;
 	
+	
+	
 
 	if (i > 0 && j > 0)
 	{
 		if (i < dev_width && j < dev_heightm1)
 		{
+			if (i == 2 && j== 2)
+			{
+				printf("i2 j2\n");
+			}
+			
 			float uaf1= dev_advua[ji]   -0.25f*(dev_cor[j]*dev_d[ji]*(dev_va[jp1i]+dev_va[ji])
 												+dev_cor[j]*dev_d[jim1]*(dev_va[jp1im1]+dev_va[jim1]) )
 			+0.5f*dev_grav*dev_dy[j]/dev_aru[j]*(dev_d[ji]+dev_d[jim1])
