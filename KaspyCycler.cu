@@ -1349,7 +1349,7 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	
 	
 	float dky=(yka-yki)/(ky-1.0f);
-	float  dkx=(xka-xki)/(kx-1.0f);
+	float dkx=(xka-xki)/(kx-1.0f);
  
 	float dy=(yma-ymi)/(ny-1.0f);
 	float dx=(xma-xmi)/(nx-1.0f);
@@ -1381,7 +1381,7 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	
 	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, 50);
 	
-	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dxk, dky, p, px, py);
+	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky, p, px, py);
 	
 	
 }
