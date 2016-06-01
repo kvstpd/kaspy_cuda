@@ -162,9 +162,11 @@ __constant__ __device__  int  dev_heightm1;
 
 __constant__ __device__ int dev_ewidth;
 
-
+__constant__ __device__ float dev_dte;
 __constant__ __device__ float dev_dte2;
 __constant__ __device__ float dev_tide_l;
+
+__constant__ __device__ float dev_alpha = 0.225f;
 
 /**/
 
@@ -267,32 +269,88 @@ __global__ void bcond_1_ji()
 	
 }
 
+__global__ void uaf_and_vaf_3()
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * dev_width + i;
+	
+ 	int jp1i = ji + dev_width;
+ 	int jip1 = ji + 1;
+ 	int jim1 = ji - 1;
+ 	int jm1i = ji - dev_width;
+ 	int jm1im1 = jm1i  - 1;
+ 	int jp1im1 = jp1i - 1;
+ 	int jm1ip1 = jm1i + 1;
+	
+
+	if (i > 0 && j > 0)
+	{
+		if (i < dev_width && j < dev_heightm1)
+		{
+			float uaf1= dev_advua[ji]   -0.25f*(dev_cor[j]*dev_d[ji]*(dev_va[jp1i]+dev_va[ji])
+												+dev_cor[j]*dev_d[jim1]*(dev_va[jp1im1]+dev_va[jim1]) )
+			+0.5f*dev_grav*dev_dy[j]/dev_aru[j]*(dev_d[ji]+dev_d[jim1])
+			*( (1.0f-2.0f*dev_alpha)*(dev_el[ji]-dev_el[jim1])
+			  +dev_alpha*(dev_elb[ji]-dev_elb[jim1]+dev_elf[ji]-dev_elf[jim1]) )
+			+dev_wusurf[ji]-dev_wubot[ji];
+			
+			dev_uaf[ji]=
+			((dev_h[ji]+dev_elb[ji]+dev_h[jim1]+dev_elb[jim1])*dev_uab[ji]
+			 -4.e0*dev_dte*uaf1)  /(dev_h[ji]+dev_elf[ji]+dev_h[jim1]+dev_elf[jim1]);
+		}
+		
+		if (i < dev_widthm1 && j < dev_height)
+		{
+			float vaf1=dev_advva[ji]
+			+.25f*(  dev_cor[j]*dev_d[ji]*(dev_ua[jip1]+dev_ua[ji])
+				   +dev_cor[j-1]*dev_d[jm1i]*(dev_ua[jm1ip1]+dev_ua[jm1i]) )
+			+0.5f*dev_grav*dev_dx[j]/dev_arv[j]*(dev_d[ji]+dev_d[jm1i])
+			*( (1.0f-2.0f*dev_alpha)*(dev_el[ji]-dev_el[jm1i])
+			  +dev_alpha*(dev_elb[ji]-dev_elb[jm1i]+dev_elf[ji]-dev_elf[jm1i]) )
+			+ dev_wvsurf[ji]-dev_wvbot[ji];
+			
+			dev_vaf[ji]= ((dev_h[ji]+dev_elb[ji]+dev_h[jm1i]+dev_elb[jm1i])*dev_vab[ji]
+						  -4.0f*dev_dte*vaf1) /(dev_h[ji]+dev_elf[ji]+dev_h[jm1i]+dev_elf[jm1i]);
+			
+		}
+		
+	}
+	
+}
+
 
 /*
-	for (int j=1; j<m_height; j++ )
-	{
- g_elf[j * m_width + 1] = tide_l;
- g_elf[j * m_width + m_width - 2] = tide_l;
- 
- g_elf[j * m_width] = tide_l;
- g_elf[j * m_width + m_width - 1] = tide_l;
-	}
-	
-	for (int i=1; i<m_width; i++ )
-	{
- g_elf[i] =  g_elf[i + m_width];
- 
- g_elf[i + m_width * (m_height - 1)  ] =  g_elf[i + m_width * (m_height - 2)];
-	}
-	
-	for (int j=1; j<m_height; j++ )
+ for (int j=1; j<(m_height-1); j++ )
 	{
  for (int i=1; i<m_width; i++ )
  {
- ji = j * m_width + i;
+
  
- g_elf[ji] *= g_fsm[ji];
+
+ 
  }
+	}
+	
+	
+	for (int j=1; j<m_height; j++ )
+	{
+ for (int i=1; i<(m_width-1); i++ )
+ {
+ ji = j * m_width + i;
+ jp1i = ji + m_width;
+ jip1 = ji + 1;
+ jim1 = ji - 1;
+ jm1i = ji - m_width;
+ jm1im1 = jm1i  - 1;
+ jp1im1 = jp1i - 1;
+ jm1ip1 = jm1i + 1;
+ 
+ 
+ 
+ }
+ 
 	}*/
 
 
@@ -341,14 +399,14 @@ void KaspyCycler::sendDataToGPU()
 	int wm1 = m_width - 1 ;
 	int hm1 = m_height - 1 ;
 	float dte2 = m_fVars->dte * 2.0f;
-	float tide_l = m_fVars->tide_l;
 	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_height, &m_height, sizeof(int))  == cudaSuccess)
 		&&(cudaMemcpyToSymbol(dev_widthm1, &wm1, sizeof(int))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_heightm1, &hm1, sizeof(int))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_dte, &m_fVars->dte, sizeof(float))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_dte2, &dte2, sizeof(float))  == cudaSuccess)
-		&& (cudaMemcpyToSymbol(dev_tide_l, &tide_l, sizeof(float))  == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_tide_l, &m_fVars->tide_l, sizeof(float))  == cudaSuccess)
 		//&& (cudaMemcpyToSymbol(dev_ewidth, &ewidth,  sizeof(int))  == cudaSuccess)
 		)
 	{
@@ -806,71 +864,22 @@ void KaspyCycler::makeWsurf()
 			}
 		}
 		
-		
+		cudaDeviceSynchronize();
 		// END ADVAVE();
 	}
 	
-	cudaDeviceSynchronize();
 	
-	float alpha =  0.225f;
+	
+	
+	
+	uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
+
+	
+	/*float alpha =  0.225f;
 	float dte = m_fVars->dte;
 	
-	for (int j=1; j<(m_height-1); j++ )
-	{
-		for (int i=1; i<m_width; i++ )
-		{
-			ji = j * m_width + i;
-			jp1i = ji + m_width;
-			jip1 = ji + 1;
-			jim1 = ji - 1;
-			jm1i = ji - m_width;
-			jm1im1 = jm1i  - 1;
-			jp1im1 = jp1i - 1;
-			jm1ip1 = jm1i + 1;
-			
-			float uaf1= g_advua[ji]   -0.25f*(g_cor[j]*g_d[ji]*(g_va[jp1i]+g_va[ji])
-					                 +g_cor[j]*g_d[jim1]*(g_va[jp1im1]+g_va[jim1]) )
-			         +0.5f*grav*g_dy[j]/g_aru[j]*(g_d[ji]+g_d[jim1])
-			             *( (1.0f-2.0f*alpha)*(g_el[ji]-g_el[jim1])
-							            +alpha*(g_elb[ji]-g_elb[jim1]+g_elf[ji]-g_elf[jim1]) )
-			+g_wusurf[ji]-g_wubot[ji];
-			
-			g_uaf[ji]=
-			         ((g_h[ji]+g_elb[ji]+g_h[jim1]+g_elb[jim1])*g_uab[ji]
-					                   -4.e0*dte*uaf1)  /(g_h[ji]+g_elf[ji]+g_h[jim1]+g_elf[jim1]);
-			
-		}
-	}
-	
-	
-	for (int j=1; j<m_height; j++ )
-	{
-		for (int i=1; i<(m_width-1); i++ )
-		{
-			ji = j * m_width + i;
-			jp1i = ji + m_width;
-			jip1 = ji + 1;
-			jim1 = ji - 1;
-			jm1i = ji - m_width;
-			jm1im1 = jm1i  - 1;
-			jp1im1 = jp1i - 1;
-			jm1ip1 = jm1i + 1;
-			
-			float vaf1=g_advva[ji]
-			+.25f*(  g_cor[j]*g_d[ji]*(g_ua[jip1]+g_ua[ji])
-				  +g_cor[j-1]*g_d[jm1i]*(g_ua[jm1ip1]+g_ua[jm1i]) )
-			+0.5f*grav*g_dx[j]/g_arv[j]*(g_d[ji]+g_d[jm1i])
-			*( (1.0f-2.0f*alpha)*(g_el[ji]-g_el[jm1i])
-			  +alpha*(g_elb[ji]-g_elb[jm1i]+g_elf[ji]-g_elf[jm1i]) )
-			+ g_wvsurf[ji]-g_wvbot[ji];
-			
-			g_vaf[ji]= ((g_h[ji]+g_elb[ji]+g_h[jm1i]+g_elb[jm1i])*g_vab[ji]
-						-4.0f*dte*vaf1) /(g_h[ji]+g_elf[ji]+g_h[jm1i]+g_elf[jm1i]);
-			
-		}
-		
-	}
-	
+
+	*/
 	
 	
 		/// BCOND 2
