@@ -339,73 +339,7 @@ __global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, f
 }
 
 
-/*
-	for (int j=0; j<ny; j++ )
-	{
- float y = ymi + j*dy;
- int j0 = (int)((y - yki)/dky);
- 
- if (j0 < 0)
- {
- j0 = 0;
- }
- 
- if (j0 > ky-2)
- {
- j0 = ky-2;
- }
- 
- float u = (y - (yki + j0*dky))/dky;
- 
- for (int i=0; i<nx; i++ )
- {
- float x = xmi + i * dx;
- int i0 = (int)((x - xki)/dkx);
- 
- if (i0 < 0) i0 = 0;
- 
- if (i0 > kx-2) i0 = kx-2;
- 
- float t = ( x - (xki + i0*dkx) )/dkx;
- 
- float ay = 0.0f;
- float a2 = 0.0f;
- float a1 = 0.0f;
- 
- int ji = j * nx + i;
- 
- for (int k=3; k>=0; k-- )
- {
- ay = t*ay+((c[j0 * 800 + i0 * 16 + 3 * 4 + k] * u + c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u
- + c[j0 * 800 + i0 * 16 + 1 * 4 + k])*u + c[j0 * 800 + i0 * 16 + 0 * 4 + k];
- }
- 
- if (uv == 'p')
- {
- for (int k=3; k>=0; k-- )
- {
- a2 = t*a2 + (3.0f*c[j0 * 800 + i0 * 16 + 3 * 4 + k]*u
- + 2.0f*c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u+c[j0 * 800 + i0 * 16 + 1 * 4 + k];
- 
- a1 = u*a1 + (3.0f*c[j0 * 800 + i0 * 16 + k * 4 + 3]*t +
- 2.0f*c[j0 * 800 + i0 * 16 + k * 4 + 2])*t+c[j0 * 800 + i0 * 16 + k * 4 + 1];
- 
- }
- 
- a1 = a1/dkx/c2/cosf(c1*y);
- a2 = a2/dky/c2;
- 
- px[ji] = a1;
- py[ji] = a2;
- }
- 
- p[ji] = ay;
- 
- }
- 
-	}
- 
- */
+
 
 __global__ void dev_bicubic(int nx, int ny, int nd)
 {
@@ -1177,9 +1111,11 @@ void KaspyCycler::makeWsurf()
 		}
 		
 		
+		cudaDeviceSynchronize();
 		
-		getWindPressure('p');
+		getWindPressureG('p');
 
+		cudaDeviceSynchronize();
 		
 
 		//size_t s_wu_width = m_fWindData->kxu * sizeof(float);
@@ -1434,7 +1370,7 @@ void KaspyCycler::getWindPressure(char uv)
 
 
 
-/*void KaspyCycler::getWindPressure(char uv)
+void KaspyCycler::getWindPressureG(char uv)
 {
 	int kx, ky, kd, nx, ny;//, nd;
 	float * p;
@@ -1752,7 +1688,7 @@ void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float
 }
 
 
-*/
+
 
 
 

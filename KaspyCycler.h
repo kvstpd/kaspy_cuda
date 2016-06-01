@@ -57,6 +57,7 @@ public:
 
 
 	void getWindPressure(char uv);
+	void getWindPressureG(char uv);
 
     void findElves();
     
