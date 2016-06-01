@@ -340,7 +340,7 @@ __global__ void bcond_2_j()
 	
 	if (j > 0 && j < dev_heightm1)
 	{
-		if(dev__dum[jl] > 0.5f)
+		if(dev_dum[jl] > 0.5f)
 		{
 			gae = dev_dte*sqrtf(dev_grav*dev_h[jl])/dev_dx[j];
 			
