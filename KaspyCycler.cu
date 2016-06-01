@@ -311,7 +311,7 @@ __global__ void dev_bicubic(int nx, int ny)
 			for (int l=0; l<4; l++ )
 			{
 				//printf("\nk is %d l is %d\n", k, l);
-				dev_c[(j-1)* 800 + (i-1) * 16 + l * 4 + k ] = cc[l][k];
+				dev_c[(j-1)][ (i-1)][ l ][ k ] = cc[l][k];
 			}
 		}
 	}
@@ -327,12 +327,12 @@ __global__ void dev_pkk_ij(int kx, int ky, int kd, float * pk)
 	
 	if (i > 0 && j > 0 && i <= kx && j <= ky)
 	{
-		dev_pkk[j * 50 + i] = pk[(j - 1) * kd + i - 1];
+		dev_pkk[j ][ i] = pk[(j - 1) * kd + i - 1];
 	}
 }
 
 
-__global__ dev_pkk_j(int kx, int ky)
+__global__ void dev_pkk_j(int kx, int ky)
 {
 	int j = blockDim.x * blockIdx.x + threadIdx.x;
 	
