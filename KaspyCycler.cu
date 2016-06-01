@@ -1226,13 +1226,13 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	dev_pkk_i<<<threadsPerBlock, blocksPerGridI>>>(kx, ky);
 	
 
-	getbicubic(,, 50, pkk,c);
+	//getbicubic(,, 50, pkk,c);
 	
 	
-	dim3 numSquareBlocks(((nx - 2) + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, ((ny - 2) + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
+	/*dim3 numSquareBlocks(((nx - 2) + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, ((ny - 2) + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);*/
 	
 	
-	dev_bucubic<<<numSquareBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2);
+	//dev_bucubic<<<numSquareBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2);
 	
 	
 }
