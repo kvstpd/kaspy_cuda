@@ -201,6 +201,8 @@ __constant__ __device__ float dev_wt[] = {
 
 
 
+
+
 __global__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float * cc)
 {
 	float xx;
@@ -241,6 +243,68 @@ __global__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1
 		}
 	}
 	
+}
+
+
+__global__ void dev_bucubic(int nx, int ny, int nd, float * z, float * c)
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	
+	float d1 = 1.0f;
+	float d2 = 1.0f;
+	
+	float y[4];
+	float y1[4];
+	float y2[4];
+	float y12[4];
+	float cc[4][4];
+	
+	
+	
+	
+	if (i > 0 && j > 0 && i < (nx - 2) && j < (ny - 2))
+	{
+		
+		y[0] = z[j * nd + i];
+		y[1] = z[j * nd + i + 1];
+		y[2] = z[(j+1) * nd + i + 1];
+		y[3] = z[(j+1) * nd + i];
+		
+		y1[0] = 0.5f * (z[j * nd + i + 1] - z[j * nd + i - 1]);
+		y1[3] = 0.5f * (z[(j+1) * nd + i + 1] - z[(j+1) * nd + i - 1]);
+		y1[1] = 0.5f * (z[j * nd + i + 2] - z[j * nd + i]);
+		y1[2] = 0.5f * (z[(j+1) * nd + i + 2] - z[(j+1) * nd + i]);
+		
+		
+		y2[0] = 0.5f * (z[(j+1) * nd + i] - z[(j-1) * nd + i]);
+		y2[1] = 0.5f * (z[(j+1) * nd + i + 1] - z[(j-1) * nd + i + 1]);
+		y2[2] = 0.5f * (z[(j+2) * nd + i + 1] - z[(j) * nd + i + 1]);
+		y2[3] = 0.5f * (z[(j+2) * nd + i] - z[j * nd + i]);
+		
+		
+		y12[0] = 0.25f * (z[(j+1) * nd + i + 1] - z[(j-1) * nd + i + 1]
+						  - z[(j+1) * nd + i - 1] + z[(j-1) * nd + i - 1]);
+		y12[1] = 0.25f * (z[(j+1) * nd + i + 2] - z[(j-1) * nd + i + 2]
+						  - z[(j+1) * nd + i] + z[(j-1) * nd + i]);
+		y12[2] = 0.25f * (z[(j+2) * nd + i + 2] - z[(j) * nd + i + 2]
+						  - z[(j+2) * nd + i] + z[j * nd + i]);
+		y12[3] = 0.25f * (z[(j+2) * nd + i + 1] - z[(j) * nd + i + 1]
+						  - z[(j+2) * nd + i -1] + z[(j) * nd + i -1]);
+		
+		
+		dev_bcucof(&y[0],&y1[0],&y2[0],&y12[0],d1,d2,&cc[0][0]);
+		
+		for (int k=0; k<4; k++ )
+		{
+			for (int l=0; l<4; l++ )
+			{
+				//printf("\nk is %d l is %d\n", k, l);
+				c[(j-1)* 800 + (i-1) * 16 + l * 4 + k ] = cc[l][k];
+			}
+		}
+	}
 }
 
 
@@ -1331,6 +1395,21 @@ void getbicubic(int nx, int ny, int nd, float * z, float * c)
 			
 		}
 	 }
+	
+}
+
+
+
+void getbicubic_g(int nx, int ny, int nd, float * z, float * c)
+{
+	
+	
+	dim3 threadsPerSquareBlock(8, 8);
+	
+	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
+	
+	
+	dev_bucubic<<<numSquareBlocks, threadsPerSquareBlock>>>(nx, ny, nd, z, c);
 	
 }
 
