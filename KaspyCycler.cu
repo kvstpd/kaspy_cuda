@@ -314,7 +314,7 @@ __global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, f
 		}
 		
 		
-		if (px != 0)
+		if (dev_px != 0)
 		{
 			for (int k=3; k>=0; k-- )
 			{
