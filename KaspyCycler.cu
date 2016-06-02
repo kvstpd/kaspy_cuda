@@ -219,8 +219,8 @@ __constant__ __device__ float dev_wt[] = {
 };
 
 
-__device__ float dev_pkk[50 * 50];
-__device__ float dev_c[50 * 50 * 4 * 4];
+__managed__ float dev_pkk[50 * 50];
+__managed__ float dev_c[50 * 50 * 4 * 4];
 
 
 
@@ -1298,7 +1298,7 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	
 	int threadsPerBlock = 64;
 	
-	printf(" _G_ kx=%d, ly=%d, xki=%f, xka=%f, yki=%f, yka=%f, xmi=%f, xma=%f, ymi=%f, yma=%f, dkx=%f, dky=%f, dx=%f, dy=%f\n", kx, ky,  xki,  xka, yki,  yka,xmi, xma,  ymi,  yma, dkx, dky, dx, dy);
+	//printf(" _G_ kx=%d, ly=%d, xki=%f, xka=%f, yki=%f, yka=%f, xmi=%f, xma=%f, ymi=%f, yma=%f, dkx=%f, dky=%f, dx=%f, dy=%f\n", kx, ky,  xki,  xka, yki,  yka,xmi, xma,  ymi,  yma, dkx, dky, dx, dy);
 	
 	
 	/*dim3 threadsPerSquareBlock(8, 8);
@@ -1381,11 +1381,11 @@ void KaspyCycler::getWindPressure(char uv)
 	float * py;
 	float * pk;
 	float xki, xka, yki, yka, xmi, xma, ymi, yma;
-	float pkkd[50][50];
-	float cd[50][50][4][4];
+	//float pkkd[50][50];
+	//float cd[50][50][4][4];
 	
-	float * pkk = &pkkd[0][0];
-	float * c = &cd[0][0][0][0];
+	float * pkk = &dev_pkk[0]; //&pkkd[0][0];
+	float * c =  &dev_c[0]; // &cd[0][0][0][0];
 	
 	if (uv == 'u')
 	{
@@ -1456,7 +1456,7 @@ void KaspyCycler::getWindPressure(char uv)
 	float dy=(yma-ymi)/(ny-1.0f);
 	float dx=(xma-xmi)/(nx-1.0f);
 	
-		printf(" _C_ kx=%d, ly=%d, xki=%f, xka=%f, yki=%f, yka=%f, xmi=%f, xma=%f, ymi=%f, yma=%f, dkx=%f, dky=%f, dx=%f, dy=%f\n", kx, ky,  xki,  xka, yki,  yka,xmi, xma,  ymi,  yma, dkx, dky, dx, dy);
+		//printf(" _C_ kx=%d, ly=%d, xki=%f, xka=%f, yki=%f, yka=%f, xmi=%f, xma=%f, ymi=%f, yma=%f, dkx=%f, dky=%f, dx=%f, dy=%f\n", kx, ky,  xki,  xka, yki,  yka,xmi, xma,  ymi,  yma, dkx, dky, dx, dy);
 	
 	
 	for (int j=1; j<=ky; j++ )
