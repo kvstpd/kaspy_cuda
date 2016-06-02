@@ -190,10 +190,7 @@ __constant__ __device__ float dev_xma;// = m_fVars->xma;
 __constant__ __device__ float dev_ymi;// = m_fVars->ymi;
 __constant__ __device__ float dev_yma;// = m_fVars->yma;
 
-//__constant__ __device__ float dev_xki;// = m_fVars->xmi;
-//__constant__ __device__ float dev_xka;// = m_fVars->xma;
-//__constant__ __device__ float dev_yki;// = m_fVars->ymi;
-//__constant__ __device__ float dev_yka;// = m_fVars->yma;
+
 
 __constant__ __device__ float dev_c1 = 3.1415926/180.0;
 __constant__ __device__ float dev_c2 = 111111.0f;
@@ -219,8 +216,8 @@ __constant__ __device__ float dev_wt[] = {
 };
 
 
-__managed__ float dev_pkk[50 * 50];
-__managed__ float dev_c[50 * 50 * 4 * 4];
+__device__ float dev_pkk[50 * 50];
+__device__ float dev_c[50 * 50 * 4 * 4];
 
 
 
@@ -273,10 +270,6 @@ __global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, f
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	
-	/*if (i == 10 && j==10)
-	{
-		printf("DD xmi=%f, xki=%f, ymi=%f, yki=%f, c1=%f, c2=%f, px=%llx\n", dev_xmi, xki, dev_ymi, yki, dev_c1, dev_c2, dev_px);
-	}*/
 	
 	if (i < nx && j < ny)
 	{
@@ -895,8 +888,7 @@ __global__ void adv_bot_3()
 void KaspyCycler::findElves()
 {
 	/// DO CUDA REDUCTION instead of copying back to host mem
-	
-	//cudaDeviceSynchronize();
+
 	
 	float * h_elf =  &m_fArrays->elf[0][0];
 	
@@ -1081,7 +1073,6 @@ void KaspyCycler::makeWsurf()
 
     if (itime6 > itime6_old)
     {
-		cudaDeviceSynchronize();
 		
         itime6_old = itime6;
 		
@@ -1116,7 +1107,6 @@ void KaspyCycler::makeWsurf()
 		}
 		
 
-		//getWindPressureG('p');
 		getWindPressure('p');
 
 		
@@ -1134,7 +1124,7 @@ void KaspyCycler::makeWsurf()
 			printf("GPU memory copy error!\n");
 		}
 		
-		//getWindPressureG('u');
+
 		getWindPressure('u');
 
         //memcpy(g_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
@@ -1149,13 +1139,10 @@ void KaspyCycler::makeWsurf()
 		{
 			printf("GPU memory copy error!\n");
 		}
-		
-		//
-		
-		//getWindPressureG('v');
+
 		getWindPressure('v');
 
-		cudaDeviceSynchronize();
+
 	}
 
 	
@@ -1287,110 +1274,12 @@ void KaspyCycler::makeWsurf()
 }
 
 
-/*void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,float xmi, float xma, float ymi, float yma)
-{
-	int nx = F_DATA_WIDTH;
-	int ny = F_DATA_HEIGHT;
-	
-	int kd = kx;
-	
-	
-	float dky=(yka-yki)/(ky-1.0f);
-	float dkx=(xka-xki)/(kx-1.0f);
- 
-	float dy=(yma-ymi)/(ny-1.0f);
-	float dx=(xma-xmi)/(nx-1.0f);
-	
-	int threadsPerBlock = 64;
-	
-	//printf(" _G_ kx=%d, ly=%d, xki=%f, xka=%f, yki=%f, yka=%f, xmi=%f, xma=%f, ymi=%f, yma=%f, dkx=%f, dky=%f, dx=%f, dy=%f\n", kx, ky,  xki,  xka, yki,  yka,xmi, xma,  ymi,  yma, dkx, dky, dx, dy);
-	
-	
-	dim3 threadsPerSquareBlock(8, 8);
-	
-	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
-	
-	
-	dev_pkk_ij<<<numSquareBlocks, threadsPerSquareBlock>>>(kx, ky, kd);
-	
-	
-	
-	
-	int blocksPerGridJ = (ky + threadsPerBlock) / threadsPerBlock;
-	int blocksPerGridI = (kx + 1 + threadsPerBlock) / threadsPerBlock;
-	
-	dev_pkk_j<<<threadsPerBlock, blocksPerGridJ>>>(kx, ky);
-	dev_pkk_i<<<threadsPerBlock, blocksPerGridI>>>(kx, ky);
-	
-
-	//getbicubic(,, 50, pkk,c);
-	
-	
-	dim3 numNBlocks(((nx) + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, ((ny) + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
-	
-	
-	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, 50);
-	
-	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky);
-	
-	
-}
-
-void KaspyCycler::getWindPressureG(char uv)
-{
-	float * zero = 0;
-	
-	if (uv == 'u')
-	{
-		cudaMemcpyToSymbol(dev_p, &g_ffu, sizeof(float *));
-		cudaMemcpyToSymbol(dev_pk, &g_uwd0, sizeof(float *));
-		cudaMemcpyToSymbol(dev_px, &zero, sizeof(float *));
-		cudaMemcpyToSymbol(dev_py, &zero, sizeof(float *));
-		
-		
-		wind_pressure_g(m_fWindData->kxu, m_fWindData->kyu, m_fWindData->xkui, m_fWindData->xkua, m_fWindData->ykui, m_fWindData->ykua, m_fVars->xmi, m_fVars->xma, m_fVars->ymi, m_fVars->yma);
-		
-
-	}
-	else if (uv == 'v')
-	{
-		cudaMemcpyToSymbol(dev_p, &g_ffv, sizeof(float *));
-		cudaMemcpyToSymbol(dev_pk, &g_vwd0, sizeof(float *));
-		cudaMemcpyToSymbol(dev_px, &zero, sizeof(float *));
-		cudaMemcpyToSymbol(dev_py, &zero, sizeof(float *));
-		
-		wind_pressure_g(m_fWindData->kxv, m_fWindData->kyv, m_fWindData->xkvi, m_fWindData->xkva, m_fWindData->ykvi, m_fWindData->ykva, m_fVars->xmi, m_fVars->xma, m_fVars->ymi, m_fVars->yma);
-		
-
-	}
-	else if (uv == 'p')
-	{
-		cudaMemcpyToSymbol(dev_p, &g_ff, sizeof(float *));
-		cudaMemcpyToSymbol(dev_pk, &g_press0, sizeof(float *));
-		cudaMemcpyToSymbol(dev_px, &g_fxf, sizeof(float *));
-		cudaMemcpyToSymbol(dev_py, &g_fyf, sizeof(float *));
-		
-		wind_pressure_g(m_fWindData->kx, m_fWindData->ky, m_fWindData->xki, m_fWindData->xka, m_fWindData->yki, m_fWindData->yka, m_fVars->xmi, m_fVars->xma, m_fVars->ymi, m_fVars->yma);
-		
-
-	}
-}
-*/
-
-
 void KaspyCycler::getWindPressure(char uv)
 {
 	int kx, ky, kd, nx, ny;//, nd;
-	//float * p;
-	//float * px;
-	//float * py;
-	//float * pk;
+
 	float xki, xka, yki, yka, xmi, xma, ymi, yma;
-	//float pkkd[50][50];
-	//float cd[50][50][4][4];
-	
-	//float * pkk = &dev_pkk[0]; //&pkkd[0][0];
-	//float * c =  &dev_c[0]; // &cd[0][0][0][0];
+
 	
 	float * zero = 0;
 	
@@ -1473,20 +1362,19 @@ void KaspyCycler::getWindPressure(char uv)
 	
 	
 	float dky=(yka-yki)/(ky-1.0f);
-	float  dkx=(xka-xki)/(kx-1.0f);
+	float dkx=(xka-xki)/(kx-1.0f);
  
 	float dy=(yma-ymi)/(ny-1.0f);
 	float dx=(xma-xmi)/(nx-1.0f);
 	
-		//printf(" _C_ kx=%d, ly=%d, xki=%f, xka=%f, yki=%f, yka=%f, xmi=%f, xma=%f, ymi=%f, yma=%f, dkx=%f, dky=%f, dx=%f, dy=%f\n", kx, ky,  xki,  xka, yki,  yka,xmi, xma,  ymi,  yma, dkx, dky, dx, dy);
+
 	
 	int threadsPerBlock = 64;
 	
 	dim3 threadsPerSquareBlock(8, 8);
 	
 	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
-	
-	cudaDeviceSynchronize();
+
 	
 	dev_pkk_ij<<<numSquareBlocks, threadsPerSquareBlock>>>(kx, ky, kd);
 	
@@ -1496,252 +1384,22 @@ void KaspyCycler::getWindPressure(char uv)
 	dev_pkk_j<<<threadsPerBlock, blocksPerGridJ>>>(kx, ky);
 	dev_pkk_i<<<threadsPerBlock, blocksPerGridI>>>(kx, ky);
 	
-	
-	
-	/*for (int j=1; j<=ky; j++ )
-	{
-		for (int i=1; i<=kx; i++ )
-		{
-			pkk[j * 50 + i] = pk[(j - 1) * kd + i - 1];
-		}
-	}
 
-	
-	for (int j=1; j<=ky; j++ )
-	{
-		pkk[j*50+0] = 2.0f*pkk[j*50+1] - pkk[j*50+2];
-		pkk[j*50+kx+1] = 2.0f*pkk[j*50+kx] - pkk[j*50+kx-1];
-	}
-	
-	
-	for (int i=0; i<=(kx+1); i++ )
-	{
-		pkk[0*50+i] = 2.0f*pkk[1*50+i] - pkk[2*50+i];
-		pkk[(ky+1)*50+i] = 2.0f*pkk[ky*50+i] - pkk[(ky-1)*50+i];
-	}*/
+
 	
 	dim3 numNBlocks(((nx) + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, ((ny) + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
 	
 	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, 50);
-	
-	
-	//printf("HH xmi=%f, xki=%f, ymi=%f, yki=%f, c1=%f, c2=%f, px=%llx\n", xmi, xki, ymi, yki, c1, c2, (long long)(uv == 'p'));
+
 	
 	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky, xki, yki);
 	
-	//cudaDeviceSynchronize();
-	
-	//getbicubic(kx + 2,ky + 2, 50, pkk,c);
-	
-	/*for (int j=0; j<ny; j++ )
-	{
-		float y = ymi + j*dy;
-		int j0 = (int)((y - yki)/dky);
-		
-		if (j0 < 0)
-		{
-			j0 = 0;
-		}
-		
-		if (j0 > ky-2)
-		{
-			j0 = ky-2;
-		}
-		
-		float u = (y - (yki + j0*dky))/dky;
-		
-		for (int i=0; i<nx; i++ )
-		{
-			float x = xmi + i * dx;
-			int i0 = (int)((x - xki)/dkx);
-			
-			if (i0 < 0) i0 = 0;
-			
-			if (i0 > kx-2) i0 = kx-2;
-			
-			float t = ( x - (xki + i0*dkx) )/dkx;
-			
-			float ay = 0.0f;
-			float a2 = 0.0f;
-			float a1 = 0.0f;
-			
-			int ji = j * nx + i;
-			
-			for (int k=3; k>=0; k-- )
-			{
-				ay = t*ay+((c[j0 * 800 + i0 * 16 + 3 * 4 + k] * u + c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u
-						   + c[j0 * 800 + i0 * 16 + 1 * 4 + k])*u + c[j0 * 800 + i0 * 16 + 0 * 4 + k];
-			}
-			
-			if (uv == 'p')
-			{
-				for (int k=3; k>=0; k-- )
-				{
-					a2 = t*a2 + (3.0f*c[j0 * 800 + i0 * 16 + 3 * 4 + k]*u
-								 + 2.0f*c[j0 * 800 + i0 * 16 + 2 * 4 + k])*u+c[j0 * 800 + i0 * 16 + 1 * 4 + k];
-					
-					a1 = u*a1 + (3.0f*c[j0 * 800 + i0 * 16 + k * 4 + 3]*t +
-								 2.0f*c[j0 * 800 + i0 * 16 + k * 4 + 2])*t+c[j0 * 800 + i0 * 16 + k * 4 + 1];
-					
-				}
-				
-				a1 = a1/dkx/c2/cosf(c1*y);
-				a2 = a2/dky/c2;
-				
-				px[ji] = a1;
-				py[ji] = a2;
-			}
-			
-			p[ji] = ay;
-			
-		}
-		
-	}
-	*/
+
 
 }
 
 
-
-
-
-
-
-void getbicubic(int nx, int ny, int nd, float * z, float * c)
-{
-	float d1 = 1.0f;
-	float d2 = 1.0f;
-	
-	float y[4];
-	float y1[4];
-	float y2[4];
-	float y12[4];
-	float cc[4][4];
-	
-	
-	for (int j=1; j<ny-2; j++ )
-	{
-		for (int i=1; i<nx-2; i++ )
-		{
-
-			y[0] = z[j * nd + i];
-			y[1] = z[j * nd + i + 1];
-			y[2] = z[(j+1) * nd + i + 1];
-			y[3] = z[(j+1) * nd + i];
-			
-
-			y1[0] = 0.5f * (z[j * nd + i + 1] - z[j * nd + i - 1]);
-			y1[3] = 0.5f * (z[(j+1) * nd + i + 1] - z[(j+1) * nd + i - 1]);
-			y1[1] = 0.5f * (z[j * nd + i + 2] - z[j * nd + i]);
-			y1[2] = 0.5f * (z[(j+1) * nd + i + 2] - z[(j+1) * nd + i]);
-
-			
-
-			y2[0] = 0.5f * (z[(j+1) * nd + i] - z[(j-1) * nd + i]);
-			y2[1] = 0.5f * (z[(j+1) * nd + i + 1] - z[(j-1) * nd + i + 1]);
-			y2[2] = 0.5f * (z[(j+2) * nd + i + 1] - z[(j) * nd + i + 1]);
-			y2[3] = 0.5f * (z[(j+2) * nd + i] - z[j * nd + i]);
-			
-			
-
-			y12[0] = 0.25f * (z[(j+1) * nd + i + 1] - z[(j-1) * nd + i + 1]
-							  - z[(j+1) * nd + i - 1] + z[(j-1) * nd + i - 1]);
-			y12[1] = 0.25f * (z[(j+1) * nd + i + 2] - z[(j-1) * nd + i + 2]
-							  - z[(j+1) * nd + i] + z[(j-1) * nd + i]);
-			y12[2] = 0.25f * (z[(j+2) * nd + i + 2] - z[(j) * nd + i + 2]
-							  - z[(j+2) * nd + i] + z[j * nd + i]);
-			y12[3] = 0.25f * (z[(j+2) * nd + i + 1] - z[(j) * nd + i + 1]
-							  - z[(j+2) * nd + i -1] + z[(j) * nd + i -1]);
-	
-			
-			bcucof(&y[0],&y1[0],&y2[0],&y12[0],d1,d2,&cc[0][0]);
-			
-			for (int k=0; k<4; k++ )
-			{
-				for (int l=0; l<4; l++ )
-				{
-					//printf("\nk is %d l is %d\n", k, l);
-					c[(j-1)* 800 + (i-1) * 16 + l * 4 + k ] = cc[l][k];
-				}
-			}
-			
-			
-		}
-	 }
-	
-}
-
-
-
-
-
-
-
-
-void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float * cc)
-{
-	float xx;
-	float cl[16];
-	
-	float x[16];
-	
-	float wt[] = {
-		1,0,-3,2,0,0,0,0,-3,0,9,-6,2,0,-6,4,
-		0,0,0,0,0,0,0,0,3,0,-9,6,-2,0,6,-4,
-		0,0,0,0,0,0,0,0,0,0,9,-6,0,0,-6,4,
-		0,0,3,-2,0,0,0,0,0,0,-9,6,0,0,6,-4,
-		0,0,0,0,1,0,-3,2,-2,0,6,-4,1,0,-3,2,
-		0,0,0,0,0,0,0,0,-1,0,3,-2,1,0,-3,2,
-		0,0,0,0,0,0,0,0,0,0,-3,2,0,0,3,-2,
-		0,0,0,0,0,0,3,-2,0,0,-6,4,0,0,3,-2,
-		0,1,-2,1,0,0,0,0,0,-3,6,-3,0,2,-4,2,
-		0,0,0,0,0,0,0,0,0,3,-6,3,0,-2,4,-2,
-		0,0,0,0,0,0,0,0,0,0,-3,3,0,0,2,-2,
-		0,0,-1,1,0,0,0,0,0,0,3,-3,0,0,-2,2,
-		0,0,0,0,0,1,-2,1,0,-2,4,-2,0,1,-2,1,
-		0,0,0,0,0,0,0,0,0,-1,2,-1,0,1,-2,1,
-		0,0,0,0,0,0,0,0,0,0,1,-1,0,0,-1,1,
-		0,0,0,0,0,0,-1,1,0,0,2,-2,0,0,-1,1
- 	};
-	
-	//float d1 = *pd1;
-	//float d2 = *pd2;
-	
-	
-	float d1d2 = d1 * d2;
-
-	for (int i=0; i<4; i++ )
-	{
-		x[i] = y[i];
-		x[i + 4] = y1[i] * d1;
-		x[i + 8] = y2[i] * d2;
-		x[i + 12] = y12[i] * d1d2;
-	}
-	
-	for (int i=0; i<16; i++ )
-	{
-		xx = 0.0f;
-		
-		for (int k=0; k<16; k++ )
-		{
-			xx += wt[i + k*16] * x[k];
-		}
-		
-		cl[i] = xx;
-	}
-	
-	int l = 0;
-	
-	for (int i=0; i<4; i++ )
-	{
-		for (int j=0; j<4; j++ )
-		{
-			cc[j*4 + i] = cl[l++];
-		}
-	}
-	
-}
 
 
 
