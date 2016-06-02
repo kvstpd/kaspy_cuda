@@ -1466,6 +1466,12 @@ void KaspyCycler::getWindPressure(char uv)
 	
 	dev_pkk_ij<<<numSquareBlocks, threadsPerSquareBlock>>>(kx, ky, kd);
 	
+	int blocksPerGridJ = (ky + threadsPerBlock) / threadsPerBlock;
+	int blocksPerGridI = (kx + 1 + threadsPerBlock) / threadsPerBlock;
+	
+	dev_pkk_j<<<threadsPerBlock, blocksPerGridJ>>>(kx, ky);
+	dev_pkk_i<<<threadsPerBlock, blocksPerGridI>>>(kx, ky);
+	
 	cudaDeviceSynchronize();
 	
 	/*for (int j=1; j<=ky; j++ )
@@ -1474,7 +1480,7 @@ void KaspyCycler::getWindPressure(char uv)
 		{
 			pkk[j * 50 + i] = pk[(j - 1) * kd + i - 1];
 		}
-	}*/
+	}
 
 	
 	for (int j=1; j<=ky; j++ )
@@ -1488,7 +1494,7 @@ void KaspyCycler::getWindPressure(char uv)
 	{
 		pkk[0*50+i] = 2.0f*pkk[1*50+i] - pkk[2*50+i];
 		pkk[(ky+1)*50+i] = 2.0f*pkk[ky*50+i] - pkk[(ky-1)*50+i];
-	}
+	}*/
 	
 	getbicubic(kx + 2,ky + 2, 50, pkk,c);
 	
