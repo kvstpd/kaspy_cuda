@@ -273,6 +273,11 @@ __global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, f
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	
+	if (i == 10 && j==10)
+	{
+		printf("DD xmi=%f, xki=%f, ymi=%f, yki=%f, c1=%f, c2=%f, px=%llx\n", dev_xmi, dev_xki, dev_ymi, dev_yki, dev_c1, dev_c2, dev_px);
+	}
+	
 	if (i < nx && j < ny)
 	{
 		float y = dev_ymi + j*dy;
@@ -1503,6 +1508,8 @@ void KaspyCycler::getWindPressure(char uv)
 	
 	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, 50);
 	
+	
+	printf("HH xmi=%f, xki=%f, ymi=%f, yki=%f, c1=%f, c2=%f, px=%llx\n", xmi, xki, ymi, yki, c1, c2, (long long)(uv == 'p'));
 	
 	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky);
 	
