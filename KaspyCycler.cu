@@ -190,10 +190,10 @@ __constant__ __device__ float dev_xma;// = m_fVars->xma;
 __constant__ __device__ float dev_ymi;// = m_fVars->ymi;
 __constant__ __device__ float dev_yma;// = m_fVars->yma;
 
-__constant__ __device__ float dev_xki;// = m_fVars->xmi;
-__constant__ __device__ float dev_xka;// = m_fVars->xma;
-__constant__ __device__ float dev_yki;// = m_fVars->ymi;
-__constant__ __device__ float dev_yka;// = m_fVars->yma;
+//__constant__ __device__ float dev_xki;// = m_fVars->xmi;
+//__constant__ __device__ float dev_xka;// = m_fVars->xma;
+//__constant__ __device__ float dev_yki;// = m_fVars->ymi;
+//__constant__ __device__ float dev_yka;// = m_fVars->yma;
 
 __constant__ __device__ float dev_c1 = 3.1415926/180.0;
 __constant__ __device__ float dev_c2 = 111111.0f;
@@ -267,16 +267,16 @@ __device__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1
 }
 
 
-__global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, float dkx, float dky)
+__global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, float dkx, float dky, float xki, float yki)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	
-	if (i == 10 && j==10)
+	/*if (i == 10 && j==10)
 	{
-		printf("DD xmi=%f, xki=%f, ymi=%f, yki=%f, c1=%f, c2=%f, px=%llx\n", dev_xmi, dev_xki, dev_ymi, dev_yki, dev_c1, dev_c2, dev_px);
-	}
+		printf("DD xmi=%f, xki=%f, ymi=%f, yki=%f, c1=%f, c2=%f, px=%llx\n", dev_xmi, xki, dev_ymi, yki, dev_c1, dev_c2, dev_px);
+	}*/
 	
 	if (i < nx && j < ny)
 	{
@@ -964,10 +964,10 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpyToSymbol(dev_xma, &xma, sizeof(float))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_ymi, &ymi, sizeof(float))  == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_yma, &yma, sizeof(float))  == cudaSuccess)
-		&& (cudaMemcpyToSymbol(dev_xki, &xki, sizeof(float))  == cudaSuccess)
-		&& (cudaMemcpyToSymbol(dev_xka, &xka, sizeof(float))  == cudaSuccess)
-		&& (cudaMemcpyToSymbol(dev_yki, &yki, sizeof(float))  == cudaSuccess)
-		&& (cudaMemcpyToSymbol(dev_yka, &yka, sizeof(float))  == cudaSuccess)
+		//&& (cudaMemcpyToSymbol(dev_xki, &xki, sizeof(float))  == cudaSuccess)
+		//&& (cudaMemcpyToSymbol(dev_xka, &xka, sizeof(float))  == cudaSuccess)
+		//&& (cudaMemcpyToSymbol(dev_yki, &yki, sizeof(float))  == cudaSuccess)
+		//&& (cudaMemcpyToSymbol(dev_yka, &yka, sizeof(float))  == cudaSuccess)
 		//&& (cudaMemcpyToSymbol(dev_ewidth, &ewidth,  sizeof(int))  == cudaSuccess)
 		)
 	{
@@ -1287,7 +1287,7 @@ void KaspyCycler::makeWsurf()
 }
 
 
-void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,float xmi, float xma, float ymi, float yma)
+/*void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,float xmi, float xma, float ymi, float yma)
 {
 	int nx = F_DATA_WIDTH;
 	int ny = F_DATA_HEIGHT;
@@ -1306,7 +1306,7 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	//printf(" _G_ kx=%d, ly=%d, xki=%f, xka=%f, yki=%f, yka=%f, xmi=%f, xma=%f, ymi=%f, yma=%f, dkx=%f, dky=%f, dx=%f, dy=%f\n", kx, ky,  xki,  xka, yki,  yka,xmi, xma,  ymi,  yma, dkx, dky, dx, dy);
 	
 	
-	/*dim3 threadsPerSquareBlock(8, 8);
+	dim3 threadsPerSquareBlock(8, 8);
 	
 	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
 	
@@ -1332,7 +1332,7 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, 50);
 	
 	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky);
-	*/
+	
 	
 }
 
@@ -1375,7 +1375,7 @@ void KaspyCycler::getWindPressureG(char uv)
 
 	}
 }
-
+*/
 
 
 void KaspyCycler::getWindPressure(char uv)
@@ -1509,9 +1509,9 @@ void KaspyCycler::getWindPressure(char uv)
 	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, 50);
 	
 	
-	printf("HH xmi=%f, xki=%f, ymi=%f, yki=%f, c1=%f, c2=%f, px=%llx\n", xmi, xki, ymi, yki, c1, c2, (long long)(uv == 'p'));
+	//printf("HH xmi=%f, xki=%f, ymi=%f, yki=%f, c1=%f, c2=%f, px=%llx\n", xmi, xki, ymi, yki, c1, c2, (long long)(uv == 'p'));
 	
-	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky);
+	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky, xki, yki);
 	
 	cudaDeviceSynchronize();
 	
