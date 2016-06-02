@@ -101,7 +101,7 @@ float * g_ffu = 0;
 float * g_ffv = 0;
 
 float * g_fxb = 0;
-//float * g_fxf = 0;
+float * g_fxf = 0;
 float * g_fyb = 0;
 float * g_fyf = 0;
 
@@ -986,7 +986,7 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpy(g_fb,&m_fFloats->fb[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_ff,&m_fFloats->ff[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_fxb,&m_fFloats->fxb[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
-		&& (cudaMemcpy(dev_fxf,&m_fFloats->fxf[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy(g_fxf,&m_fFloats->fxf[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_fyb,&m_fFloats->fyb[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_fyf,&m_fFloats->fyf[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_wusurf,&m_fArrays->wusurf[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
@@ -1076,9 +1076,18 @@ void KaspyCycler::makeWsurf()
 		
         itime6_old = itime6;
 		
+		float * p_temp;
 		
-		if ( (cudaMemcpy(g_fxb,dev_fxf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
-			&& (cudaMemcpy(g_fyb,g_fyf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
+		p_temp = g_fxb;
+		g_fxb = g_fxf;
+		g_fxf = p_temp;
+		
+		cudaMemcpyToSymbol(dev_fxf, &g_fxf, sizeof(float *));
+		cudaMemcpyToSymbol(dev_fxf, &g_fxf, sizeof(float *));
+		
+		
+		if ( /*(cudaMemcpy(g_fxb,g_fxf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
+			&& */ (cudaMemcpy(g_fyb,g_fyf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
 			&& (cudaMemcpy(g_fb,g_ff, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
 			&& (cudaMemcpy(g_fbu,g_ffu, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
 			&& (cudaMemcpy(g_fbv,g_ffv, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
@@ -1332,7 +1341,7 @@ void KaspyCycler::getWindPressure(char uv)
 
 		cudaMemcpyToSymbol(dev_p, &g_ff, sizeof(float *));
 		cudaMemcpyToSymbol(dev_pk, &g_press0, sizeof(float *));
-		cudaMemcpyToSymbol(dev_px, &dev_fxf, sizeof(float *));
+		cudaMemcpyToSymbol(dev_px, &g_fxf, sizeof(float *));
 		cudaMemcpyToSymbol(dev_py, &g_fyf, sizeof(float *));
 		
 		
@@ -1374,7 +1383,7 @@ void KaspyCycler::getWindPressure(char uv)
 	dim3 threadsPerSquareBlock(8, 8);
 	
 	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
-
+	
 	
 	dev_pkk_ij<<<numSquareBlocks, threadsPerSquareBlock>>>(kx, ky, kd);
 	
@@ -1466,7 +1475,7 @@ int KaspyCycler::init_device()
 		&& (cudaMallocManaged((void **)&g_fb, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
 		&& (cudaMallocManaged((void **)&g_ff, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
 		&& (cudaMallocManaged((void **)&g_fxb, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&dev_fxf, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
+		&& (cudaMallocManaged((void **)&g_fxf, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
 		&& (cudaMallocManaged((void **)&g_fyb, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
 		&& (cudaMallocManaged((void **)&g_fyf, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
 		&& (cudaMallocManaged((void **)&g_wusurf, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
@@ -1528,7 +1537,7 @@ int KaspyCycler::init_device()
 		&& (cudaMemcpyToSymbol(dev_ffv, &g_ffv, sizeof(g_ffv)) == cudaSuccess)
 		
 		&& (cudaMemcpyToSymbol(dev_fxb, &g_fxb, sizeof(float *)) == cudaSuccess)
-		///&& (cudaMemcpyToSymbol(dev_fxf, &g_fxf, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_fxf, &g_fxf, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_fyb, &g_fyb, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_fyf, &g_fyf, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_fb, &g_fb, sizeof(float *)) == cudaSuccess)
@@ -1627,9 +1636,9 @@ void KaspyCycler::deinit_device()
 			cudaFree(g_fxb);
 		}
 		
-		if (dev_fxf)
+		if (g_fxf)
 		{
-			cudaFree(dev_fxf);
+			cudaFree(g_fxf);
 		}
 		
 		if (g_fyb)
