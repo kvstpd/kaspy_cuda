@@ -1076,7 +1076,7 @@ void KaspyCycler::makeWsurf()
 
     if (itime6 > itime6_old)
     {
-		//cudaDeviceSynchronize();
+		cudaDeviceSynchronize();
 		
         itime6_old = itime6;
 		
@@ -1112,7 +1112,7 @@ void KaspyCycler::makeWsurf()
 		
 
 		getWindPressureG('p');
-		//getWindPressure('p');
+		getWindPressure('p');
 
 		
 
@@ -1130,7 +1130,7 @@ void KaspyCycler::makeWsurf()
 		}
 		
 		getWindPressureG('u');
-		//getWindPressure('u');
+		getWindPressure('u');
 
         //memcpy(g_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
 		//size_t s_wv_width = m_fWindData->kxv * sizeof(float);
@@ -1148,9 +1148,9 @@ void KaspyCycler::makeWsurf()
 		//
 		
 		getWindPressureG('v');
-		//getWindPressure('v');
+		getWindPressure('v');
 
-		//cudaDeviceSynchronize();
+		cudaDeviceSynchronize();
 	}
 
 	
@@ -1301,7 +1301,7 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	//printf(" _G_ kx=%d, ly=%d, xki=%f, xka=%f, yki=%f, yka=%f, xmi=%f, xma=%f, ymi=%f, yma=%f, dkx=%f, dky=%f, dx=%f, dy=%f\n", kx, ky,  xki,  xka, yki,  yka,xmi, xma,  ymi,  yma, dkx, dky, dx, dy);
 	
 	
-	dim3 threadsPerSquareBlock(8, 8);
+	/*dim3 threadsPerSquareBlock(8, 8);
 	
 	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
 	
@@ -1327,7 +1327,7 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, 50);
 	
 	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky);
-	
+	*/
 	
 }
 
