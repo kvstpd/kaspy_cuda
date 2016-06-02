@@ -281,7 +281,7 @@ __global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, f
 	if (i < nx && j < ny)
 	{
 		float y = dev_ymi + j*dy;
-		int j0 = (int)((y - dev_yki)/dky);
+		int j0 = (int)((y - yki)/dky);
 		
 		if (j0 < 0)
 		{
@@ -293,18 +293,18 @@ __global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, f
 			j0 = ky-2;
 		}
 		
-		float u = (y - (dev_yki + j0*dky))/dky;
+		float u = (y - (yki + j0*dky))/dky;
 		
 		
 		float x = dev_xmi + i * dx;
 		
-		int i0 = (int)((x - dev_xki)/dkx);
+		int i0 = (int)((x - xki)/dkx);
 		
 		if (i0 < 0) i0 = 0;
 		
 		if (i0 > kx-2) i0 = kx-2;
 		
-		float t = ( x - (dev_xki + i0*dkx) )/dkx;
+		float t = ( x - (xki + i0*dkx) )/dkx;
 		
 		float ay = 0.0f;
 		float a2 = 0.0f;
