@@ -1116,7 +1116,7 @@ void KaspyCycler::makeWsurf()
 		}
 		
 
-		getWindPressureG('p');
+		//getWindPressureG('p');
 		getWindPressure('p');
 
 		
@@ -1134,7 +1134,7 @@ void KaspyCycler::makeWsurf()
 			printf("GPU memory copy error!\n");
 		}
 		
-		getWindPressureG('u');
+		//getWindPressureG('u');
 		getWindPressure('u');
 
         //memcpy(g_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
@@ -1152,7 +1152,7 @@ void KaspyCycler::makeWsurf()
 		
 		//
 		
-		getWindPressureG('v');
+		//getWindPressureG('v');
 		getWindPressure('v');
 
 		cudaDeviceSynchronize();
@@ -1381,58 +1381,75 @@ void KaspyCycler::getWindPressureG(char uv)
 void KaspyCycler::getWindPressure(char uv)
 {
 	int kx, ky, kd, nx, ny;//, nd;
-	float * p;
-	float * px;
-	float * py;
-	float * pk;
+	//float * p;
+	//float * px;
+	//float * py;
+	//float * pk;
 	float xki, xka, yki, yka, xmi, xma, ymi, yma;
 	//float pkkd[50][50];
 	//float cd[50][50][4][4];
 	
-	float * pkk = &dev_pkk[0]; //&pkkd[0][0];
-	float * c =  &dev_c[0]; // &cd[0][0][0][0];
+	//float * pkk = &dev_pkk[0]; //&pkkd[0][0];
+	//float * c =  &dev_c[0]; // &cd[0][0][0][0];
+	
+	float * zero = 0;
 	
 	if (uv == 'u')
 	{
 		kx = m_fWindData->kxu;
 		ky = m_fWindData->kyu;
-		pk = g_uwd0;
+		//pk = g_uwd0;
 		
 		xki = m_fWindData->xkui;
 		xka = m_fWindData->xkua;
 		yki = m_fWindData->ykui;
 		yka = m_fWindData->ykua;
 		
-		p = g_ffu;
+		cudaMemcpyToSymbol(dev_p, &g_ffu, sizeof(float *));
+		cudaMemcpyToSymbol(dev_pk, &g_uwd0, sizeof(float *));
+		cudaMemcpyToSymbol(dev_px, &zero, sizeof(float *));
+		cudaMemcpyToSymbol(dev_py, &zero, sizeof(float *));
+		
+		//p = g_ffu;
 	}
 	else if (uv == 'v')
 	{
 		kx = m_fWindData->kxv;
 		ky = m_fWindData->kyv;
-		pk = g_vwd0;
+		//pk = g_vwd0;
 		
 		xki = m_fWindData->xkvi;
 		xka = m_fWindData->xkva;
 		yki = m_fWindData->ykvi;
 		yka = m_fWindData->ykva;
 		
-		p = g_ffv;
+		//p = g_ffv;
+		cudaMemcpyToSymbol(dev_p, &g_ffv, sizeof(float *));
+		cudaMemcpyToSymbol(dev_pk, &g_vwd0, sizeof(float *));
+		cudaMemcpyToSymbol(dev_px, &zero, sizeof(float *));
+		cudaMemcpyToSymbol(dev_py, &zero, sizeof(float *));
+		
 	}
 	else if (uv == 'p')
 	{
 		kx = m_fWindData->kx;
 		ky = m_fWindData->ky;
 		//float kd = kx;
-		pk = g_press0;
+		//pk = g_press0;
 		xki = m_fWindData->xki;
 		xka = m_fWindData->xka;
 		yki = m_fWindData->yki;
 		yka = m_fWindData->yka;
 
+		cudaMemcpyToSymbol(dev_p, &g_ff, sizeof(float *));
+		cudaMemcpyToSymbol(dev_pk, &g_press0, sizeof(float *));
+		cudaMemcpyToSymbol(dev_px, &g_fxf, sizeof(float *));
+		cudaMemcpyToSymbol(dev_py, &g_fyf, sizeof(float *));
 		
-		p = g_ff;
-		px = g_fxf;
-		py = g_fyf;
+		
+		//p = g_ff;
+		//px = g_fxf;
+		//py = g_fyf;
 	}
 	else
 	{
@@ -1513,7 +1530,7 @@ void KaspyCycler::getWindPressure(char uv)
 	
 	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky, xki, yki);
 	
-	cudaDeviceSynchronize();
+	//cudaDeviceSynchronize();
 	
 	//getbicubic(kx + 2,ky + 2, 50, pkk,c);
 	
