@@ -1458,14 +1458,21 @@ void KaspyCycler::getWindPressure(char uv)
 	
 		//printf(" _C_ kx=%d, ly=%d, xki=%f, xka=%f, yki=%f, yka=%f, xmi=%f, xma=%f, ymi=%f, yma=%f, dkx=%f, dky=%f, dx=%f, dy=%f\n", kx, ky,  xki,  xka, yki,  yka,xmi, xma,  ymi,  yma, dkx, dky, dx, dy);
 	
+	dim3 threadsPerSquareBlock(8, 8);
 	
-	for (int j=1; j<=ky; j++ )
+	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
+	
+	
+	dev_pkk_ij<<<numSquareBlocks, threadsPerSquareBlock>>>(kx, ky, kd);
+	
+	
+	/*for (int j=1; j<=ky; j++ )
 	{
 		for (int i=1; i<=kx; i++ )
 		{
 			pkk[j * 50 + i] = pk[(j - 1) * kd + i - 1];
 		}
-	}
+	}*/
 
 	
 	for (int j=1; j<=ky; j++ )
