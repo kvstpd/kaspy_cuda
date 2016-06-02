@@ -1361,7 +1361,7 @@ void KaspyCycler::getWindPressureG(char uv)
 	else if (uv == 'p')
 	{
 		cudaMemcpyToSymbol(dev_p, &g_ffv, sizeof(float *));
-		cudaMemcpyToSymbol(dev_pk, &g_vwd0, sizeof(float *));
+		cudaMemcpyToSymbol(dev_pk, &g_press0, sizeof(float *));
 		cudaMemcpyToSymbol(dev_px, &g_fxf, sizeof(float *));
 		cudaMemcpyToSymbol(dev_py, &g_fyf, sizeof(float *));
 		
