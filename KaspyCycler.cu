@@ -1503,11 +1503,14 @@ void KaspyCycler::getWindPressure(char uv)
 	
 	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, 50);
 	
+	
+	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky);
+	
 	cudaDeviceSynchronize();
 	
 	//getbicubic(kx + 2,ky + 2, 50, pkk,c);
 	
-	for (int j=0; j<ny; j++ )
+	/*for (int j=0; j<ny; j++ )
 	{
 		float y = ymi + j*dy;
 		int j0 = (int)((y - yki)/dky);
@@ -1571,7 +1574,7 @@ void KaspyCycler::getWindPressure(char uv)
 		}
 		
 	}
-	
+	*/
 
 }
 
