@@ -1111,7 +1111,7 @@ void KaspyCycler::makeWsurf()
 		}
 		
 
-	
+		getWindPressureG('p');
 		getWindPressure('p');
 
 		
@@ -1129,7 +1129,7 @@ void KaspyCycler::makeWsurf()
 			printf("GPU memory copy error!\n");
 		}
 		
-		
+		getWindPressureG('u');
 		getWindPressure('u');
 
         //memcpy(g_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
@@ -1145,11 +1145,12 @@ void KaspyCycler::makeWsurf()
 			printf("GPU memory copy error!\n");
 		}
 		
-		cudaDeviceSynchronize();
+		//
 		
+		getWindPressureG('v');
 		getWindPressure('v');
 
-		
+		cudaDeviceSynchronize();
 	}
 
 	
@@ -1297,7 +1298,10 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	
 	int threadsPerBlock = 64;
 	
-	dim3 threadsPerSquareBlock(8, 8);
+	printf(" _G_ kx=%d, ly=%d, xki=%f, xka=%f, yki=%f, yka=%f, xmi=%f, xma=%f, ymi=%f, yma=%f, dkx=%f, dky=%f, dx=%f, dy=%f\n", kx, ky,  xki,  xka, yki,  yka,xmi, xma,  ymi,  yma, dkx, dky, dx, dy);
+	
+	
+	/*dim3 threadsPerSquareBlock(8, 8);
 	
 	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
 	
@@ -1323,11 +1327,11 @@ void wind_pressure_g(int kx, int ky, float xki, float xka, float yki, float yka,
 	dev_bicubic<<<numNBlocks, threadsPerSquareBlock>>>(kx + 2, ky + 2, 50);
 	
 	dev_make_p<<<numNBlocks, threadsPerSquareBlock>>>(nx, ny, kx, ky, dx, dy, dkx, dky);
-	
+	*/
 	
 }
 
-void KaspyCycler::getWindPressure(char uv)
+void KaspyCycler::getWindPressureG(char uv)
 {
 	float * zero = 0;
 	
@@ -1369,7 +1373,7 @@ void KaspyCycler::getWindPressure(char uv)
 
 
 
-void KaspyCycler::getWindPressureG(char uv)
+void KaspyCycler::getWindPressure(char uv)
 {
 	int kx, ky, kd, nx, ny;//, nd;
 	float * p;
@@ -1451,6 +1455,8 @@ void KaspyCycler::getWindPressureG(char uv)
  
 	float dy=(yma-ymi)/(ny-1.0f);
 	float dx=(xma-xmi)/(nx-1.0f);
+	
+		printf(" _C_ kx=%d, ly=%d, xki=%f, xka=%f, yki=%f, yka=%f, xmi=%f, xma=%f, ymi=%f, yma=%f, dkx=%f, dky=%f, dx=%f, dy=%f\n", kx, ky,  xki,  xka, yki,  yka,xmi, xma,  ymi,  yma, dkx, dky, dx, dy);
 	
 	
 	for (int j=1; j<=ky; j++ )
