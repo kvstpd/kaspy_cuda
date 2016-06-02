@@ -1462,9 +1462,11 @@ void KaspyCycler::getWindPressure(char uv)
 	
 	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
 	
+	cudaDeviceSynchronize();
 	
 	dev_pkk_ij<<<numSquareBlocks, threadsPerSquareBlock>>>(kx, ky, kd);
 	
+	cudaDeviceSynchronize();
 	
 	/*for (int j=1; j<=ky; j++ )
 	{
