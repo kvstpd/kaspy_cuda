@@ -15,11 +15,6 @@
 #include "KaspyCycler.h"
 
 
-/*void ersetb(void)
-{
-    setbuf(stdout,NULL);
-}*/
-
 
 
 double last_measured_time = 0.0;
@@ -113,36 +108,44 @@ extern "C" int cycler_create_(float * vars_marker, double * arrays_marker, doubl
 
 
 // GFortran Unix naming
-extern "C" void cycler_load_(int * icycler)
+extern "C" int cycler_load_(int * icycler)
 {
     if (cycler)
     {
 		if (cycler->init_device() >= 0)
 		{
 			cycler->sendDataToGPU();
+			return 1;
 		}
 		else
 		{
 			printf("unable to init CUDA device!\n");
+			return -1;
 		}
 		
     }
+	
+	return -1;
 }
 
 // Intel Fortran WIN naming
-extern "C" void CYCLER_LOAD(int * icycler)
+extern "C" int CYCLER_LOAD(int * icycler)
 {
     if (cycler)
     {
 		if (cycler->init_device() >= 0)
 		{
 			cycler->sendDataToGPU();
+			return 1;
 		}
 		else
 		{
 			printf("unable to init CUDA device!\n");
+			return -1;
 		}
     }
+	
+	return -1;
 }
 
 
