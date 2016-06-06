@@ -1411,7 +1411,7 @@ void KaspyCycler::makeWsurf()
 	}
 
 
-	swap_arrays_5()<<<1, 1>>>();
+	swap_arrays_5<<<1, 1>>>();
 
 	if (cudaGetLastError() != cudaSuccess)
 	{
