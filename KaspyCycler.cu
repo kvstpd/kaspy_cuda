@@ -1180,12 +1180,35 @@ void KaspyCycler::makeWsurf()
 		g_fxb = g_fxf;
 		g_fxf = p_temp;
 		
+		p_temp = g_fyb;
+		g_fyb = g_fyf;
+		g_fyf = p_temp;
+		
+		p_temp = g_fb;
+		g_fb = g_ff;
+		g_ff = p_temp;
+		
+		p_temp = g_fbu;
+		g_fbu = g_ffu;
+		g_ffu = p_temp;
+		
+		p_temp = g_fbv;
+		g_fbv = g_ffv;
+		g_ffv = p_temp;
+		
 		cudaMemcpyToSymbol(dev_fxf, &g_fxf, sizeof(float *));
 		cudaMemcpyToSymbol(dev_fxb, &g_fxb, sizeof(float *));
+		cudaMemcpyToSymbol(dev_fyf, &g_fyf, sizeof(float *));
+		cudaMemcpyToSymbol(dev_fyb, &g_fyb, sizeof(float *));
+		cudaMemcpyToSymbol(dev_ff, &g_ff, sizeof(float *));
+		cudaMemcpyToSymbol(dev_fb, &g_fb, sizeof(float *));
+		cudaMemcpyToSymbol(dev_ffu, &g_ffu, sizeof(float *));
+		cudaMemcpyToSymbol(dev_fbu, &g_fbu, sizeof(float *));
+		cudaMemcpyToSymbol(dev_ffv, &g_ffv, sizeof(float *));
+		cudaMemcpyToSymbol(dev_fbv, &g_fbv, sizeof(float *));
 		
-		
-		if ( /*(cudaMemcpy(g_fxb,g_fxf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
-			&& */ (cudaMemcpy(g_fyb,g_fyf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
+		/*if ( (cudaMemcpy(g_fxb,g_fxf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
+			&& (cudaMemcpy(g_fyb,g_fyf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
 			&& (cudaMemcpy(g_fb,g_ff, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
 			&& (cudaMemcpy(g_fbu,g_ffu, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
 			&& (cudaMemcpy(g_fbv,g_ffv, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
@@ -1196,7 +1219,7 @@ void KaspyCycler::makeWsurf()
 		else
 		{
 			printf("GPU memory copy error!\n");
-		}
+		} */
 			
 			
 
