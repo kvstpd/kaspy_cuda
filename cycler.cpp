@@ -23,7 +23,7 @@ double last_measured_time = 0.0;
 
 KaspyCycler * cycler = 0;
 
-//DrawArrayWindow  * defaultGlWindow = 0;
+DrawArrayWindow  * defaultGlWindow = 0;
 
 
 void _i_cycler_time()
@@ -81,7 +81,7 @@ int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats
     
     _i_cycler_time();
 	
-	//defaultGlWindow = new DrawArrayWindow();
+	defaultGlWindow = new DrawArrayWindow();
 	
     cycler = new KaspyCycler((fortran_common_vars *)vars_marker,
                              (fortran_common_arrays *)arrays_marker, (fortran_ffloats *)ffloats_marker,
