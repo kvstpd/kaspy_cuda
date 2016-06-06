@@ -734,18 +734,8 @@ __global__ void tps_and_other_arrays_4()
 		dev_va[ji]=dev_vaf[ji];  // OP
 		
 	}
-
-
-}
-
-__global__ void swap_arrays_5()
-{
-	float * temp;
 	
-	temp = dev_elb;
-	dev_elb=dev_el;
-	dev_el=dev_elf;
-	dev_elf = temp;
+	
 }
 
 
@@ -992,9 +982,9 @@ void KaspyCycler::findElves()
 	int blocksPerData = (F_DATA_SIZE + threadsPerBlock - 1) / threadsPerBlock;
 	
 	
-	float * h_el =  &m_fArrays->el[0][0];
+	float * h_elf =  &m_fArrays->elf[0][0];
 	
-	cudaError_t err = cudaMemcpy(h_el, g_el,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);
+	cudaError_t err = cudaMemcpy(h_elf, g_elf,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);
 	
 	if (err != cudaSuccess)
 	{
@@ -1003,19 +993,19 @@ void KaspyCycler::findElves()
 	
 
 	
-	float elf_min = h_el[0];
-    float elf_max = h_el[0];
+	float elf_min = h_elf[0];
+    float elf_max = h_elf[0];
     
     for (int i=1; i<F_DATA_SIZE; i++)
     {
-        if (h_el[i] > elf_max)
+        if (h_elf[i] > elf_max)
         {
-            elf_max = h_el[i];
+            elf_max = h_elf[i];
         }
         
-        if (h_el[i] < elf_min)
+        if (h_elf[i] < elf_min)
         {
-            elf_min = h_el[i];
+            elf_min = h_elf[i];
         }
     }
 	
@@ -1142,8 +1132,6 @@ void KaspyCycler::getDataToCPU()
 {
 	float * h_el =  &m_fArrays->el[0][0];
 	
-	//cudaMemcpyFromSymbol (&g_el, dev_el, sizeof(float *), 0,cudaMemcpyDeviceToHost);
-	
 	cudaError_t err = cudaMemcpy(h_el, g_el,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);
 	
 	if (err != cudaSuccess)
@@ -1157,9 +1145,7 @@ void KaspyCycler::getDataToCPU()
 
 void KaspyCycler::makeWsurf()
 {
-	float * p_temp;
-
-	m_fVars->timeh6 = (m_fVars->timeh / m_fVars->dht) + 1.0f;
+    m_fVars->timeh6 = (m_fVars->timeh / m_fVars->dht) + 1.0f;
 
     float timeh6 = (float)m_fVars->timeh6;
 	
@@ -1189,6 +1175,7 @@ void KaspyCycler::makeWsurf()
 		
         itime6_old = itime6;
 		
+		float * p_temp;
 		
 		p_temp = g_fxb;
 		g_fxb = g_fxf;
@@ -1413,25 +1400,6 @@ void KaspyCycler::makeWsurf()
 	{
 		printf("error calling tps_and_other_arrays_4 kernel! \n");
 	}
-	
-	/*swap_arrays_5<<<1, 1>>>();
-	
-	if (cudaGetLastError() != cudaSuccess)
-	{
-		printf("error calling swap_arrays_5 kernel! \n");
-	}*/
-	
-	//dev_elb[ji]=dev_el[ji];  // OP
-	//dev_el[ji]=dev_elf[ji];  // OP
-	
-	/*p_temp = g_elb;
-	g_elb = g_el;
-	g_el = g_elf;
-	g_elf = p_temp;
-	
-	cudaMemcpyToSymbol(dev_elf, &g_elf, sizeof(float *));
-	cudaMemcpyToSymbol(dev_elb, &g_elb, sizeof(float *));
-	cudaMemcpyToSymbol(dev_el, &g_el, sizeof(float *));*/
 
 
 }
