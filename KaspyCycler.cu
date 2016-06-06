@@ -994,7 +994,12 @@ __global__ void reduce(float * g_idata, float * g_omindata, float * g_omaxdata, 
 
 float * KaspyCycler::getElves()
 {
-	return &m_fArrays->elf[0][0];
+	return g_el;
+}
+
+float * KaspyCycler::getSurface()
+{
+	return g_h;
 }
 
 

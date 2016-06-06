@@ -124,9 +124,11 @@ extern "C" int cycler_load_(int * icycler)
 		{
 			if (defaultGlWindow->gl_init(device) >= 0)
 			{
-				defaultGlWindow->set_data_to_display(cycler->getElves(), 0, F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
 				
 				cycler->sendDataToGPU();
+				
+				defaultGlWindow->set_data_to_display(cycler->getElves(), cycler->getSurface(), F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
+				
 				return 1;
 			}
 			else

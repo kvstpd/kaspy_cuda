@@ -62,7 +62,8 @@ public:
     void findElves();
 	
 	float * getElves();
-    
+	float * getSurface();
+	
     void makeWsurf();
     
     
