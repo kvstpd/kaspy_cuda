@@ -1142,6 +1142,8 @@ void KaspyCycler::getDataToCPU()
 {
 	float * h_el =  &m_fArrays->el[0][0];
 	
+	cudaMemcpyFromSymbol (&g_el, dev_el, sizeof(float *), 0,cudaMemcpyDeviceToHost);
+	
 	cudaError_t err = cudaMemcpy(h_el, g_el,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);
 	
 	if (err != cudaSuccess)
