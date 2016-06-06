@@ -1410,8 +1410,8 @@ void KaspyCycler::makeWsurf()
 	
 	p_temp = g_elb;
 	g_elb = g_el;
-	g_el = p_elf;
-	g_elf = g_elb;
+	g_el = g_elf;
+	g_elf = p_temp;
 	
 	cudaMemcpyToSymbol(dev_elf, &g_elf, sizeof(float *));
 	cudaMemcpyToSymbol(dev_elb, &g_elb, sizeof(float *));
