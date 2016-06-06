@@ -348,7 +348,9 @@ C
 
 
 
-        call cycler_load(icycler)
+        if (cycler_load(icycler).lt.0) then
+			stop
+		end if
 
 c call display(surf,im,jm,im,jm,-1.0,1.0,0)
         iold=0
@@ -464,8 +466,8 @@ C     STATISTICS
 
 c      NAME='SSFA.GRD'
 c      CALL WRITEGRD(IM,JM,IM,SSFA,10.0,31.0,53.0,66.0,NAME)
-      NAME='SSEL.GRD'
-      CALL WRITEGRD(IM,JM,IM,SSEL,xmi,xma,ymi,yma,NAME)
+cs       NAME='SSEL.GRD'
+cs      CALL WRITEGRD(IM,JM,IM,SSEL,xmi,xma,ymi,yma,NAME)
 c      NAME='SFEL.GRD'
 c      CALL WRITEGRD(IM,JM,IM,SFEL,10.0,31.0,53.0,66.0,NAME)
 
@@ -474,22 +476,22 @@ c      CALL WRITEGRD(IM,JM,IM,SFA,10.0,31.0,53.0,66.0,NAME)
 c      NAME='ALFA2.GRD'
 c      CALL WRITEGRD(IM,JM,IM,SEL,10.0,31.0,53.0,66.0,NAME)
       
-      NAME='SSFAR.GRD'
-      CALL WRITEGRD(IM,JM,IM,SSFAR,xmi,xma,ymi,yma,NAME)
-      NAME='SFELR.GRD'
-      CALL WRITEGRD(IM,JM,IM,SFELR,xmi,xma,ymi,yma,NAME)
+cs      NAME='SSFAR.GRD'
+cs      CALL WRITEGRD(IM,JM,IM,SSFAR,xmi,xma,ymi,yma,NAME)
+cs      NAME='SFELR.GRD'
+cs      CALL WRITEGRD(IM,JM,IM,SFELR,xmi,xma,ymi,yma,NAME)
 c      NAME='ALFAR.GRD'
 c      CALL WRITEGRD(IM,JM,IM,SFAR,10.0,31.0,53.0,66.0,NAME)
-      NAME='ssu.GRD'
-      CALL WRITEGRD(IM,JM,IM,ssu,xmi,xma,ymi,yma,NAME)
-      NAME='ssv.GRD'
-      CALL WRITEGRD(IM,JM,IM,ssv,xmi,xma,ymi,yma,NAME)
-      NAME='ssuv.GRD'
-      CALL WRITEGRD(IM,JM,IM,ssuv,xmi,xma,ymi,yma,NAME)
-      NAME='ssue.GRD'
-      CALL WRITEGRD(IM,JM,IM,ssue,xmi,xma,ymi,yma,NAME)
-      NAME='ssve.GRD'
-      CALL WRITEGRD(IM,JM,IM,ssve,xmi,xma,ymi,yma,NAME)
+cs      NAME='ssu.GRD'
+cs      CALL WRITEGRD(IM,JM,IM,ssu,xmi,xma,ymi,yma,NAME)
+cs      NAME='ssv.GRD'
+cs      CALL WRITEGRD(IM,JM,IM,ssv,xmi,xma,ymi,yma,NAME)
+cs      NAME='ssuv.GRD'
+cs      CALL WRITEGRD(IM,JM,IM,ssuv,xmi,xma,ymi,yma,NAME)
+cs      NAME='ssue.GRD'
+cs      CALL WRITEGRD(IM,JM,IM,ssue,xmi,xma,ymi,yma,NAME)
+cs      NAME='ssve.GRD'
+cs      CALL WRITEGRD(IM,JM,IM,ssve,xmi,xma,ymi,yma,NAME)
       
 944   format('DSAA')
 945   format(2i6)

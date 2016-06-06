@@ -883,12 +883,103 @@ __global__ void adv_bot_3()
 }
 
 
+template <unsigned int blockSize>
+__global__ void reduce(float * g_idata, float * g_omindata, float * g_omaxdata, unsigned int n)
+{
+	extern __shared__ int smindata[];
+	extern __shared__ int smaxdata[];
+	unsigned int tid = threadIdx.x;
+	unsigned int i = blockIdx.x*(blockSize*2) + tid;
+	unsigned int gridSize = blockSize*2*gridDim.x;
+	
+	smindata[tid] = fminf(g_idata[i], g_idata[i+blockSize]);
+	smaxdata[tid] = fmaxf(g_idata[i], g_idata[i+blockSize]);
+	i += gridSize;
+
+	while (i < n)
+	{
+		smindata[tid] = fminf(smindata[tid], fminf(g_idata[i], g_idata[i+blockSize]));
+		smaxdata[tid] = fmaxf(smindata[tid], fmaxf(g_idata[i], g_idata[i+blockSize]));
+		
+		i += gridSize;
+	}
+	__syncthreads();
+	
+	if (blockSize >= 512) {
+		if (tid < 256) {
+			smindata[tid] = fminf(smindata[tid], smindata[tid + 256]);
+			smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 256]);
+		}
+		__syncthreads();
+	}
+	
+	if (blockSize >= 256) {
+		if (tid < 128) {
+			smindata[tid] = fminf(smindata[tid], smindata[tid + 128]);
+			smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 128]);
+		}
+		__syncthreads();
+	}
+	
+	if (blockSize >= 128) {
+		if (tid < 64) {
+			smindata[tid] = fminf(smindata[tid], smindata[tid + 64]);
+			smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 64]);
+		}
+		__syncthreads();
+	}
+	
+	if (tid < 32) {
+		if (blockSize >=64)  {
+			smindata[tid] = fminf(smindata[tid], smindata[tid + 32]);
+			smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 32]);
+		}
+
+		if (blockSize >= 32)  {
+			smindata[tid] = fminf(smindata[tid], smindata[tid + 16]);
+			smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 16]);
+		}
+
+		if (blockSize >=16)  {
+			smindata[tid] = fminf(smindata[tid], smindata[tid + 8]);
+			smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 8]);
+		}
+
+		if (blockSize >=8)  {
+			smindata[tid] = fminf(smindata[tid], smindata[tid + 4]);
+			smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 4]);
+		}
+
+		if (blockSize >=4)  {
+			smindata[tid] = fminf(smindata[tid], smindata[tid + 2]);
+			smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 2]);
+		}
+
+		if (blockSize >=2)  {
+			smindata[tid] = fminf(smindata[tid], smindata[tid + 1]);
+			smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 1]);
+		}
+
+	}
+	
+	if (tid == 0)
+	{
+		g_omindata[blockIdx.x] = smindata[0];
+		g_omaxdata[blockIdx.x] = smaxdata[0];
+	}
+}
+
+
 
 
 void KaspyCycler::findElves()
 {
 	/// DO CUDA REDUCTION instead of copying back to host mem
 
+	int threadsPerBlock = 512;
+	
+	int blocksPerData = (F_DATA_SIZE + threadsPerBlock - 1) / threadsPerBlock;
+	
 	
 	float * h_elf =  &m_fArrays->elf[0][0];
 	
@@ -1038,7 +1129,14 @@ void KaspyCycler::sendDataToGPU()
 
 void KaspyCycler::getDataToCPU()
 {
-    cudaDeviceSynchronize();
+	float * h_el =  &m_fArrays->el[0][0];
+	
+	cudaError_t err = cudaMemcpy(h_el, g_el,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);
+	
+	if (err != cudaSuccess)
+	{
+		fprintf(stderr, "Failed to update host array EL  (error code %s)!\n", cudaGetErrorString(err));
+	}
 }
 
 
@@ -1468,56 +1566,56 @@ int KaspyCycler::init_device()
 	
 	
 	// Allocate GPU memory.
-	if ( (cudaMallocManaged((void **)&g_fbu, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_fbv, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_ffu, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_ffv, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_fb, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_ff, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_fxb, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_fxf, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_fyb, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_fyf, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_wusurf, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_wvsurf, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_dum, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_dvm, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_d, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
+	if ( (cudaMalloc((void **)&g_fbu, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fbv, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ffu, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ffv, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fb, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ff, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fxb, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fxf, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fyb, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fyf, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_wusurf, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_wvsurf, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_dum, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_dvm, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_d, m_height*m_width * sizeof(float)) == cudaSuccess)
 		
-		&& (cudaMallocManaged((void **)&g_fluxua, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_fluxva, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fluxua, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fluxva, m_height*m_width * sizeof(float)) == cudaSuccess)
 		
-		&& (cudaMallocManaged((void **)&g_ua, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_va, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_uab, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_vab, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_uaf, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_vaf, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_el, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_elb, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_elf, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_fsm, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_tps, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_advua, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_advva, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_wubot, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_wvbot, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_cbc, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_h, m_height*m_width * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ua, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_va, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_uab, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_vab, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_uaf, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_vaf, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_el, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_elb, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_elf, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fsm, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_tps, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_advua, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_advva, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_wubot, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_wvbot, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_cbc, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_h, m_height*m_width * sizeof(float)) == cudaSuccess)
 		
-		&& (cudaMallocManaged((void **)&g_press0,  m_fWindData->ky *  m_fWindData->kx * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_press0,  m_fWindData->ky *  m_fWindData->kx * sizeof(float)) == cudaSuccess)
 		
-		&& (cudaMallocManaged((void **)&g_uwd0, m_fWindData->kyu * m_fWindData->kxu * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_vwd0, m_fWindData->kyv * m_fWindData->kxv * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_uwd0, m_fWindData->kyu * m_fWindData->kxu * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_vwd0, m_fWindData->kyv * m_fWindData->kxv * sizeof(float)) == cudaSuccess)
 
 		
-		&& (cudaMallocManaged((void **)&g_cor, m_height * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_aru, m_height * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_arv, m_height * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_art, m_height * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_cor, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_aru, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_arv, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_art, m_height * sizeof(float)) == cudaSuccess)
 		
-		&& (cudaMallocManaged((void **)&g_dx, m_height * sizeof(float), cudaMemAttachGlobal) == cudaSuccess)
-		&& (cudaMallocManaged((void **)&g_dy, m_height * sizeof(float), cudaMemAttachGlobal) == cudaSuccess))
+		&& (cudaMalloc((void **)&g_dx, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_dy, m_height * sizeof(float)) == cudaSuccess))
 	{
 		printf("GPU memory allocated\n");
 		
