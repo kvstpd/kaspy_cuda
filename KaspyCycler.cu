@@ -1076,18 +1076,18 @@ void KaspyCycler::makeWsurf()
 		
         itime6_old = itime6;
 		
-		/*float * p_temp;
+		float * p_temp;
 		
 		p_temp = g_fxb;
 		g_fxb = g_fxf;
 		g_fxf = p_temp;
 		
 		cudaMemcpyToSymbol(dev_fxf, &g_fxf, sizeof(float *));
-		cudaMemcpyToSymbol(dev_fxf, &g_fxf, sizeof(float *));*/
+		cudaMemcpyToSymbol(dev_fxb, &g_fxb, sizeof(float *));
 		
 		
-		if ( (cudaMemcpy(g_fxb,g_fxf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
-			&&  (cudaMemcpy(g_fyb,g_fyf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
+		if ( /*(cudaMemcpy(g_fxb,g_fxf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
+			&& */ (cudaMemcpy(g_fyb,g_fyf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
 			&& (cudaMemcpy(g_fb,g_ff, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
 			&& (cudaMemcpy(g_fbu,g_ffu, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
 			&& (cudaMemcpy(g_fbv,g_ffv, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
