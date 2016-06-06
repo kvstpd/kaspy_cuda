@@ -999,7 +999,7 @@ float * KaspyCycler::getElves()
 
 float * KaspyCycler::getSurface()
 {
-	return g_h;
+	return g_fsm;
 }
 
 

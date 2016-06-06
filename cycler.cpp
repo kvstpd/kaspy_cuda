@@ -220,10 +220,7 @@ extern "C" void cycler_wsurf_(int * icycler)
         cycler->makeWsurf();
     }
 	
-	if (defaultGlWindow)
-	{
-		defaultGlWindow->gl_draw_frame();
-	}
+
 }
 
 // Intel Fortran WIN naming
@@ -233,6 +230,11 @@ extern "C" void CYCLER_WSURF(int * icycler)
     {
         cycler->makeWsurf();
     }
+	
+	if (defaultGlWindow && (cycler->m_fVars->iint % 10 == 0 ) )
+	{
+		defaultGlWindow->gl_draw_frame();
+	}
 }
 
 

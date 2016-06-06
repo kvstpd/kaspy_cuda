@@ -121,7 +121,7 @@ DrawArrayWindow::DrawArrayWindow()
 	m_original_width  = 0;
 	m_original_height = 0;
 
-	m_brighten = 4.0f;
+	m_brighten = 64.0f;
 
 }
 
