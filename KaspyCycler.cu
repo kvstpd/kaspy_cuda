@@ -725,8 +725,8 @@ __global__ void tps_and_other_arrays_4()
 		dev_ua[ji]=dev_ua[ji]+0.5f*dev_smoth*(dev_uab[ji]-2.0f*dev_ua[ji]+dev_uaf[ji]);
 		dev_va[ji]=dev_va[ji]+0.5f*dev_smoth*(dev_vab[ji]-2.0f*dev_va[ji]+dev_vaf[ji]);
 		dev_el[ji]=dev_el[ji]+0.5f*dev_smoth*(dev_elb[ji]-2.0f*dev_el[ji]+dev_elf[ji]);
-		//dev_elb[ji]=dev_el[ji];  // OP
-		//dev_el[ji]=dev_elf[ji];  // OP
+		dev_elb[ji]=dev_el[ji];  // OP
+		dev_el[ji]=dev_elf[ji];  // OP
 		dev_d[ji]=dev_h[ji]+dev_elf[ji];
 		dev_uab[ji]=dev_ua[ji];  // OP
 		dev_ua[ji]=dev_uaf[ji];  // OP
@@ -1414,12 +1414,12 @@ void KaspyCycler::makeWsurf()
 		printf("error calling tps_and_other_arrays_4 kernel! \n");
 	}
 	
-	swap_arrays_5<<<1, 1>>>();
+	/*swap_arrays_5<<<1, 1>>>();
 	
 	if (cudaGetLastError() != cudaSuccess)
 	{
 		printf("error calling swap_arrays_5 kernel! \n");
-	}
+	}*/
 	
 	//dev_elb[ji]=dev_el[ji];  // OP
 	//dev_el[ji]=dev_elf[ji];  // OP
