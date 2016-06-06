@@ -4,6 +4,8 @@ F_LIBPATH := c:/Program Files (x86)/Intel/ComposerXE-2011/compiler/lib/intel64
 SDK_LIBPATH := c:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/x64
 CUDA_LIBPATH := c:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v7.5/lib/x64
 
+GLUT_LIBPATH := c:/ProgramData/NVIDIA Corporation/CUDA Samples/v7.5/common/lib/x64
+
 C_INCPATH := c:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/include
 
 C_GLUT_INCPATH := c:/ProgramData/NVIDIA Corporation/CUDA Samples/v7.5/common/inc
