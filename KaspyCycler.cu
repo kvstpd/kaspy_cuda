@@ -735,9 +735,17 @@ __global__ void tps_and_other_arrays_4()
 		
 	}
 
+
+}
+
+__global__ void swap_arrays_5()
+{
+	float * temp;
 	
-	
-	
+	temp = dev_elb;
+	dev_elb=dev_el;
+	dev_el=dev_elf;
+	dev_elf = temp;
 }
 
 
@@ -1404,18 +1412,24 @@ void KaspyCycler::makeWsurf()
 		printf("error calling tps_and_other_arrays_4 kernel! \n");
 	}
 	
+	swap_arrays_5<<<1, 1>>>();
+	
+	if (cudaGetLastError() != cudaSuccess)
+	{
+		printf("error calling swap_arrays_5 kernel! \n");
+	}
 	
 	//dev_elb[ji]=dev_el[ji];  // OP
 	//dev_el[ji]=dev_elf[ji];  // OP
 	
-	p_temp = g_elb;
+	/*p_temp = g_elb;
 	g_elb = g_el;
 	g_el = g_elf;
 	g_elf = p_temp;
 	
 	cudaMemcpyToSymbol(dev_elf, &g_elf, sizeof(float *));
 	cudaMemcpyToSymbol(dev_elb, &g_elb, sizeof(float *));
-	cudaMemcpyToSymbol(dev_el, &g_el, sizeof(float *));
+	cudaMemcpyToSymbol(dev_el, &g_el, sizeof(float *));*/
 
 
 }
