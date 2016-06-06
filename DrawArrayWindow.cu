@@ -188,6 +188,7 @@ int DrawArrayWindow::gl_init(int device)
 
 	currentWindow = this;
 
+	setbuf(stdout,NULL);
     printf("GL init finished\n");
     
 	return 0;

@@ -122,12 +122,14 @@ extern "C" int cycler_load_(int * icycler)
 		
 		if (device >= 0)
 		{
+			setbuf(stdout,NULL);
+			printf("before init GL\n");
 			if (defaultGlWindow->gl_init(device) >= 0)
 			{
 				
 				cycler->sendDataToGPU();
 				
-				//defaultGlWindow->set_data_to_display(cycler->getElves(), cycler->getSurface(), F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
+				defaultGlWindow->set_data_to_display(cycler->getElves(), cycler->getSurface(), F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
 				
 				return 1;
 			}
