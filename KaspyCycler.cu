@@ -725,8 +725,8 @@ __global__ void tps_and_other_arrays_4()
 		dev_ua[ji]=dev_ua[ji]+0.5f*dev_smoth*(dev_uab[ji]-2.0f*dev_ua[ji]+dev_uaf[ji]);
 		dev_va[ji]=dev_va[ji]+0.5f*dev_smoth*(dev_vab[ji]-2.0f*dev_va[ji]+dev_vaf[ji]);
 		dev_el[ji]=dev_el[ji]+0.5f*dev_smoth*(dev_elb[ji]-2.0f*dev_el[ji]+dev_elf[ji]);
-		dev_elb[ji]=dev_el[ji];  // OP
-		dev_el[ji]=dev_elf[ji];  // OP
+		//dev_elb[ji]=dev_el[ji];  // OP
+		//dev_el[ji]=dev_elf[ji];  // OP
 		dev_d[ji]=dev_h[ji]+dev_elf[ji];
 		//dev_uab[ji]=dev_ua[ji];  // OP
 		//dev_ua[ji]=dev_uaf[ji];  // OP
@@ -741,6 +741,12 @@ __global__ void tps_and_other_arrays_4()
 __global__ void swap_arrays_5()
 {
 	float * t;
+	
+	t = dev_elb;
+	dev_elb = dev_el;
+	dev_el = dev_elf;
+	dev_elf = t;
+	
 	
 	t = dev_uab;
 	dev_uab = dev_ua;
