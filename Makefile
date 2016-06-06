@@ -31,7 +31,7 @@ test : build/kaspy_cuda.exe
 	cd build && pwd && ./kaspy_cuda.exe
 
 build/kaspy_cuda.exe : kaspy.obj KaspyCycler.obj DrawArrayWindow.obj cycler.obj
-	link $+ $(CUDA_LIBS) $(GLUT_LIBS) /OUT:$@ $(LINK_OPTS) /LIBPATH:"$(F_LIBPATH)" /LIBPATH:"$(C_LIBPATH)" /LIBPATH:"$(SDK_LIBPATH)" /LIBPATH:"$(CUDA_LIBPATH)"
+	link $+ $(CUDA_LIBS) $(GLUT_LIBS) /OUT:$@ $(LINK_OPTS) /LIBPATH:"$(F_LIBPATH)" /LIBPATH:"$(C_LIBPATH)" /LIBPATH:"$(SDK_LIBPATH)" /LIBPATH:"$(CUDA_LIBPATH)" /LIBPATH:"$(GLUT_LIBPATH)"
 
 KaspyCycler.obj: KaspyCycler.cu
 	nvcc $< --compile $(NV_OPTS)
