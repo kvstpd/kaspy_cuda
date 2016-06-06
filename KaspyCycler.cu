@@ -1152,6 +1152,13 @@ void KaspyCycler::getDataToCPU()
 {
 	float * h_el =  &m_fArrays->el[0][0];
 	
+	printf("el address was: %llx", g_el);
+
+	cudaMemcpyFromSymbol (&g_el, dev_el, sizeof(float *), 0,cudaMemcpyDeviceToHost);
+	
+	printf("Now el address is: %llx", g_el);
+	
+	
 	cudaError_t err = cudaMemcpy(h_el, g_el,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);
 	
 	if (err != cudaSuccess)
