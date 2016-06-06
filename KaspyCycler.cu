@@ -730,8 +730,8 @@ __global__ void tps_and_other_arrays_4()
 		dev_d[ji]=dev_h[ji]+dev_elf[ji];
 		//dev_uab[ji]=dev_ua[ji];  // OP
 		//dev_ua[ji]=dev_uaf[ji];  // OP
-		dev_vab[ji]=dev_va[ji];  // OP
-		dev_va[ji]=dev_vaf[ji];  // OP
+		//dev_vab[ji]=dev_va[ji];  // OP
+		//dev_va[ji]=dev_vaf[ji];  // OP
 		
 	}
 	
@@ -746,6 +746,11 @@ __global__ void swap_arrays_5()
 	dev_uab = dev_ua;
 	dev_ua = dev_uaf;
 	dev_uaf = t;
+	
+	t = dev_vab;
+	dev_vab = dev_va;
+	dev_va = dev_vaf;
+	dev_vaf = t;
 }
 
 
