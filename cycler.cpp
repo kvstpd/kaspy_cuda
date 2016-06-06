@@ -118,7 +118,9 @@ extern "C" int cycler_load_(int * icycler)
 {
     if (cycler)
     {
-		if ((int device = cycler->init_device()) >= 0)
+		int device = cycler->init_device();
+		
+		if (device >= 0)
 		{
 			if (defaultGlWindow->gl_init(device) >= 0)
 			{
