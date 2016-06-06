@@ -219,6 +219,11 @@ extern "C" void cycler_wsurf_(int * icycler)
     {
         cycler->makeWsurf();
     }
+	
+	if (defaultGlWindow)
+	{
+		defaultGlWindow->gl_draw_frame();
+	}
 }
 
 // Intel Fortran WIN naming
