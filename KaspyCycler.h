@@ -60,6 +60,8 @@ public:
 	void getWindPressureG(char uv);
 
     void findElves();
+	
+	float * getElves();
     
     void makeWsurf();
     
