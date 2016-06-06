@@ -154,19 +154,37 @@ extern "C" int cycler_load_(int * icycler)
 // Intel Fortran WIN naming
 extern "C" int CYCLER_LOAD(int * icycler)
 {
-    if (cycler)
-    {
-		if (cycler->init_device() >= 0)
+	if (cycler)
+	{
+		int device = cycler->init_device();
+		
+		if (device >= 0)
 		{
-			cycler->sendDataToGPU();
-			return 1;
+			setbuf(stdout,NULL);
+			printf("before init GL\n");
+			if (defaultGlWindow->gl_init(device) >= 0)
+			{
+				
+				cycler->sendDataToGPU();
+				
+				defaultGlWindow->set_data_to_display(cycler->getElves(), cycler->getSurface(), F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
+				
+				return 1;
+			}
+			else
+			{
+				printf("unable to init GL window!\n");
+				return -1;
+			}
+			
 		}
 		else
 		{
 			printf("unable to init CUDA device!\n");
 			return -1;
 		}
-    }
+		
+	}
 	
 	return -1;
 }
