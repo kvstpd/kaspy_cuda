@@ -6,6 +6,8 @@ CUDA_LIBPATH := c:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v7.5/lib/x64
 
 C_INCPATH := c:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/include
 
+C_GLUT_INCPATH := c:/ProgramData/NVIDIA Corporation/CUDA Samples/v7.5/common/inc
+
 CUDA_LIBS := cudart_static.lib
 
 F_OPTS := /Zp8
@@ -14,7 +16,7 @@ F_OPTS := /Zp8
 C_OPTS := /favor:INTEL64 /Zp8
 #/Ox /favor:INTEL64 /Zp16
 
-NV_OPTS :=  -gencode arch=compute_30,code=compute_30 --machine 64 --optimize 3 -I"$(C_INCPATH)" --compiler-options "$(C_OPTS)"
+NV_OPTS :=  -gencode arch=compute_30,code=compute_30 --machine 64 --optimize 3 -I"$(C_INCPATH)" -I"$(C_GLUT_INCPATH)" --compiler-options "$(C_OPTS)"
 
 LINK_OPTS := /MACHINE:X64 /SUBSYSTEM:CONSOLE
 
