@@ -141,6 +141,8 @@ int DrawArrayWindow::gl_init(int device)
 {
 	int argc = 0;
 
+	setbuf(stdout,NULL);
+    printf("starting to init GL\n");
 
     glutInit(&argc, 0);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
@@ -186,6 +188,8 @@ int DrawArrayWindow::gl_init(int device)
 
 	currentWindow = this;
 
+    printf("GL init finished\n");
+    
 	return 0;
 }
 

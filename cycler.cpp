@@ -122,20 +122,20 @@ extern "C" int cycler_load_(int * icycler)
 		
 		if (device >= 0)
 		{
-			//if (defaultGlWindow->gl_init(device) >= 0)
-			//{
+			if (defaultGlWindow->gl_init(device) >= 0)
+			{
 				
 				cycler->sendDataToGPU();
 				
 				//defaultGlWindow->set_data_to_display(cycler->getElves(), cycler->getSurface(), F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
 				
 				return 1;
-			//}
-			//else
-			//{
-			//	printf("unable to init GL window!\n");
-			//	return -1;
-			//}
+			}
+			else
+			{
+				printf("unable to init GL window!\n");
+				return -1;
+			}
 
 		}
 		else
@@ -238,14 +238,14 @@ void _i_cycler_destroy(int * icycler)
 	
 	
 	
-	/*if (defaultGlWindow)
+	if (defaultGlWindow)
 	{
 		defaultGlWindow->gl_deinit();
 		
 		delete defaultGlWindow;
 		
 		defaultGlWindow = 0;
-	}*/
+	}
 	
 	if (cycler)
     {

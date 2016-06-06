@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		2B8EC9B21D05CB80001CE377 /* DrawArrayWindow.cu */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawArrayWindow.cu; sourceTree = "<group>"; };
+		2B8EC9B21D05CB80001CE377 /* DrawArrayWindow.cu */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawArrayWindow.cu; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		2B8EC9B31D05CB80001CE377 /* DrawArrayWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DrawArrayWindow.h; sourceTree = "<group>"; };
 		2BA310AD1CF4582C00F501CF /* KaspyCycler.cu */ = {isa = PBXFileReference; lastKnownFileType = text; path = KaspyCycler.cu; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		2BA310AE1CF4582C00F501CF /* KaspyCycler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KaspyCycler.h; sourceTree = "<group>"; };
