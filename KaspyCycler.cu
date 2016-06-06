@@ -725,8 +725,8 @@ __global__ void tps_and_other_arrays_4()
 		dev_ua[ji]=dev_ua[ji]+0.5f*dev_smoth*(dev_uab[ji]-2.0f*dev_ua[ji]+dev_uaf[ji]);
 		dev_va[ji]=dev_va[ji]+0.5f*dev_smoth*(dev_vab[ji]-2.0f*dev_va[ji]+dev_vaf[ji]);
 		dev_el[ji]=dev_el[ji]+0.5f*dev_smoth*(dev_elb[ji]-2.0f*dev_el[ji]+dev_elf[ji]);
-		dev_elb[ji]=dev_el[ji];  // OP
-		dev_el[ji]=dev_elf[ji];  // OP
+		//dev_elb[ji]=dev_el[ji];  // OP
+		//dev_el[ji]=dev_elf[ji];  // OP
 		dev_d[ji]=dev_h[ji]+dev_elf[ji];
 		dev_uab[ji]=dev_ua[ji];  // OP
 		dev_ua[ji]=dev_uaf[ji];  // OP
@@ -734,6 +734,9 @@ __global__ void tps_and_other_arrays_4()
 		dev_va[ji]=dev_vaf[ji];  // OP
 		
 	}
+
+	
+	
 	
 }
 
@@ -981,9 +984,9 @@ void KaspyCycler::findElves()
 	int blocksPerData = (F_DATA_SIZE + threadsPerBlock - 1) / threadsPerBlock;
 	
 	
-	float * h_elf =  &m_fArrays->elf[0][0];
+	float * h_el =  &m_fArrays->el[0][0];
 	
-	cudaError_t err = cudaMemcpy(h_elf, g_elf,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);
+	cudaError_t err = cudaMemcpy(h_el, g_el,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);
 	
 	if (err != cudaSuccess)
 	{
@@ -992,19 +995,19 @@ void KaspyCycler::findElves()
 	
 
 	
-	float elf_min = h_elf[0];
-    float elf_max = h_elf[0];
+	float elf_min = h_el[0];
+    float elf_max = h_el[0];
     
     for (int i=1; i<F_DATA_SIZE; i++)
     {
-        if (h_elf[i] > elf_max)
+        if (h_el[i] > elf_max)
         {
-            elf_max = h_elf[i];
+            elf_max = h_el[i];
         }
         
-        if (h_elf[i] < elf_min)
+        if (h_el[i] < elf_min)
         {
-            elf_min = h_elf[i];
+            elf_min = h_el[i];
         }
     }
 	
@@ -1144,7 +1147,9 @@ void KaspyCycler::getDataToCPU()
 
 void KaspyCycler::makeWsurf()
 {
-    m_fVars->timeh6 = (m_fVars->timeh / m_fVars->dht) + 1.0f;
+	float * p_temp;
+
+	m_fVars->timeh6 = (m_fVars->timeh / m_fVars->dht) + 1.0f;
 
     float timeh6 = (float)m_fVars->timeh6;
 	
@@ -1174,7 +1179,6 @@ void KaspyCycler::makeWsurf()
 		
         itime6_old = itime6;
 		
-		float * p_temp;
 		
 		p_temp = g_fxb;
 		g_fxb = g_fxf;
@@ -1399,6 +1403,19 @@ void KaspyCycler::makeWsurf()
 	{
 		printf("error calling tps_and_other_arrays_4 kernel! \n");
 	}
+	
+	
+	//dev_elb[ji]=dev_el[ji];  // OP
+	//dev_el[ji]=dev_elf[ji];  // OP
+	
+	p_temp = g_elb;
+	g_elb = g_el;
+	g_el = p_elf;
+	g_elf = g_elb;
+	
+	cudaMemcpyToSymbol(dev_elf, &g_elf, sizeof(float *));
+	cudaMemcpyToSymbol(dev_elb, &g_elb, sizeof(float *));
+	cudaMemcpyToSymbol(dev_el, &g_el, sizeof(float *));
 
 
 }
