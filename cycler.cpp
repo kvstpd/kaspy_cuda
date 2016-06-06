@@ -14,12 +14,16 @@
 
 #include "KaspyCycler.h"
 
+#include "DrawArrayWindow.h"
+
 
 
 
 double last_measured_time = 0.0;
 
 KaspyCycler * cycler = 0;
+
+DrawArrayWindow  * defaultGlWindow = 0;
 
 
 void _i_cycler_time()
@@ -76,7 +80,9 @@ int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats
     
     
     _i_cycler_time();
-    
+	
+	defaultGlWindow = new DrawArrayWindow();
+	
     cycler = new KaspyCycler((fortran_common_vars *)vars_marker,
                              (fortran_common_arrays *)arrays_marker, (fortran_ffloats *)ffloats_marker,
                              (fortran_wind_data *)wind_marker,
@@ -112,10 +118,21 @@ extern "C" int cycler_load_(int * icycler)
 {
     if (cycler)
     {
-		if (cycler->init_device() >= 0)
+		if ((int device = cycler->init_device()) >= 0)
 		{
-			cycler->sendDataToGPU();
-			return 1;
+			if (defaultGlWindow->gl_init(device) >= 0)
+			{
+
+				
+				cycler->sendDataToGPU();
+				return 1;
+			}
+			else
+			{
+				printf("unable to init GL window!\n");
+				return -1;
+			}
+
 		}
 		else
 		{
@@ -214,8 +231,19 @@ extern "C" void CYCLER_FIND_ELVES(int * icycler)
 void _i_cycler_destroy(int * icycler)
 {
     _i_cycler_time();
-    
-    if (cycler)
+	
+	
+	
+	if (defaultGlWindow)
+	{
+		defaultGlWindow->gl_deinit();
+		
+		delete defaultGlWindow;
+		
+		defaultGlWindow = 0;
+	}
+	
+	if (cycler)
     {
 		cycler->deinit_device();
 		
