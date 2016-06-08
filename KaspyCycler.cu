@@ -902,7 +902,7 @@ __global__ void adv_bot_3()
 		*dev_uab[ji];
 		
 		dev_wvbot[ji]=-0.5f*(dev_cbc[ji]+dev_cbc[jm1i])
-		* hypotf(.25ef*(dev_uab[ji]+dev_uab[jip1]+dev_uab[jm1i]+dev_uab[jm1ip1]), dev_vab[ji])
+		* hypotf(.25f*(dev_uab[ji]+dev_uab[jip1]+dev_uab[jm1i]+dev_uab[jm1ip1]), dev_vab[ji])
 		* dev_vab[ji];
 	}
 }
