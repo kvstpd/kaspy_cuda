@@ -1026,6 +1026,8 @@ void KaspyCycler::findElves()
 	{
 		fprintf(stderr, "Failed to update host array ELF  (error code %s)!\n", cudaGetErrorString(err));
 		
+		deinit_device();
+		
 		exit(-1);
 	}
 	
