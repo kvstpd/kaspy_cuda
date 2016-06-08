@@ -1017,11 +1017,13 @@ void KaspyCycler::findElves()
 	
 	int blocksPerData = (F_DATA_SIZE + threadsPerBlock - 1) / threadsPerBlock;
 	
+	cudaError_t err;
+	
 	//(float * g_idata, float * g_omindata, float * g_omaxdata, unsigned int n)
 	
-	reduce_elves<512><<<blocksPerData, threadsPerBlock, threadsPerBlock>>>(g_elf, g_elf_r, g_elf_r + F_DATA_SIZE/2, F_DATA_SIZE);
+	/*reduce_elves<512><<<blocksPerData, threadsPerBlock, threadsPerBlock>>>(g_elf, g_elf_r, g_elf_r + F_DATA_SIZE/2, F_DATA_SIZE);
 	
-	cudaError_t err = cudaGetLastError();
+	err = cudaGetLastError();
 	
 	if(err != cudaSuccess)
 	{
@@ -1031,7 +1033,7 @@ void KaspyCycler::findElves()
 		
 		exit(-1);
 	}
-	
+	*/
 	
 	float * h_elf =  &m_fArrays->elf[0][0];
 	
