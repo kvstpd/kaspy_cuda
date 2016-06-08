@@ -1022,6 +1022,14 @@ void KaspyCycler::findElves()
 	reduce_elves<512><<<blocksPerData, threadsPerBlock, threadsPerBlock>>>(g_elf, g_elf_r, g_elf_r + F_DATA_SIZE/2, F_DATA_SIZE);
 	
 	
+	if(cudaGetLastError() != cudaSuccess)
+	{
+		fprintf(stderr, "Failed to update host array ELF  (error code %s)!\n", cudaGetErrorString(err));
+		
+		exit(-1);
+	}
+	
+	
 	float * h_elf =  &m_fArrays->elf[0][0];
 	
 	cudaError_t err = cudaMemcpy(h_elf, g_elf,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);

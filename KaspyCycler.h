@@ -9,6 +9,7 @@
 #ifndef KaspyCycler_hpp
 #define KaspyCycler_hpp
 
+#include <stdlib.h>
 #include <stdio.h>
 
 #include "fortran_vars.h"
