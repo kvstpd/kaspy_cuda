@@ -911,8 +911,8 @@ __global__ void adv_bot_3()
 template <unsigned int blockSize>
 __global__ void reduce_elves(float * g_idata, float * g_omindata, float * g_omaxdata, unsigned int n)
 {
-	extern __shared__ int smindata[];
-	extern __shared__ int smaxdata[];
+	extern __shared__ float smindata[];
+	extern __shared__ float smaxdata[];
 
 	
 	unsigned int tid = threadIdx.x;
@@ -1023,9 +1023,9 @@ void KaspyCycler::findElves()
 	
 	//(float * g_idata, float * g_omindata, float * g_omaxdata, unsigned int n)
 	
-	reduce_elves<512><<<blocksPerData, threadsPerBlock, threadsPerBlock>>>(g_elf, g_elf_r, g_elf_r + F_DATA_SIZE/2, F_DATA_SIZE);
+	reduce_elves<512><<<blocksPerData, threadsPerBlock, threadsPerBlock * sizeof(float)>>>(g_elf, g_elf_r, g_elf_r + F_DATA_SIZE/2, F_DATA_SIZE);
 	
-	/*err = cudaGetLastError();
+	err = cudaGetLastError();
 	
 	if(err != cudaSuccess)
 	{
@@ -1035,7 +1035,7 @@ void KaspyCycler::findElves()
 		
 		exit(-1);
 	}
-	*/
+	
 	
 	float * h_elf =  &m_fArrays->elf[0][0];
 	
@@ -1044,6 +1044,10 @@ void KaspyCycler::findElves()
 	if (err != cudaSuccess)
 	{
 		fprintf(stderr, "Failed to update host array ELF  (error code %s)!\n", cudaGetErrorString(err));
+		
+		deinit_device();
+		
+		exit(-1);
 	}
 	
 
@@ -1121,6 +1125,10 @@ void KaspyCycler::sendDataToGPU()
 	else
 	{
 		printf("GPU memory copy error (error code %s)!\n", cudaGetErrorString(cudaGetLastError()));
+		
+		deinit_device();
+		
+		exit(-1);
 	}
 	
 	
@@ -1178,6 +1186,9 @@ void KaspyCycler::sendDataToGPU()
 	{
 		printf("GPU memory copy error!\n");
 
+		deinit_device();
+		
+		exit(-1);
 	}
 	
 	
@@ -1199,6 +1210,10 @@ void KaspyCycler::getDataToCPU()
 	if (err != cudaSuccess)
 	{
 		fprintf(stderr, "Failed to update host array EL  (error code %s)!\n", cudaGetErrorString(err));
+		
+		deinit_device();
+		
+		exit(-1);
 	}
 }
 
@@ -1297,6 +1312,10 @@ void KaspyCycler::makeWsurf()
 		else
 		{
 			printf("GPU memory copy error!\n");
+			
+			deinit_device();
+			
+			exit(-1);
 		}
 		
 
@@ -1315,6 +1334,10 @@ void KaspyCycler::makeWsurf()
 		else
 		{
 			printf("GPU memory copy error!\n");
+			
+			deinit_device();
+			
+			exit(-1);
 		}
 		
 
@@ -1331,6 +1354,10 @@ void KaspyCycler::makeWsurf()
 		else
 		{
 			printf("GPU memory copy error!\n");
+			
+			deinit_device();
+			
+			exit(-1);
 		}
 
 		getWindPressure('v');
