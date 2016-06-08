@@ -909,14 +909,11 @@ __global__ void adv_bot_3()
 
 
 template <unsigned int blockSize>
-__global__ void reduce_elves(unsigned int n)
+__global__ void reduce_elves(float * g_idata, float * g_omindata, float * g_omaxdata, unsigned int n)
 {
 	extern __shared__ int smindata[];
 	extern __shared__ int smaxdata[];
-	
-	float * g_idata = dev_elf;
-	float * g_omindata = dev_elf_r;
-	float * g_omaxdata = dev_elf_r + (F_DATA_SIZE / 2);
+
 	
 	unsigned int tid = threadIdx.x;
 	unsigned int i = blockIdx.x*(blockSize*2) + tid;
@@ -1019,6 +1016,10 @@ void KaspyCycler::findElves()
 	int threadsPerBlock = 512;
 	
 	int blocksPerData = (F_DATA_SIZE + threadsPerBlock - 1) / threadsPerBlock;
+	
+	//(float * g_idata, float * g_omindata, float * g_omaxdata, unsigned int n)
+	
+	reduce_elves<512><<<blocksPerData, threadsPerBlock, threadsPerBlock>>>(g_elf, g_elf_r, g_elf_r + F_DATA_SIZE/2, F_DATA_SIZE);
 	
 	
 	float * h_elf =  &m_fArrays->elf[0][0];
