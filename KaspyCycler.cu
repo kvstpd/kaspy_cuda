@@ -60,6 +60,8 @@ __device__ float * dev_el = 0;
 __device__ float * dev_elf = 0;
 __device__ float * dev_elb = 0;
 
+__device__ float * dev_elf_r = 0;
+
 __device__ float * dev_fsm = 0;
 
 __device__ float * dev_tps = 0;
@@ -134,6 +136,8 @@ float * g_vaf = 0;
 float * g_el = 0;
 float * g_elf = 0;
 float * g_elb = 0;
+
+float * g_elf_r = 0;
 
 float * g_fsm = 0;
 
@@ -894,21 +898,26 @@ __global__ void adv_bot_3()
 	if (i > 0 && j > 0 && i < dev_widthm1 && j < dev_heightm1)
 	{
 		dev_wubot[ji]=-0.5f*(dev_cbc[ji]+dev_cbc[jim1])
-		*sqrtf(dev_uab[ji]*dev_uab[ji]+powf(0.25f*(dev_vab[ji]
-											   +dev_vab[jp1i]+dev_vab[jim1]+dev_vab[jp1im1]), 2) )*dev_uab[ji];
+		* hypotf(dev_uab[ji], 0.25f*(dev_vab[ji] +dev_vab[jp1i]+dev_vab[jim1]+dev_vab[jp1im1]))
+		*dev_uab[ji];
 		
 		dev_wvbot[ji]=-0.5f*(dev_cbc[ji]+dev_cbc[jm1i])
-		*sqrtf(powf(.25e0*(dev_uab[ji]+dev_uab[jip1]
-						   +dev_uab[jm1i]+dev_uab[jm1ip1]), 2)+dev_vab[ji]*dev_vab[ji])*dev_vab[ji];
+		* hypotf(.25ef*(dev_uab[ji]+dev_uab[jip1]+dev_uab[jm1i]+dev_uab[jm1ip1]), dev_vab[ji])
+		* dev_vab[ji];
 	}
 }
 
 
 template <unsigned int blockSize>
-__global__ void reduce(float * g_idata, float * g_omindata, float * g_omaxdata, unsigned int n)
+__global__ void reduce_elves(unsigned int n)
 {
 	extern __shared__ int smindata[];
 	extern __shared__ int smaxdata[];
+	
+	float * g_idata = dev_elf;
+	float * g_omindata = dev_elf_r;
+	float * g_omaxdata = dev_elf_r + (F_DATA_SIZE / 2);
+	
 	unsigned int tid = threadIdx.x;
 	unsigned int i = blockIdx.x*(blockSize*2) + tid;
 	unsigned int gridSize = blockSize*2*gridDim.x;
@@ -1661,6 +1670,7 @@ int KaspyCycler::init_device()
 		&& (cudaMalloc((void **)&g_el, m_height*m_width * sizeof(float)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_elb, m_height*m_width * sizeof(float)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_elf, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_elf_r, m_height* m_width * sizeof(float)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_fsm, m_height*m_width * sizeof(float)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_tps, m_height*m_width * sizeof(float)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_advua, m_height*m_width * sizeof(float)) == cudaSuccess)
@@ -1725,6 +1735,7 @@ int KaspyCycler::init_device()
 		&& (cudaMemcpyToSymbol(dev_vaf, &g_vaf, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_el, &g_el, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_elf, &g_elf, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_elf_r, &g_elf_r, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_elb, &g_elb, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_fsm, &g_fsm, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_tps, &g_tps, sizeof(float *)) == cudaSuccess)
@@ -1894,6 +1905,11 @@ void KaspyCycler::deinit_device()
 		if (g_elf)
 		{
 			cudaFree(g_elf);
+		}
+		
+		if (g_elf_r)
+		{
+			cudaFree(g_elf_r);
 		}
 		
 		if (g_fsm)
