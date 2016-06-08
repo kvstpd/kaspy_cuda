@@ -1019,11 +1019,13 @@ void KaspyCycler::findElves()
 	
 	cudaError_t err;
 	
+	fprintf(stderr, "Reducing elves\n");
+	
 	//(float * g_idata, float * g_omindata, float * g_omaxdata, unsigned int n)
 	
-	/*reduce_elves<512><<<blocksPerData, threadsPerBlock, threadsPerBlock>>>(g_elf, g_elf_r, g_elf_r + F_DATA_SIZE/2, F_DATA_SIZE);
+	reduce_elves<512><<<blocksPerData, threadsPerBlock, threadsPerBlock>>>(g_elf, g_elf_r, g_elf_r + F_DATA_SIZE/2, F_DATA_SIZE);
 	
-	err = cudaGetLastError();
+	/*err = cudaGetLastError();
 	
 	if(err != cudaSuccess)
 	{
