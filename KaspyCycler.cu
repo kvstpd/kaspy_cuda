@@ -91,6 +91,10 @@ __device__ float * dev_cor = 0;
 
 __device__ float * dev_h = 0;
 
+__device__ float * dev_press = 0;
+__device__ float * dev_uwd = 0;
+__device__ float * dev_vwd = 0;
+
 __device__ float * dev_press0 = 0;
 __device__ float * dev_uwd0 = 0;
 __device__ float * dev_vwd0 = 0;
@@ -167,6 +171,10 @@ float * g_cbc = 0;
 float * g_cor = 0;
 
 float * g_h = 0;
+
+float * g_press = 0;
+float * g_uwd = 0;
+float * g_vwd = 0;
 
 float * g_press0 = 0;
 float * g_uwd0 = 0;
@@ -1052,6 +1060,11 @@ void KaspyCycler::sendDataToGPU()
 	
 	
 	size_t s_data_size =  m_height * m_width *  sizeof(float);
+
+	size_t press_data_size =  m_fWindData->ky *  m_fWindData->kx * m_fWindData->kt * sizeof(float);
+	size_t uwd_data_size =  m_fWindData->kyu *  m_fWindData->kxu * m_fWindData->ktu * sizeof(float);
+	size_t vwd_data_size =  m_fWindData->kyv *  m_fWindData->kxv * m_fWindData->ktv * sizeof(float);
+
 	
 	if ( (cudaMemcpy(g_fbu,&m_fFloats->fbu[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_fbv,&m_fFloats->fbv[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
@@ -1089,6 +1102,11 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpy(g_wvbot,&m_fArrays->wvbot[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_cbc,&m_fArrays->cbc[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_h,&m_fArrays->h[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		
+		&& (cudaMemcpy(g_press,&m_press[0],press_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy(g_uwd,&m_uwd[0],uwd_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy(g_vwd,&m_vwd[0],vwd_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		
 		
 		
 		&& (cudaMemcpy(g_cor, &m_fArrays->cor[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
@@ -1224,7 +1242,9 @@ void KaspyCycler::makeWsurf()
 
        // memcpy(g_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
 		
-		if ( (cudaMemcpy(g_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
+		g_press0 = g_press + (itime6 - 1) * pressSize;
+		
+		/*if ( (cudaMemcpy(g_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
 		{
 			//printf("pressure data copied \n");
 		}
@@ -1235,7 +1255,7 @@ void KaspyCycler::makeWsurf()
 			deinit_device();
 			
 			exit(-1);
-		}
+		}*/
 		
 
 		getWindPressure('p');
@@ -1246,7 +1266,9 @@ void KaspyCycler::makeWsurf()
 		
 		//memcpy(g_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
 		
-		if ( (cudaMemcpy(g_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
+		g_uwd0 =  g_uwd + (itime6 - 1) * windUSize;
+		
+		/*if ( (cudaMemcpy(g_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
 		{
 			//printf("wind U data copied \n");
 		}
@@ -1257,7 +1279,7 @@ void KaspyCycler::makeWsurf()
 			deinit_device();
 			
 			exit(-1);
-		}
+		}*/
 		
 
 		getWindPressure('u');
@@ -1266,7 +1288,9 @@ void KaspyCycler::makeWsurf()
 		//size_t s_wv_width = m_fWindData->kxv * sizeof(float);
 		
 		
-		if ( (cudaMemcpy(g_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
+		g_vwd0 = g_vwd + (itime6 - 1) * windVSize;
+		
+		/*if ( (cudaMemcpy(g_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
 		{
 			//printf("wind V data copied \n");
 		}
@@ -1277,7 +1301,7 @@ void KaspyCycler::makeWsurf()
 			deinit_device();
 			
 			exit(-1);
-		}
+		}*/
 
 		getWindPressure('v');
 
@@ -1642,10 +1666,10 @@ int KaspyCycler::init_device()
 		&& (cudaMalloc((void **)&g_cbc, m_height*m_width * sizeof(float)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_h, m_height*m_width * sizeof(float)) == cudaSuccess)
 		
-		&& (cudaMalloc((void **)&g_press0,  m_fWindData->ky *  m_fWindData->kx * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_press,  m_fWindData->ky *  m_fWindData->kx * m_fWindData->kt * sizeof(float)) == cudaSuccess)
 		
-		&& (cudaMalloc((void **)&g_uwd0, m_fWindData->kyu * m_fWindData->kxu * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_vwd0, m_fWindData->kyv * m_fWindData->kxv * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_uwd, m_fWindData->kyu * m_fWindData->kxu * m_fWindData->ktu * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_vwd, m_fWindData->kyv * m_fWindData->kxv * m_fWindData->ktv * sizeof(float)) == cudaSuccess)
 
 		
 		&& (cudaMalloc((void **)&g_cor, m_height * sizeof(float)) == cudaSuccess)
@@ -1717,9 +1741,9 @@ int KaspyCycler::init_device()
 		&& (cudaMemcpyToSymbol(dev_cbc, &g_cbc, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_cor, &g_cor, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_h, &g_h, sizeof(float *)) == cudaSuccess)
-		&& (cudaMemcpyToSymbol(dev_press0, &g_press0, sizeof(float *)) == cudaSuccess)
-		&& (cudaMemcpyToSymbol(dev_uwd0, &g_uwd0, sizeof(float *)) == cudaSuccess)
-		&& (cudaMemcpyToSymbol(dev_vwd0, &g_vwd0, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_press, &g_press, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_uwd, &g_uwd, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_vwd, &g_vwd, sizeof(float *)) == cudaSuccess)
 		)
 	{
 		printf("Device pointers initialized\n");
@@ -1939,20 +1963,20 @@ void KaspyCycler::deinit_device()
 			cudaFree(g_cor);
 		}
 		
-		if (g_press0)
+		if (g_press)
 		{
-			cudaFree(g_press0);
+			cudaFree(g_press);
 		}
 		
 		
-		if (g_uwd0)
+		if (g_uwd)
 		{
-			cudaFree(g_uwd0);
+			cudaFree(g_uwd);
 		}
 		
-		if (g_vwd0)
+		if (g_vwd)
 		{
-			cudaFree(g_vwd0);
+			cudaFree(g_vwd);
 		}
 		
 		if (d_temp_storage)

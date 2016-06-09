@@ -80,7 +80,7 @@ public:
     fortran_wind_data * m_fWindData;
     
     float * m_press;
-    float * m_press0;
+//    float * m_press0;
     float * m_uwd;
 //    float * m_uwd0;
     float * m_vwd;

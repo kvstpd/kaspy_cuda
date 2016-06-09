@@ -9,6 +9,8 @@
 #define	F_DATA_WIDTH 322
 #define	F_DATA_HEIGHT 442
 
+#define	MAX_STATIONS 100
+
 #define	F_DATA_SIZE F_DATA_WIDTH * F_DATA_HEIGHT
 
 #pragma pack(8)
