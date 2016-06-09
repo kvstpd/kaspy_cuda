@@ -20,7 +20,7 @@ F_OPTS := /Zp8
 C_OPTS := /favor:INTEL64 /Zp8
 #/Ox /favor:INTEL64 /Zp16
 
-NV_OPTS :=  -gencode arch=compute_30,code=compute_30 --machine 64 --optimize 3 -I"$(C_INCPATH)" -I"$(C_GLUT_INCPATH)" --compiler-options "$(C_OPTS)"
+NV_OPTS :=  -gencode arch=compute_52,code=compute_52 --machine 64 --optimize 3 -I"$(C_INCPATH)" -I"$(C_GLUT_INCPATH)" --compiler-options "$(C_OPTS)"
 
 LINK_OPTS := /MACHINE:X64 /SUBSYSTEM:CONSOLE
 
