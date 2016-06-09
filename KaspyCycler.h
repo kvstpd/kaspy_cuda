@@ -36,7 +36,9 @@ public:
 //    m_uwd0(for_uwd0),
     m_vwd(for_vwd),
 //    m_vwd0(for_vwd0),
-	m_gpu_device(-1)
+	m_gpu_device(-1),
+	d_temp_storage(0),
+	temp_storage_bytes(0)
     {
         setbuf(stdout,NULL);
         
@@ -99,8 +101,8 @@ private:
 	size_t m_wu_pitch;
 	size_t m_wv_pitch;
 	
-	void            * d_temp_storage = 0;
-	size_t          temp_storage_bytes = 0;
+	void            * d_temp_storage;
+	size_t          temp_storage_bytes;
 };
 
 
