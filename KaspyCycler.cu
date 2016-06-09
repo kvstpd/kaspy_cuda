@@ -28,6 +28,8 @@ void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float
 
 float grav = 9.806;
 
+CachingDeviceAllocator  g_allocator(true);  
+
 __device__ float * dev_fbu = 0;
 __device__ float * dev_fbv = 0;
 __device__ float * dev_ffu = 0;
