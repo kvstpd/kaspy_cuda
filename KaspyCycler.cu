@@ -16,7 +16,7 @@
 #include "device_launch_parameters.h"
 
 
-#include <cub/cub.cuh>
+#include "cub/cub.cuh"
 
 
 using namespace cub;
