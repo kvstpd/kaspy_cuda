@@ -1044,7 +1044,7 @@ void KaspyCycler::findElves()
 	
 	
 	setbuf(stdout,NULL);
-	printf("elves sum up to %f\n", sum_elves);
+	printf("elves sum up to %f\n", sum_elves );
 	
 	
 	//(float * g_idata, float * g_omindata, float * g_omaxdata, unsigned int n)
