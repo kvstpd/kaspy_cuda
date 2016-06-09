@@ -934,29 +934,29 @@ void KaspyCycler::findElves()
 {
 	/// DO CUDA REDUCTION instead of copying back to host mem
 
-	int threadsPerBlock = 512;
+	//int threadsPerBlock = 512;
 	
-	int blocksPerData = (F_DATA_SIZE + threadsPerBlock - 1) / threadsPerBlock;
+	//int blocksPerData = (F_DATA_SIZE + threadsPerBlock - 1) / threadsPerBlock;
 	
-	cudaError_t err;
+	//cudaError_t err;
 	
-	float min_elves, max_elves;
+	//float min_elves, max_elves;
 	
 
 	DeviceReduce::Min(d_temp_storage, temp_storage_bytes, g_elf, g_elf_r, F_DATA_SIZE);
-	cudaMemcpy(&min_elves, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
+	cudaMemcpy(&m_fVars->elfmin, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
 	
 	DeviceReduce::Max(d_temp_storage, temp_storage_bytes, g_elf, g_elf_r, F_DATA_SIZE);
-	cudaMemcpy(&max_elves, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
+	cudaMemcpy(&m_fVars->elfmax, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
 	
 	
 	
-	setbuf(stdout,NULL);
-	printf("elves min %f max %f\n", min_elves, max_elves );
+	//setbuf(stdout,NULL);
+	//printf("elves min %f max %f\n", min_elves, max_elves );
 	
 
 	
-	float * h_elf =  &m_fArrays->elf[0][0];
+	/*float * h_elf =  &m_fArrays->elf[0][0];
 	
 	err = cudaMemcpy(h_elf, g_elf,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);
 	
@@ -988,7 +988,7 @@ void KaspyCycler::findElves()
     }
 	
 	m_fVars->elfmin =  elf_min;
-	m_fVars->elfmax =  elf_max;
+	m_fVars->elfmax =  elf_max;*/
 }
 
 
