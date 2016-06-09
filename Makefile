@@ -14,13 +14,13 @@ CUDA_LIBS := cudart_static.lib
 
 GLUT_LIBS := freeglut.lib glew64.lib
 
-F_OPTS := /Zp8
+F_OPTS := /Zp16
 #/arch:SSE4.2 /QxSSE4.2 /O3 /Qparallel /Zp16
 
-C_OPTS := /favor:INTEL64 /Zp8
+C_OPTS := /favor:INTEL64 /Zp16
 #/Ox /favor:INTEL64 /Zp16
 
-NV_OPTS :=  -gencode arch=compute_20,code=compute_20 --machine 64 --optimize 3 -I"$(C_INCPATH)" -I"$(C_GLUT_INCPATH)" --compiler-options "$(C_OPTS)"
+NV_OPTS :=  -gencode arch=compute_52,code=compute_52 --machine 64 --optimize 3 -I"$(C_INCPATH)" -I"$(C_GLUT_INCPATH)" --compiler-options "$(C_OPTS)"
 
 LINK_OPTS := /MACHINE:X64 /SUBSYSTEM:CONSOLE
 
