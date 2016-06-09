@@ -134,7 +134,7 @@ C--------------------------------------------------------------------
 c ,PRESS0(KX,KY))
       CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
 ccc      NH6=KT   1 DURATION !!!
-      NH6=1000    !
+      NH6=100    !
       PRESS=PRESS/1000
    
       dht=(tka-tki)/(kt-1)
@@ -378,8 +378,8 @@ c*************************************************
 
      	if(itimeh.gt.iold) then  !! writing to file and compute statiatics,
 c STATISTICS WAS HERE
-
-		write(77,'(101f10.3)') timeh,(elf(stx(kk),sty(kk)),kk=1,nstation)
+		call cycler_get_data_back(icycler)
+		write(77,'(101f10.3)') timeh,(el(stx(kk),sty(kk)),kk=1,nstation)
 	   end if
 
 
