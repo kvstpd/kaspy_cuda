@@ -134,7 +134,7 @@ C--------------------------------------------------------------------
 c ,PRESS0(KX,KY))
       CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
 ccc      NH6=KT   1 DURATION !!!
-      NH6=100    !
+      NH6=1000    !
       PRESS=PRESS/1000
    
       dht=(tka-tki)/(kt-1)

@@ -474,7 +474,7 @@ __global__ void surf_and_flux_1(float ftim)
 		float uw = btim * (dev_fbu[ji]) + ftim * (dev_ffu[ji]);
 		float vw = btim * (dev_fbv[ji]) + ftim * (dev_ffv[ji]);
 		
-		float speed = sqrtf(uw*uw + vw*vw);
+		float speed =  hypotf(uw, vw); //sqrtf(uw*uw + vw*vw);
 		float windc = 0.001f * (0.8f + speed * 0.065f) * dev_ro_ratio * speed;
 		
 		dev_wusurf[ji] = -windc * uw *
@@ -729,7 +729,7 @@ __global__ void tps_and_other_arrays_4()
 	
 	if (i > 0 && j > 0 && i < dev_width && j < dev_height)
 	{
-		dev_tps[ji] = sqrtf(dev_uaf[ji]*dev_uaf[ji] + dev_vaf[ji]*dev_vaf[ji]);
+		dev_tps[ji] = hypotf(dev_uaf[ji], dev_vaf[ji]);  ///sqrtf(dev_uaf[ji]*dev_uaf[ji] + dev_vaf[ji]*dev_vaf[ji]);
 		
 		/*if (dev_tps[ji] > dev_vmaxl)
 		{
