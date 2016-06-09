@@ -95,9 +95,9 @@ __device__ float * dev_press = 0;
 __device__ float * dev_uwd = 0;
 __device__ float * dev_vwd = 0;
 
-__device__ float * dev_press0 = 0;
-__device__ float * dev_uwd0 = 0;
-__device__ float * dev_vwd0 = 0;
+//__device__ float * dev_press0 = 0;
+//__device__ float * dev_uwd0 = 0;
+//__device__ float * dev_vwd0 = 0;
 
 __device__ float * dev_art = 0;
 
