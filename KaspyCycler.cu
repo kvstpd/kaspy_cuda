@@ -1016,10 +1016,10 @@ void KaspyCycler::sendDataToGPU()
 	float ymi = m_fVars->ymi;
 	float yma = m_fVars->yma;
 	
-	float xki = m_fWindData->xki;
-	float xka = m_fWindData->xka;
-	float yki = m_fWindData->yki;
-	float yka = m_fWindData->xka;
+	//float xki = m_fWindData->xki;
+	//float xka = m_fWindData->xka;
+	//float yki = m_fWindData->yki;
+	//float yka = m_fWindData->xka;
 	
 	
 	if ( (cudaMemcpyToSymbol(dev_width, &m_width, sizeof(int))  == cudaSuccess)
@@ -1135,11 +1135,8 @@ void KaspyCycler::getDataToCPU()
 {
 	float * h_el =  &m_fArrays->el[0][0];
 	
-	//printf("el address was: %llx", g_el);
 
 	cudaMemcpyFromSymbol (&g_el, dev_el, sizeof(float *), 0,cudaMemcpyDeviceToHost);
-	
-	//printf("Now el address is: %llx", g_el);
 	
 	
 	cudaError_t err = cudaMemcpy(h_el, g_el,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);
@@ -1186,7 +1183,6 @@ void KaspyCycler::makeWsurf()
 
     if (itime6 > itime6_old)
     {
-		
         itime6_old = itime6;
 		
 		float * p_temp;
@@ -1222,87 +1218,15 @@ void KaspyCycler::makeWsurf()
 		cudaMemcpyToSymbol(dev_ffv, &g_ffv, sizeof(float *));
 		cudaMemcpyToSymbol(dev_fbv, &g_fbv, sizeof(float *));
 		
-		/*if ( (cudaMemcpy(g_fxb,g_fxf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
-			&& (cudaMemcpy(g_fyb,g_fyf, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
-			&& (cudaMemcpy(g_fb,g_ff, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
-			&& (cudaMemcpy(g_fbu,g_ffu, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
-			&& (cudaMemcpy(g_fbv,g_ffv, F_DATA_SIZE * sizeof(float), cudaMemcpyDeviceToDevice) == cudaSuccess)
-			)
-		{
-			//printf("ff arrays reset\n");
-		}
-		else
-		{
-			printf("GPU memory copy error!\n");
-		} */
-			
-			
 
-		//size_t s_p_width = m_fWindData->kx * sizeof(float);
-
-       // memcpy(g_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float));
 		
 		g_press0 = g_press + (itime6 - 1) * pressSize;
-		
-		/*if ( (cudaMemcpy(g_press0, m_press + (itime6 - 1) * pressSize, pressSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
-		{
-			//printf("pressure data copied \n");
-		}
-		else
-		{
-			printf("GPU memory copy error!\n");
-			
-			deinit_device();
-			
-			exit(-1);
-		}*/
-		
-
 		getWindPressure('p');
-
-		
-
-		//size_t s_wu_width = m_fWindData->kxu * sizeof(float);
-		
-		//memcpy(g_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float));
 		
 		g_uwd0 =  g_uwd + (itime6 - 1) * windUSize;
-		
-		/*if ( (cudaMemcpy(g_uwd0, m_uwd + (itime6 - 1) * windUSize, windUSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
-		{
-			//printf("wind U data copied \n");
-		}
-		else
-		{
-			printf("GPU memory copy error!\n");
-			
-			deinit_device();
-			
-			exit(-1);
-		}*/
-		
-
 		getWindPressure('u');
-
-        //memcpy(g_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float));
-		//size_t s_wv_width = m_fWindData->kxv * sizeof(float);
-		
 		
 		g_vwd0 = g_vwd + (itime6 - 1) * windVSize;
-		
-		/*if ( (cudaMemcpy(g_vwd0, m_vwd + (itime6 - 1) * windVSize, windVSize * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess) )
-		{
-			//printf("wind V data copied \n");
-		}
-		else
-		{
-			printf("GPU memory copy error!\n");
-			
-			deinit_device();
-			
-			exit(-1);
-		}*/
-
 		getWindPressure('v');
 
 
