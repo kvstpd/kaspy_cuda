@@ -1032,10 +1032,10 @@ void KaspyCycler::findElves()
 	void            *d_temp_storage = 0;
 	size_t          temp_storage_bytes = 0;
 	
-	CubDebugExit(DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, g_elf, g_elf_r, F_DATA_SIZE));
+	CubDebugExit(DeviceReduce::Min(d_temp_storage, temp_storage_bytes, g_elf, g_elf_r, F_DATA_SIZE));
 	CubDebugExit(g_allocator.DeviceAllocate(&d_temp_storage, temp_storage_bytes));
 	// Run
-	CubDebugExit(DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, g_elf, g_elf_r, F_DATA_SIZE));
+	CubDebugExit(DeviceReduce::Min(d_temp_storage, temp_storage_bytes, g_elf, g_elf_r, F_DATA_SIZE));
 	
 	float sum_elves;
 	
@@ -1044,7 +1044,7 @@ void KaspyCycler::findElves()
 	
 	
 	setbuf(stdout,NULL);
-	printf("elves sum up to %f\n", sum_elves );
+	printf("elves min %f\n", sum_elves );
 	
 	
 	//(float * g_idata, float * g_omindata, float * g_omaxdata, unsigned int n)
