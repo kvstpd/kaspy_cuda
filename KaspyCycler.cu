@@ -942,14 +942,7 @@ void KaspyCycler::findElves()
 {
 	/// DO CUDA REDUCTION instead of copying back to host mem
 
-	//int threadsPerBlock = 512;
-	
-	//int blocksPerData = (F_DATA_SIZE + threadsPerBlock - 1) / threadsPerBlock;
-	
-	//cudaError_t err;
-	
-	//float min_elves, max_elves;
-	
+
 
 	DeviceReduce::Min(d_temp_storage, temp_storage_bytes, g_elf, g_elf_r, F_DATA_SIZE);
 	cudaMemcpy(&m_fVars->elfmin, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
@@ -958,45 +951,6 @@ void KaspyCycler::findElves()
 	cudaMemcpy(&m_fVars->elfmax, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
 	
 	
-	
-	//setbuf(stdout,NULL);
-	//printf("elves min %f max %f\n", min_elves, max_elves );
-	
-
-	
-	/*float * h_elf =  &m_fArrays->elf[0][0];
-	
-	err = cudaMemcpy(h_elf, g_elf,  m_height * m_width * sizeof(float), cudaMemcpyDeviceToHost);
-	
-	if (err != cudaSuccess)
-	{
-		fprintf(stderr, "Failed to update host array ELF  (error code %s)!\n", cudaGetErrorString(err));
-		
-		deinit_device();
-		
-		exit(-1);
-	}
-	
-
-	
-	float elf_min = h_elf[0];
-    float elf_max = h_elf[0];
-    
-    for (int i=1; i<F_DATA_SIZE; i++)
-    {
-        if (h_elf[i] > elf_max)
-        {
-            elf_max = h_elf[i];
-        }
-        
-        if (h_elf[i] < elf_min)
-        {
-            elf_min = h_elf[i];
-        }
-    }
-	
-	m_fVars->elfmin =  elf_min;
-	m_fVars->elfmax =  elf_max;*/
 }
 
 
@@ -1168,12 +1122,12 @@ void KaspyCycler::makeWsurf()
 	float ftim = fmodf(timeh6, 1.0f);
 	
 	
-	int threadsPerBlock = 64;
+	int threadsPerBlock = 1024;
 	
 	int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
 	int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
 	
-	dim3 threadsPerSquareBlock(16, 16);
+	dim3 threadsPerSquareBlock(32, 32);
 	
 	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
@@ -1450,8 +1404,8 @@ void KaspyCycler::getWindPressure(char uv)
 	ymi = m_fVars->ymi;
 	yma = m_fVars->yma;
 	
-	float c1=3.1415926/180.0;
-	float c2=111111.0f;
+	//float c1=3.1415926/180.0;
+	//float c2=111111.0f;
 	
 	
 	float dky=(yka-yki)/(ky-1.0f);
@@ -1462,9 +1416,9 @@ void KaspyCycler::getWindPressure(char uv)
 	
 
 	
-	int threadsPerBlock = 64;
+	int threadsPerBlock = 1024;
 	
-	dim3 threadsPerSquareBlock(8, 8);
+	dim3 threadsPerSquareBlock(32, 32);
 	
 	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
 	
