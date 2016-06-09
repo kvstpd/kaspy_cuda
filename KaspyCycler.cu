@@ -28,7 +28,7 @@ void bcucof(float * y,float * y1,float * y2, float * y12,float d1,float d2,float
 
 float grav = 9.806;
 
-CachingDeviceAllocator  g_allocator(true);  
+CachingDeviceAllocator  g_allocator(true);
 
 __device__ float * dev_fbu = 0;
 __device__ float * dev_fbv = 0;
@@ -1044,7 +1044,7 @@ void KaspyCycler::findElves()
 	
 	
 	setbuf(stdout,NULL);
-	printf("elves sum up to %f\n", );
+	printf("elves sum up to %f\n", sum_elves);
 	
 	
 	//(float * g_idata, float * g_omindata, float * g_omaxdata, unsigned int n)
