@@ -9,6 +9,7 @@
 /* Begin PBXFileReference section */
 		2B8EC9B21D05CB80001CE377 /* DrawArrayWindow.cu */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawArrayWindow.cu; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		2B8EC9B31D05CB80001CE377 /* DrawArrayWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DrawArrayWindow.h; sourceTree = "<group>"; };
+		2B8EC9B41D09713E001CE377 /* cub */ = {isa = PBXFileReference; lastKnownFileType = folder; path = cub; sourceTree = "<group>"; };
 		2BA310AD1CF4582C00F501CF /* KaspyCycler.cu */ = {isa = PBXFileReference; lastKnownFileType = text; path = KaspyCycler.cu; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		2BA310AE1CF4582C00F501CF /* KaspyCycler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KaspyCycler.h; sourceTree = "<group>"; };
 		2BB58ABD1CF73C98002770AB /* Makefile.cygother */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.cygother; sourceTree = "<group>"; };
@@ -27,6 +28,7 @@
 		2BE06F2D1CF38D9800038345 = {
 			isa = PBXGroup;
 			children = (
+				2B8EC9B41D09713E001CE377 /* cub */,
 				2BE06F361CF415A900038345 /* comblk.for */,
 				2BE06F371CF415A900038345 /* cycler.cpp */,
 				2BA310AE1CF4582C00F501CF /* KaspyCycler.h */,
