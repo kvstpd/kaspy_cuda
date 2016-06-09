@@ -918,95 +918,6 @@ __global__ void adv_bot_3()
 }
 
 
-template <unsigned int blockSize>
-__global__ void reduce_elves(float * g_idata, float * g_omindata/*, float * g_omaxdata*/, unsigned int n)
-{
-	extern __shared__ float smindata[];
-	//extern __shared__ float smaxdata[];
-
-	
-	unsigned int tid = threadIdx.x;
-	unsigned int i = blockIdx.x*(blockSize*2) + tid;
-	unsigned int gridSize = blockSize*2*gridDim.x;
-	
-	smindata[tid] = fminf(g_idata[i], g_idata[i+blockSize]);
-	//smaxdata[tid] = fmaxf(g_idata[i], g_idata[i+blockSize]);
-	i += gridSize;
-
-	while (i < n)
-	{
-		smindata[tid] = fminf(smindata[tid], fminf(g_idata[i], g_idata[i+blockSize]));
-		//smaxdata[tid] = fmaxf(smindata[tid], fmaxf(g_idata[i], g_idata[i+blockSize]));
-		
-		i += gridSize;
-	}
-	__syncthreads();
-	
-	if (blockSize >= 512) {
-		if (tid < 256) {
-			smindata[tid] = fminf(smindata[tid], smindata[tid + 256]);
-			//smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 256]);
-		}
-		__syncthreads();
-	}
-	
-	if (blockSize >= 256) {
-		if (tid < 128) {
-			smindata[tid] = fminf(smindata[tid], smindata[tid + 128]);
-			//smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 128]);
-		}
-		__syncthreads();
-	}
-	
-	if (blockSize >= 128) {
-		if (tid < 64) {
-			smindata[tid] = fminf(smindata[tid], smindata[tid + 64]);
-			//smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 64]);
-		}
-		__syncthreads();
-	}
-	
-	if (tid < 32) {
-		if (blockSize >=64)  {
-			smindata[tid] = fminf(smindata[tid], smindata[tid + 32]);
-			//smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 32]);
-		}
-
-		if (blockSize >= 32)  {
-			smindata[tid] = fminf(smindata[tid], smindata[tid + 16]);
-			//smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 16]);
-		}
-
-		if (blockSize >=16)  {
-			smindata[tid] = fminf(smindata[tid], smindata[tid + 8]);
-			//smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 8]);
-		}
-
-		if (blockSize >=8)  {
-			smindata[tid] = fminf(smindata[tid], smindata[tid + 4]);
-			//smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 4]);
-		}
-
-		if (blockSize >=4)  {
-			smindata[tid] = fminf(smindata[tid], smindata[tid + 2]);
-			//smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 2]);
-		}
-
-		if (blockSize >=2)  {
-			smindata[tid] = fminf(smindata[tid], smindata[tid + 1]);
-			//smaxdata[tid] = fmaxf(smaxdata[tid], smaxdata[tid + 1]);
-		}
-
-	}
-	
-	if (tid == 0)
-	{
-		g_omindata[blockIdx.x] = smindata[0];
-		//g_omaxdata[blockIdx.x] = smaxdata[0];
-	}
-}
-
-
 
 float * KaspyCycler::getElves()
 {
@@ -1029,42 +940,21 @@ void KaspyCycler::findElves()
 	
 	cudaError_t err;
 	
-	void            *d_temp_storage = 0;
-	size_t          temp_storage_bytes = 0;
+	float min_elves, max_elves;
 	
-	CubDebugExit(DeviceReduce::Min(d_temp_storage, temp_storage_bytes, g_elf, g_elf_r, F_DATA_SIZE));
-	CubDebugExit(g_allocator.DeviceAllocate(&d_temp_storage, temp_storage_bytes));
-	// Run
-	CubDebugExit(DeviceReduce::Min(d_temp_storage, temp_storage_bytes, g_elf, g_elf_r, F_DATA_SIZE));
+
+	DeviceReduce::Min(d_temp_storage, temp_storage_bytes, g_elf, g_elf_r, F_DATA_SIZE);
+	cudaMemcpy(&min_elves, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
 	
-	float sum_elves;
+	DeviceReduce::Max(d_temp_storage, temp_storage_bytes, g_elf, g_elf_r, F_DATA_SIZE);
+	cudaMemcpy(&max_elves, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
 	
-	
-	cudaMemcpy(&sum_elves, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
 	
 	
 	setbuf(stdout,NULL);
-	printf("elves min %f\n", sum_elves );
+	printf("elves min %f max %f\n", min_elves, max_elves );
 	
-	
-	//(float * g_idata, float * g_omindata, float * g_omaxdata, unsigned int n)
-	
-	/*reduce_elves<512><<<blocksPerData, threadsPerBlock, threadsPerBlock * sizeof(float)>>>(g_elf, g_elf_r, F_DATA_SIZE);
-	
-	
-	reduce_elves<256><<<1, 256, threadsPerBlock * sizeof(float)>>>(g_elf, g_elf_r, F_DATA_SIZE);
-	
-	err = cudaGetLastError();
-	
-	if(err != cudaSuccess)
-	{
-		fprintf(stderr, "Failed to update host array ELF  (error code %s)!\n", cudaGetErrorString(err));
-		
-		deinit_device();
-		
-		exit(-1);
-	}*/
-	
+
 	
 	float * h_elf =  &m_fArrays->elf[0][0];
 	
@@ -1776,6 +1666,11 @@ int KaspyCycler::init_device()
 		return m_gpu_device;
 	}
 	
+	d_temp_storage = 0;
+	temp_storage_bytes = 0;
+	
+	DeviceReduce::Min(d_temp_storage, temp_storage_bytes, g_elf, g_elf_r, F_DATA_SIZE);
+	g_allocator.DeviceAllocate(&d_temp_storage, temp_storage_bytes);
 	
 	
 	if ( (cudaMemcpyToSymbol(dev_fbu, &g_fbu, sizeof(g_fbu)) == cudaSuccess)
@@ -2058,6 +1953,11 @@ void KaspyCycler::deinit_device()
 		if (g_vwd0)
 		{
 			cudaFree(g_vwd0);
+		}
+		
+		if (d_temp_storage)
+		{
+			g_allocator.DeviceFree(d_temp_storage);
 		}
 		
 		if (cudaDeviceReset() == cudaSuccess)

@@ -98,6 +98,9 @@ private:
 	size_t m_press_pitch;
 	size_t m_wu_pitch;
 	size_t m_wv_pitch;
+	
+	void            * d_temp_storage = 0;
+	size_t          temp_storage_bytes = 0;
 };
 
 
