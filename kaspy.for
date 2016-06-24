@@ -134,7 +134,7 @@ C--------------------------------------------------------------------
 c ,PRESS0(KX,KY))
       CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
 ccc      NH6=KT   1 DURATION !!!
-      NH6=1000    !
+      NH6=10    !
       PRESS=PRESS/1000
    
       dht=(tka-tki)/(kt-1)
@@ -174,8 +174,15 @@ c ,VWD0(KXV,KYV))
 
        ff_end = 100.001
 
-       icycler =cycler_create(dht, arrays_marker,
+		icycler = -1
+
+       call cycler_create(icycler, dht, arrays_marker,
      1  ff_marker, kx, PRESS(1,1,1), uwd(1,1,1), vwd(1,1,1))
+
+		if (icycler.lt.0) then
+			write(6,*) "cycler creation failed!"
+			stop
+		end if
 
 C
 C     READ IN GRID DATA AND INITIAL AND LATERAL BOUNDARY CONDITIONS
@@ -346,11 +353,17 @@ C                                                                      *
 C***********************************************************************
 C
 
+		call cycler_load(icycler)
 
 
-        if (cycler_load(icycler).lt.0) then
+c		write(6,*) icycler
+
+        if (icycler.lt.0) then
+			write(6,*) "cycler initialization failed!"
 			stop
 		end if
+
+
 
 c call display(surf,im,jm,im,jm,-1.0,1.0,0)
         iold=0

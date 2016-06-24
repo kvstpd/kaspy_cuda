@@ -1075,7 +1075,7 @@ void KaspyCycler::sendDataToGPU()
 	}
 	else
 	{
-		printf("GPU memory copy error!\n");
+		printf("GPU memory copy error (error code %s)!\n", cudaGetErrorString(cudaGetLastError()));
 
 		deinit_device();
 		
@@ -1110,6 +1110,8 @@ void KaspyCycler::getDataToCPU()
 
 void KaspyCycler::makeWsurf()
 {
+	cudaError_t err;
+	
     m_fVars->timeh6 = (m_fVars->timeh / m_fVars->dht) + 1.0f;
 
     float timeh6 = (float)m_fVars->timeh6;
@@ -1122,12 +1124,12 @@ void KaspyCycler::makeWsurf()
 	float ftim = fmodf(timeh6, 1.0f);
 	
 	
-	int threadsPerBlock = 1024;
+	int threadsPerBlock = 256;
 	
 	int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
 	int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
 	
-	dim3 threadsPerSquareBlock(32, 32);
+	dim3 threadsPerSquareBlock(8, 8);
 	
 	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
@@ -1188,10 +1190,13 @@ void KaspyCycler::makeWsurf()
 
 	
 	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim);
+	
+	err = cudaGetLastError();
 
-	if (cudaGetLastError() != cudaSuccess)
+	if (err != cudaSuccess)
 	{
-		printf("error calling surf_and_flux_1 kernel! \n");
+		printf("error calling surf_and_flux_1 kernel!  (error code %s)!\n", cudaGetErrorString(err));
+		return;
 	}
 	
 	elf_and_flux_2<<<numSquareBlocks, threadsPerSquareBlock>>>();
@@ -1416,9 +1421,9 @@ void KaspyCycler::getWindPressure(char uv)
 	
 
 	
-	int threadsPerBlock = 1024;
+	int threadsPerBlock = 256;
 	
-	dim3 threadsPerSquareBlock(32, 32);
+	dim3 threadsPerSquareBlock(8, 8);
 	
 	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
 	

@@ -1,7 +1,20 @@
 
 #include <GL/glew.h>
-
+#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
+#include <GL/wglew.h>
+#endif
+#if defined(__APPLE__) || defined(__MACOSX)
+#include <GLUT/glut.h>
+#ifndef glutCloseFunc
+#define glutCloseFunc glutWMCloseFunc
+#endif
+#ifndef glutMainLoopEvent
+#define glutMainLoopEvent glutCheckLoop
+#endif
+#else
 #include <GL/freeglut.h>
+#endif
+
 
 
 // CUDA utilities and system includes

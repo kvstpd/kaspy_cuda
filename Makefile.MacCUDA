@@ -2,10 +2,21 @@
 CUDA_PATH := /Developer/NVIDIA/CUDA-6.5
 CUDA_LIBPATH := $(CUDA_PATH)/lib
 
+GL_LIBPATH := /Users/pprd/CUDA/NVIDIA_CUDA-6.5_Samples/common/lib/darwin
+
+
+GLUT_LIBPATH := /Users/pprd/CUDA/NVIDIA_CUDA-6.5_Samples/common/lib/darwin
+
+
+C_GLUT_INCPATH := /Users/pprd/CUDA/NVIDIA_CUDA-6.5_Samples/common/inc
+
+
+GLUT_LIBS := /Users/pprd/CUDA/NVIDIA_CUDA-6.5_Samples/common/lib/darwin/libGLEW.a
+
 
 NVCC := $(CUDA_PATH)/bin/nvcc
 
-LDFLAGS := -L$(CUDA_LIBPATH) -lcudart_static -lc++
+LDFLAGS := -L$(CUDA_LIBPATH) -L$(GLUT_LIBPATH) -L/System/Library/Frameworks/OpenGL.framework/Libraries  -L$(GL_LIBPATH) -lcudart_static -lc++ -lstdc++  -lGL  -lGLU -Xlinker -framework -Xlinker GLUT
 
 GENCODE_FLAGS := -gencode arch=compute_11,code=compute_11
 
@@ -43,17 +54,23 @@ all : build/kaspy
 test : build/kaspy
 	cd build && pwd && ./kaspy
 
-build/kaspy : kaspy.o cycler.o KaspyCycler.o
-	$(NVCC) -ccbin gfortran $(OPT_FLAGS) -o $@ $(LDFLAGS) $(GENCODE_FLAGS)  $+
+build/kaspy : kaspy.o cycler.o KaspyCycler.o DrawArrayWindow.o multithreading.o
+	$(NVCC) -ccbin gfortran $(OPT_FLAGS) -o $@ $(LDFLAGS) $(GENCODE_FLAGS) $(GLUT_LIBS)  $+
 
 kaspy.o: kaspy.for
 	gfortran $(OPT_FLAGS) -o $@ -c $<
 
 cycler.o: cycler.cpp
-	$(NVCC) -ccbin gcc $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
+	$(NVCC) -ccbin clang $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
 
 KaspyCycler.o: KaspyCycler.cu
-	$(NVCC) -ccbin gcc $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
+	$(NVCC) -ccbin clang $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
+
+DrawArrayWindow.o: DrawArrayWindow.cu
+	$(NVCC) -ccbin clang $(OPT_FLAGS)   -I$(C_GLUT_INCPATH) -o $@ $(GENCODE_FLAGS)  -c $<
+
+multithreading.o: multithreading.cpp
+	$(NVCC) -ccbin clang $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
 
 oclean:
 	rm -f *.o

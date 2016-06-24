@@ -1,3 +1,7 @@
+#ifndef DrawArrayWindow_hpp
+#define DrawArrayWindow_hpp
+
+
 #define DAW_START_WINDOW_WIDTH 1024
 #define DAW_START_WINDOW_HEIGHT 1024
 
@@ -63,4 +67,4 @@ private:
 };
 
 
-
+#endif /* DrawArrayWindow_hpp */

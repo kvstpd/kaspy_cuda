@@ -10,7 +10,13 @@
 
 #include <math.h>
 
+
+#include "multithreading.h"
+
+
 #include "fortran_vars.h"
+
+#include "InitValues.h"
 
 #include "KaspyCycler.h"
 
@@ -67,7 +73,7 @@ extern "C" void cycler_time_()
 
 
 
-int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats_marker,
+void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
                 int * wind_marker,
                    float * press,  float * uwd, float * vwd)
 {
@@ -75,7 +81,9 @@ int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats
         || (ffloats_marker == 0) || (press == 0)
         || (wind_marker == 0))
     {
-        return -1;
+		*icycler = -1;
+		
+        return ;
     }
     
     
@@ -87,34 +95,37 @@ int _i_cycler_init(float * vars_marker, double * arrays_marker, double * ffloats
                              (fortran_common_arrays *)arrays_marker, (fortran_ffloats *)ffloats_marker,
                              (fortran_wind_data *)wind_marker,
                              press, uwd, vwd);
+	
+	
+	*icycler = 0;
      
     
-    return 0;
+    return;
 }
 
 
 // Intel Fortran WIN naming
-extern "C" int CYCLER_CREATE(float * vars_marker, double * arrays_marker, double * ffloats_marker,
+extern "C" void CYCLER_CREATE(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
                              int * wind_marker,
                              float * press, float * uwd, float * vwd)
 {
-    return _i_cycler_init(vars_marker, arrays_marker, ffloats_marker, wind_marker,
+    _i_cycler_init(icycler, vars_marker, arrays_marker, ffloats_marker, wind_marker,
                           press, uwd, vwd);
 }
 
 // GFortran Unix naming
-extern "C" int cycler_create_(float * vars_marker, double * arrays_marker, double * ffloats_marker,
+extern "C" void cycler_create_(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
                               int * wind_marker,
                               float * press,  float * uwd,  float * vwd)
 {
-    return _i_cycler_init(vars_marker, arrays_marker, ffloats_marker, wind_marker,
+    _i_cycler_init(icycler, vars_marker, arrays_marker, ffloats_marker, wind_marker,
                           press, uwd,  vwd);
 }
 
 
 
 // GFortran Unix naming
-extern "C" int cycler_load_(int * icycler)
+extern "C" void cycler_load_(int * icycler)
 {
     if (cycler)
     {
@@ -131,28 +142,33 @@ extern "C" int cycler_load_(int * icycler)
 				
 				defaultGlWindow->set_data_to_display(cycler->getElves(), cycler->getSurface(), F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
 				
-				return 1;
+				//*icycler = 1;
 			}
 			else
 			{
 				printf("unable to init GL window!\n");
-				return -1;
+				*icycler = -1;
 			}
 
 		}
 		else
 		{
 			printf("unable to init CUDA device!\n");
-			return -1;
+			
+			*icycler = -1;
 		}
 		
     }
+	else
+	{
+		*icycler = -1;
+	}
 	
-	return -1;
+	return;
 }
 
 // Intel Fortran WIN naming
-extern "C" int CYCLER_LOAD(int * icycler)
+extern "C" void CYCLER_LOAD(int * icycler)
 {
 	if (cycler)
 	{
@@ -169,24 +185,28 @@ extern "C" int CYCLER_LOAD(int * icycler)
 				
 				defaultGlWindow->set_data_to_display(cycler->getElves(), cycler->getSurface(), F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
 				
-				return 1;
+				*icycler = 1;
 			}
 			else
 			{
 				printf("unable to init GL window!\n");
-				return -1;
+				*icycler = -1;
 			}
 			
 		}
 		else
 		{
 			printf("unable to init CUDA device!\n");
-			return -1;
+			*icycler = -1;
 		}
 		
 	}
+	else
+	{
+		*icycler = -1;
+	}
 	
-	return -1;
+	return;
 }
 
 
@@ -231,7 +251,7 @@ extern "C" void CYCLER_WSURF(int * icycler)
         cycler->makeWsurf();
     }
 	
-	if (defaultGlWindow && (cycler->m_fVars->iint % 1000 == 0 ) )
+	if (defaultGlWindow && (cycler->m_fVars->iint % 50 == 0 ) )
 	{
 		defaultGlWindow->gl_draw_frame();
 	}
