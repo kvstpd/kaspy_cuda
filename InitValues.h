@@ -15,6 +15,7 @@ public:
 	m_cuda_threads_1d(256),
 	m_cuda_threads_2d_x(8),
 	m_cuda_threads_2d_y(8),
+	m_iters_per_frame(10),
 	m_show_window(false)
 	{
 		if (init_file == 0)
@@ -111,6 +112,12 @@ public:
 			
 			printf("Will have %d 2-D CUDA threads on Y axis\n", m_cuda_threads_2d_y);
 		}
+		else if (strcmp("iters_per_frame", parName) == 0)
+		{
+			sscanf(parValue, "%d", &m_iters_per_frame);
+			
+			printf("Will make %d iterations before drawing new frame\n",m_iters_per_frame);
+		}
 		else if (strcmp("pressure_grd", parName) == 0)
 		{
 			sscanf(parValue, "%s", m_pressure_grd);
@@ -142,6 +149,10 @@ public:
 		else if (strcmp("cuda_threads_2d_y", parName) == 0)
 		{
 			*param = m_cuda_threads_2d_y;
+		}
+		else if (strcmp("iters_per_frame", parName) == 0)
+		{
+			*param = m_iters_per_frame;
 		}
 	}
 	
@@ -275,6 +286,7 @@ public:
 	unsigned int m_cuda_threads_2d_x;
 	unsigned int m_cuda_threads_2d_y;
 	unsigned int m_show_window;
+	unsigned int m_iters_per_frame;
 	
 	char m_pressure_grd[128];
 	char m_u_wind_grd[128];

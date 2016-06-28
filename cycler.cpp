@@ -319,10 +319,11 @@ extern "C" void CYCLER_WSURF(int * icycler)
         cycler->makeWsurf();
     }
 	
-	if (defaultGlWindow && (cycler->m_fVars->iint % 50 == 0 ) )
+	if (initValues && defaultGlWindow && (cycler->m_fVars->iint % initValues->m_iters_per_frame == 0 ))
 	{
 		defaultGlWindow->gl_draw_frame();
 	}
+	
 }
 
 

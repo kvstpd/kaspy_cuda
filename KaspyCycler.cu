@@ -8,6 +8,7 @@
 
 #define CUB_STDERR
 
+#include "InitValues.h"
 
 #include "KaspyCycler.h"
 
@@ -20,6 +21,10 @@
 
 
 using namespace cub;
+
+
+extern InitValues * initValues;
+
 
 
 void getbicubic(int nx, int ny, int nd, float * z, float * c);
@@ -1124,12 +1129,12 @@ void KaspyCycler::makeWsurf()
 	float ftim = fmodf(timeh6, 1.0f);
 	
 	
-	int threadsPerBlock = 256;
+	int threadsPerBlock = initValues->m_cuda_threads_1d;
 	
 	int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
 	int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
 	
-	dim3 threadsPerSquareBlock(8, 8);
+	dim3 threadsPerSquareBlock(initValues->m_cuda_threads_2d_x, initValues->m_cuda_threads_2d_y);
 	
 	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
@@ -1421,9 +1426,11 @@ void KaspyCycler::getWindPressure(char uv)
 	
 
 	
-	int threadsPerBlock = 256;
+	int threadsPerBlock = initValues->m_cuda_threads_1d;
+
 	
-	dim3 threadsPerSquareBlock(8, 8);
+	dim3 threadsPerSquareBlock(initValues->m_cuda_threads_2d_x, initValues->m_cuda_threads_2d_y);
+	
 	
 	dim3 numSquareBlocks((kx  + threadsPerSquareBlock.x ) / threadsPerSquareBlock.x, (ky  + threadsPerSquareBlock.y ) / threadsPerSquareBlock.y);
 	
