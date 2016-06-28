@@ -52,7 +52,7 @@ NV_OPTS := --machine 64 --optimize 3 --compiler-options "$(C_OPTS)"
 all : build/kaspy
 
 test : build/kaspy
-	cd build && pwd && ./kaspy
+	cp -f Kaspy.ini build/Kaspy.ini && cd build && pwd && ./kaspy
 
 build/kaspy : kaspy.o cycler.o KaspyCycler.o DrawArrayWindow.o multithreading.o
 	$(NVCC) -ccbin gfortran $(OPT_FLAGS) -o $@ $(LDFLAGS) $(GENCODE_FLAGS) $(GLUT_LIBS)  $+

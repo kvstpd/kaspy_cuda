@@ -31,6 +31,8 @@ KaspyCycler * cycler = 0;
 
 DrawArrayWindow  * defaultGlWindow = 0;
 
+InitValues * initValues = 0;
+
 
 void _i_cycler_time()
 {
@@ -71,6 +73,57 @@ extern "C" void cycler_time_()
     _i_cycler_time();
 }
 
+// Intel Fortran WIN naming
+extern "C" void CYCLER_READ_INI()
+{
+	initValues = new InitValues();
+	
+	initValues->read();
+}
+
+// GFortran Unix naming
+extern "C" void cycler_read_ini_()
+{
+	initValues = new InitValues();
+	
+	initValues->read();
+}
+
+// Intel Fortran WIN naming
+extern "C" void CYCLER_GET_INT_PARAM(char * parName, int * param)
+{
+	if (initValues)
+	{
+		initValues->get_int_parameter(parName, param);
+	}
+}
+
+// GFortran Unix naming
+extern "C" void cycler_get_int_param_(char * parName, int * param)
+{
+	if (initValues)
+	{
+		initValues->get_int_parameter(parName, param);
+	}
+}
+
+// Intel Fortran WIN naming
+extern "C" void CYCLER_GET_STRING_PARAM(char * parName, char * param)
+{
+	if (initValues)
+	{
+		initValues->get_string_parameter(parName, param);
+	}
+}
+
+// GFortran Unix naming
+extern "C" void cycler_get_string_param_(char * parName, char * param)
+{ 
+	if (initValues)
+	{
+		initValues->get_string_parameter(parName, param);
+	}
+}
 
 
 void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
@@ -83,13 +136,17 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
     {
 		*icycler = -1;
 		
-        return ;
-    }
+        return ; 
+    } 
     
-    
+     
     _i_cycler_time();
-	
-	defaultGlWindow = new DrawArrayWindow();
+
+	 
+	if (initValues && initValues->m_show_window)
+	{
+		defaultGlWindow = new DrawArrayWindow();
+	}
 	
     cycler = new KaspyCycler((fortran_common_vars *)vars_marker,
                              (fortran_common_arrays *)arrays_marker, (fortran_ffloats *)ffloats_marker,
@@ -135,19 +192,24 @@ extern "C" void cycler_load_(int * icycler)
 		{
 			setbuf(stdout,NULL);
 			printf("before init GL\n");
-			if (defaultGlWindow->gl_init(device) >= 0)
+			
+			if (initValues && initValues->m_show_window)
 			{
-				
-				cycler->sendDataToGPU();
-				
-				defaultGlWindow->set_data_to_display(cycler->getElves(), cycler->getSurface(), F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
-				
-				//*icycler = 1;
+				if (defaultGlWindow->gl_init(device) < 0)
+				{
+					printf("unable to init GL window!\n");
+					*icycler = -1;
+					
+					return;
+				}
 			}
-			else
+
+				
+			cycler->sendDataToGPU();
+			
+			if (initValues && initValues->m_show_window)
 			{
-				printf("unable to init GL window!\n");
-				*icycler = -1;
+				defaultGlWindow->set_data_to_display(cycler->getElves(), cycler->getSurface(), F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
 			}
 
 		}
@@ -178,25 +240,31 @@ extern "C" void CYCLER_LOAD(int * icycler)
 		{
 			setbuf(stdout,NULL);
 			printf("before init GL\n");
-			if (defaultGlWindow->gl_init(device) >= 0)
+			
+			if (initValues && initValues->m_show_window)
 			{
-				
-				cycler->sendDataToGPU();
-				
-				defaultGlWindow->set_data_to_display(cycler->getElves(), cycler->getSurface(), F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
-				
-				*icycler = 1;
+				if (defaultGlWindow->gl_init(device) < 0)
+				{
+					printf("unable to init GL window!\n");
+					*icycler = -1;
+					
+					return;
+				}
 			}
-			else
+			
+			
+			cycler->sendDataToGPU();
+			
+			if (initValues && initValues->m_show_window)
 			{
-				printf("unable to init GL window!\n");
-				*icycler = -1;
+				defaultGlWindow->set_data_to_display(cycler->getElves(), cycler->getSurface(), F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
 			}
 			
 		}
 		else
 		{
 			printf("unable to init CUDA device!\n");
+			
 			*icycler = -1;
 		}
 		
@@ -271,7 +339,7 @@ extern "C" void cycler_find_elves_(int * icycler)
 extern "C" void CYCLER_FIND_ELVES(int * icycler)
 {
 	if (cycler)
-	{
+	{ 
 		cycler->findElves();
 	}
 }
@@ -300,6 +368,11 @@ void _i_cycler_destroy(int * icycler)
 		
         delete cycler;
     }
+	
+	if (initValues)
+	{
+		delete initValues;
+	} 
 }
 
 // GFortran Unix naming
@@ -312,6 +385,57 @@ extern "C" void cycler_destroy_(int * icycler)
 extern "C" void CYCLER_DESTROY(int * icycler)
 {
     _i_cycler_destroy(icycler);
+} 
+
+
+ 
+extern "C" void READDIMGR3(int * nx,int * ny,int * nz,char * name)
+{ 
+	if (initValues)
+	{
+		initValues->read_grd(name, nx,ny,nz);
+	}
+}
+
+extern "C" void readdimgr3_(int * nx,int * ny,int * nz,char * name)
+{
+	if (initValues)
+	{
+		initValues->read_grd(name, nx,ny,nz);
+	}
+}
+
+extern "C" void READGR3(int * nx,int * ny,int * nz,float * xmi,float * xma,float * ymi,float * yma,float * zmi,float * zma,
+						char * name,float * z)
+{  
+	if (initValues)
+	{
+		initValues->read_grd(name, nx,ny,nz,xmi,xma,ymi,yma,zmi,zma,z);
+	} 
+}
+ 
+extern "C" void readgr3_(int * nx,int * ny,int * nz,float * xmi,float * xma,float * ymi,float * yma,float * zmi,float * zma,
+						 char * name,float * z)
+{
+	//printf("here\n"); 
+	//printf("z is %f \n", z[0]); 
+	  
+	if (initValues) 
+	{
+		initValues->read_grd(name, nx,ny,nz,xmi,xma,ymi,yma,zmi,zma,z);
+	}
+}
+
+
+extern "C" void save_z_(int * nx,int * nsize,float * z, char * name)
+{
+	//printf("here\n");
+	//printf("z is %f \n", z[0]);
+	
+	if (initValues)
+	{
+		initValues->save_z(name, z, *nsize, *nx);
+	}
 }
 
 

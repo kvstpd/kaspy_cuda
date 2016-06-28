@@ -126,15 +126,31 @@ C--------------------------------------------------------------------
       integer ijloc(2)
 
 
+	  call cycler_read_ini()
 
 
-      namep='pr1979.GR3'
+
+      namep='pr1979.GR3'//CHAR(0)
       CALL READDIMGR3(KX,KY,KT,namep)
+
+c		write(6, *) KX,KY,KT
+
       ALLOCATE (PRESS(KX,KY,KT))
 c ,PRESS0(KX,KY))
       CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
+
+		ksize = kx*ky*kt
+
+c	  call save_z(kx,ksize,PRESS, "press_by_c.ttt"//CHAR(0))
+
 ccc      NH6=KT   1 DURATION !!!
-      NH6=10    !
+!      NH6=10    !
+
+		call cycler_get_int_param("iterations"//CHAR(0),NH6 )
+
+		!write(6, *) NH6
+
+
       PRESS=PRESS/1000
    
       dht=(tka-tki)/(kt-1)
@@ -146,7 +162,12 @@ ccc      NH6=KT   1 DURATION !!!
 
 
 C     READ wind DATA
-      nameu='u1979.GR3'
+      nameu='u1979.GR3'//CHAR(0)
+
+c		call cycler_get_int_param("pressure_grd"//CHAR(0),nameu )
+
+c		write(6, *) nameu
+
       CALL READDIMGR3(KXU,KYU,KTU,nameu)
       ALLOCATE (UWD(KXU,KYU,KTU))
 c ,UWD0(KXU,KYU))
@@ -159,7 +180,7 @@ C      UWD=0
 
 
 
-      namev='v1979.GR3'
+      namev='v1979.GR3'//CHAR(0)
       CALL READDIMGR3(KXV,KYV,KTV,namev)
       ALLOCATE (VWD(KXV,KYV,KTV))
 c ,VWD0(KXV,KYV))
@@ -187,7 +208,7 @@ c ,VWD0(KXV,KYV))
 C
 C     READ IN GRID DATA AND INITIAL AND LATERAL BOUNDARY CONDITIONS
 C------------------------------------------------------------------------
-      nameh='kaspi_1_5mR.grd'
+      nameh='kaspi_1_5mR.grd'//CHAR(0)
       CALL TIDEGEN(nameh)
 C
 C********************************************************************
@@ -198,7 +219,7 @@ C********************************************************************
 
 C     END READING DATA      
       
-	open(111,file='s66.txt')
+	open(111,file='s66.txt'//CHAR(0))
 	do i=1,100
 	read(111,*,end=167) stx(i),sty(i)
 	end do
@@ -778,31 +799,31 @@ c      V2=URAND(IX)
 	RETURN
 	END
 
-      SUBROUTINE READDIMGR3(NX,NY,NZ,NAME)
-	CHARACTER*20 NAME
-      INTEGER NX,NY,NZ
-	
-      OPEN(1,FILE=NAME)
-	READ(1,*)
-	READ(1,*)NX,NY,NZ
-	CLOSE(1)
-	RETURN
-	END 
+c      SUBROUTINE READDIMGR3(NX,NY,NZ,NAME)
+c	CHARACTER*20 NAME
+c      INTEGER NX,NY,NZ
+c
+c      OPEN(1,FILE=NAME)
+c	READ(1,*)
+c	READ(1,*)NX,NY,NZ
+c	CLOSE(1)
+c	RETURN
+c	END
       
-      SUBROUTINE READGR3(NX,NY,NZ,XMI,XMA,YMI,YMA,ZMI,ZMA,NAME,Z)
+      SUBROUTINE FFREADGR3(NX,NY,NZ,XMI,XMA,YMI,YMA,ZMI,ZMA,NAME,Z)
 	REAL Z(NX,NY,NZ),XMI,XMA,YMI,YMA,ZMI,ZMA
       INTEGER NX,NY,NZ,I,J,K
       CHARACTER*20 NAME
-	
+
       OPEN(1,FILE=NAME)
 	READ(1,*)
 	READ(1,*)NX,NY,NZ
       READ(1,*) XMI,XMA
       READ(1,*) YMI,YMA
       READ(1,*) ZMI,ZMA
-	READ(1,*)(((Z(I,J,K),I=1,NX),J=1,NY),K=1,NZ) 
+	READ(1,*)(((Z(I,J,K),I=1,NX),J=1,NY),K=1,NZ)
 
 	CLOSE(1)
 	RETURN
-	END     
+	END
       
