@@ -479,7 +479,7 @@ extern "C" void readgr3_(int * nx,int * ny,int * nz,float * xmi,float * xma,floa
 }*/
 
 
-extern "C" void save_z_(int * nx,int * nsize,float * z, const char * name)
+extern "C" void SAVE_Z(int * nx,int * nsize,float * z, const char * name)
 {
 	//printf("here\n");
 	//printf("z is %f \n", z[0]);
