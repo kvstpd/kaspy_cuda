@@ -185,7 +185,7 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 
 	
 	
-	common_vars->dht = (w_data->tka - w_data->tki) / (w_data->kt - 1.0f);
+	//common_vars->dht = (w_data->tka - w_data->tki) / (w_data->kt - 1.0f);
 	
 	
 	

@@ -192,7 +192,7 @@ c		kssize = kxv * kyv * ktv
 
 c		call save_z(KXV,kssize,VWD, "f_vwd.ttt")
 
-c		dht=(tka-tki)/(kt-1)
+		dht=(tka-tki)/(kt-1)
 
        arrays_marker = 3.1415926535897932384626433832795010
        arrays_end_marker = 0.9876543211234567890
