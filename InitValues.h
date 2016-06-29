@@ -38,7 +38,7 @@ public:
 	
 	void read_grd(char * name, int * nx, int * ny, int * nz,
 							 float * xmi = 0, float * xma = 0, float * ymi = 0, float * yma = 0,
-				  float * zmi = 0, float * zma = 0, float * z = 0);
+				  float * zmi = 0, float * zma = 0, float ** z = 0, float multiplier = 1.0);
 
 	
 	void save_z(const char * name, float * z, int zSize, int nCols);

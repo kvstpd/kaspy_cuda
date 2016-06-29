@@ -34,6 +34,11 @@ DrawArrayWindow  * defaultGlWindow = 0;
 InitValues * initValues = 0;
 
 
+float * c_press = 0;
+float * c_uwd = 0;
+float * c_vwd = 0;
+
+
 void _i_cycler_time()
 {
     double new_time;
@@ -127,12 +132,10 @@ extern "C" void cycler_get_string_param_(char * parName, char * param)
 
 
 void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
-                int * wind_marker,
-                   float * press,  float * uwd, float * vwd)
+                int * wind_marker)
 {
-    if ((vars_marker == 0) || (arrays_marker == 0)
-        || (ffloats_marker == 0) || (press == 0)
-        || (wind_marker == 0))
+    if ((initValues == 0) || (vars_marker == 0) || (arrays_marker == 0)
+        || (ffloats_marker == 0) || (wind_marker == 0))
     {
 		*icycler = -1;
 		
@@ -143,15 +146,38 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
     _i_cycler_time();
 
 	 
-	if (initValues && initValues->m_show_window)
+	if (initValues->m_show_window)
 	{
 		defaultGlWindow = new DrawArrayWindow();
 	}
 	
+	
+	/// read_grd(char * name, int * nx, int * ny, int * nz,
+	//	float * xmi, float * xma, float * ymi, float * yma,
+	//float * zmi, float * zma, float ** z = 0, float multiplier)
+	
+	//ALLOCATE (PRESS(KX,KY,KT))
+	//c ,PRESS0(KX,KY))
+	//CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
+	
+	//CALL READDIMGR3(KXU,KYU,KTU,nameu)
+	//ALLOCATE (UWD(KXU,KYU,KTU))
+	//c ,UWD0(KXU,KYU))
+	//CALL READGR3
+	//1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
+	
+	
+	initValues->read_grd(initValues->m_pressure_grd, &m_fWindData->kx, &m_fWindData->ky, &m_fWindData->kt, &m_fWindData->xki, &m_fWindData->xka, &m_fWindData->yki, &m_fWindData->yka, &m_fWindData->tki, &m_fWindData->tka, &c_press, 0.001f );
+
+	initValues->read_grd(initValues->m_u_wind_grd, &m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->ktu, &m_fWindData->xkui, &m_fWindData->xkua, &m_fWindData->ykui, &m_fWindData->ykua, &m_fWindData->tkui, &m_fWindData->tkua, &c_uwd );
+	
+	initValues->read_grd(initValues->m_v_wind_grd, &m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->ktv, &m_fWindData->xkvi, &m_fWindData->xkva, &m_fWindData->ykvi, &m_fWindData->ykva, &m_fWindData->tkvi, &m_fWindData->tkva, &c_vwd );
+	
+	
     cycler = new KaspyCycler((fortran_common_vars *)vars_marker,
                              (fortran_common_arrays *)arrays_marker, (fortran_ffloats *)ffloats_marker,
                              (fortran_wind_data *)wind_marker,
-                             press, uwd, vwd);
+                             c_press, c_uwd, c_vwd);
 	
 	
 	*icycler = 0;
@@ -352,6 +378,20 @@ void _i_cycler_destroy(int * icycler)
 {
     _i_cycler_time();
 	
+	if (c_press)
+	{
+		free(c_press);
+	}
+	
+	if (c_uwd)
+	{
+		free(c_uwd);
+	}
+	
+	if (c_vwd)
+	{
+		free(c_vwd);
+	}
 	
 	
 	if (defaultGlWindow)
@@ -390,7 +430,7 @@ extern "C" void CYCLER_DESTROY(int * icycler)
 
 
  
-extern "C" void READDIMGR3(int * nx,int * ny,int * nz,char * name)
+/*extern "C" void READDIMGR3(int * nx,int * ny,int * nz,char * name)
 { 
 	if (initValues)
 	{
@@ -425,7 +465,7 @@ extern "C" void readgr3_(int * nx,int * ny,int * nz,float * xmi,float * xma,floa
 	{
 		initValues->read_grd(name, nx,ny,nz,xmi,xma,ymi,yma,zmi,zma,z);
 	}
-}
+}*/
 
 
 extern "C" void save_z_(int * nx,int * nsize,float * z, char * name)

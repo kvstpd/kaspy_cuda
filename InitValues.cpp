@@ -112,6 +112,18 @@ void InitValues::scan_parameter(char * parName, char * parValue)
 		
 		printf("Pressure GRD file is %s\n", m_pressure_grd);
 	}
+	else if (strcmp("u_wind_grd", parName) == 0)
+	{
+		sscanf(parValue, "%s", m_u_wind_grd);
+		
+		printf("U wind GRD file is %s\n", m_u_wind_grd);
+	}
+	else if (strcmp("v_wind_grd", parName) == 0)
+	{
+		sscanf(parValue, "%s", m_v_wind_grd);
+		
+		printf("V wind GRD file is %s\n", m_v_wind_grd);
+	}
 	
 	
 }
@@ -156,15 +168,14 @@ void InitValues::get_string_parameter(char * parName, char * param)
 
 void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 			  float * xmi, float * xma, float * ymi, float * yma,
-			  float * zmi, float * zma, float * z)
+			  float * zmi, float * zma, float ** z = 0, float multiplier)
 {
 	char lineChars[1024];
 	char * line = &lineChars[0];
 	
 	int readValues = 0;
-	int maxValues =  (*nx) * (*ny) * (*nz);
 	
-	float * z0 = z;
+
 	
 	FILE * hnd = fopen(name, "r");
 	
@@ -175,6 +186,11 @@ void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 		if ((line = fgets(line, sizeof(lineChars), hnd)))
 		{
 			sscanf(line, "%d %d %d", nx, ny, nz);
+		}
+		else
+		{
+			print("GR3 file read error!\n");
+			return;
 		}
 		
 		
@@ -195,15 +211,29 @@ void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 				sscanf(line, "%f %f", zmi, zma);
 			}
 			
+			
+			int maxValues =  (*nx) * (*ny) * (*nz);
+			
 			char * val;
 			
 			bool mustEnd = false;
 			
 			int nchars;
 			
-			//int ix = 0;
-			//int iy = 0;
-			//int iz = 0;
+			float * zz = malloc(maxValues * sizeof(float) );
+			
+			
+	
+			
+			if (!zz)
+			{
+				print("memory allocation error!\n");
+				return;
+			}
+			
+			float * zz0 = zz;
+			
+			*z = zz0;
 			
 			
 			while (!mustEnd && ((line = fgets(line, sizeof(lineChars), hnd))))
@@ -212,11 +242,6 @@ void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 				
 				while ((val = strchr(val, ' ')))
 				{
-					//ix = readValues % (*nx);
-					//iy = (readValues / (*nx)) % (*ny);
-					//iz = (readValues / (*nx)) / (*ny);
-					
-					
 					if (++readValues > maxValues)
 					{
 						//printf("reached ix %d iy %d iz %d\n", ix, iy, iz);
@@ -225,7 +250,7 @@ void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 					}
 					
 					
-					sscanf(val, "%f%n", z++, &nchars );
+					sscanf(val, "%f%n", zz++, &nchars );
 					val += nchars;
 				}
 				
@@ -235,15 +260,20 @@ void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 			
 			
 			
+			if (multiplier != 1.0f)
+			{
+				while (zz0 < zz)
+				{
+					*zz0 *= multiplier;
+					zz0++;
+				}
+			}	
 		}
 		
 		
 		fclose(hnd);
 		
-		/*if (strcmp("pr1979.GR3", name) == 0)
-			{
-		 save_z("test.ttt", z0, maxValues, *nx );
-			}*/
+
 	}
 }
 
