@@ -220,7 +220,7 @@ void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 			
 			int nchars;
 			
-			float * zz = malloc(maxValues * sizeof(float) );
+			float * zz = (float *) malloc(maxValues * sizeof(float) );
 			
 			
 	
