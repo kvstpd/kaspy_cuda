@@ -130,14 +130,14 @@ C--------------------------------------------------------------------
 
 
 
-     namep='pr1979.GR3'//CHAR(0)
-      CALL READDIMGR3(KX,KY,KT,namep)
+       namep='pr1979.GR3'//CHAR(0)
+       CALL READDIMGR3(KX,KY,KT,namep)
 
 		write(6, *) KX,KY,KT
 
       ALLOCATE (PRESS(KX,KY,KT))
 c ,PRESS0(KX,KY))
-     CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
+      CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
 
 
 ccc      NH6=KT   1 DURATION !!!
