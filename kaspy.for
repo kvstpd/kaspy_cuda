@@ -160,17 +160,17 @@ c	 call save_z(KX,kssize,PRESS, "f_press.ttt")
 
 
 C     READ wind DATA
-c      nameu='u1979.GR3'//CHAR(0)
+      nameu='u1979.GR3'//CHAR(0)
 
 c		call cycler_get_int_param("pressure_grd"//CHAR(0),nameu )
 
 c		write(6, *) nameu
 
-c      CALL FFREADDIMGR3(KXU,KYU,KTU,nameu)
-c      ALLOCATE (UWD(KXU,KYU,KTU))
+      CALL FFREADDIMGR3(KXU,KYU,KTU,nameu)
+      ALLOCATE (UWD(KXU,KYU,KTU))
 c ,UWD0(KXU,KYU))
-c      CALL FFREADGR3
-c     1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
+      CALL FFREADGR3
+     1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
 C  береп б 0 !!!!!!
 C      UWD=0
 
@@ -180,12 +180,12 @@ c     	 call save_z(KXU,kssize,UWD, "f_uwd.ttt")
 
 
 
-c      namev='v1979.GR3'//CHAR(0)
-c      CALL FFREADDIMGR3(KXV,KYV,KTV,namev)
-c      ALLOCATE (VWD(KXV,KYV,KTV))
+      namev='v1979.GR3'//CHAR(0)
+      CALL FFREADDIMGR3(KXV,KYV,KTV,namev)
+      ALLOCATE (VWD(KXV,KYV,KTV))
 c ,VWD0(KXV,KYV))
-c      CALL FFREADGR3
-c     1 (KXV,KYV,KTV,XKVI,XKVA,YKVI,YKVA,TKVI,TKVA,namev,VWD)
+      CALL FFREADGR3
+     1 (KXV,KYV,KTV,XKVI,XKVA,YKVI,YKVA,TKVI,TKVA,namev,VWD)
 c      VWD=0
 
 c		kssize = kxv * kyv * ktv
@@ -202,7 +202,7 @@ c		call save_z(KXV,kssize,VWD, "f_vwd.ttt")
 		icycler = -1
 
        call cycler_create(icycler, dht, arrays_marker,
-     1  ff_marker, kx, press)
+     1  ff_marker, kx, press(1,1,1), uwd(1,1,1), vwd(1,1,1) )
 
 		if (icycler.lt.0) then
 			write(6,*) "cycler creation failed!"
