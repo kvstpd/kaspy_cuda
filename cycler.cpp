@@ -213,7 +213,7 @@ extern "C" void CYCLER_CREATE(int * icycler, float * vars_marker, double * array
 extern "C" void cycler_create_(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
                               int * wind_marker)
 {
-    _i_cycler_init(icycler, vars_marker, arrays_marker, ffloats_marker, wind_marker, 0);
+    _i_cycler_init(icycler, vars_marker, arrays_marker, ffloats_marker, wind_marker, 0, 0, 0);
 }
 
 
