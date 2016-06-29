@@ -179,13 +179,13 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	
 	
 	
-	common_vars->dht=(w_data->tka - w_data->tki) / (w_data->kt - 1.0f);
+	common_vars->dht = (w_data->tka - w_data->tki) / (w_data->kt - 1.0f);
 	
 	
 	
 	
-    cycler = new KaspyCycler((common_vars,
-                             (fortran_common_arrays *)arrays_marker, (fortran_ffloats *)ffloats_marker, w_data,
+    cycler = new KaspyCycler(common_vars, (fortran_common_arrays *)arrays_marker,
+							 (fortran_ffloats *)ffloats_marker, w_data,
                              c_press, c_uwd, c_vwd);
 	
 	
