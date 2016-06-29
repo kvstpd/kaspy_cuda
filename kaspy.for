@@ -160,34 +160,37 @@ c	 call save_z(KX,kssize,PRESS, "f_press.ttt")
 
 
 C     READ wind DATA
-      nameu='u1979.GR3'//CHAR(0)
+c      nameu='u1979.GR3'//CHAR(0)
 
-		call cycler_get_int_param("pressure_grd"//CHAR(0),nameu )
+c		call cycler_get_int_param("pressure_grd"//CHAR(0),nameu )
 
 c		write(6, *) nameu
 
-      CALL FFREADDIMGR3(KXU,KYU,KTU,nameu)
-      ALLOCATE (UWD(KXU,KYU,KTU))
+c      CALL FFREADDIMGR3(KXU,KYU,KTU,nameu)
+c      ALLOCATE (UWD(KXU,KYU,KTU))
 c ,UWD0(KXU,KYU))
-      CALL FFREADGR3
-     1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
+c      CALL FFREADGR3
+c     1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
 C  береп б 0 !!!!!!
 C      UWD=0
 
-		kssize = kxu * kyu * ktu
+c		kssize = kxu * kyu * ktu
 
-     	 call save_z(KXU,kssize,UWD, "f_uwd.ttt")
+c     	 call save_z(KXU,kssize,UWD, "f_uwd.ttt")
 
 
 
-c      namev='v1979.GR3'//CHAR(0)
-c      CALL READDIMGR3(KXV,KYV,KTV,namev)
-c      ALLOCATE (VWD(KXV,KYV,KTV))
+      namev='v1979.GR3'//CHAR(0)
+      CALL FFREADDIMGR3(KXV,KYV,KTV,namev)
+      ALLOCATE (VWD(KXV,KYV,KTV))
 c ,VWD0(KXV,KYV))
-c      CALL READGR3
-c     1 (KXV,KYV,KTV,XKVI,XKVA,YKVI,YKVA,TKVI,TKVA,namev,VWD)
+      CALL FFREADGR3
+     1 (KXV,KYV,KTV,XKVI,XKVA,YKVI,YKVA,TKVI,TKVA,namev,VWD)
 c      VWD=0
 
+		kssize = kxv * kyv * ktv
+
+		call save_z(KXV,kssize,VWD, "f_vwd.ttt")
 
 c		dht=(tka-tki)/(kt-1)
 
