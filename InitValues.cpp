@@ -43,7 +43,7 @@ void InitValues::read()
 					continue;
 					break;
 					
-					
+				
 				default:
 					equals = strchr(line, '=');
 					
