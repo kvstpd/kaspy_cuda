@@ -128,7 +128,7 @@ C--------------------------------------------------------------------
 
 	  call cycler_read_ini()
 
-
+		call cycler_get_int_param("iterations"//CHAR(0),NH6 )
 
 
        arrays_marker = 3.1415926535897932384626433832795010
@@ -176,6 +176,10 @@ C     END READING DATA
 
 
         hours=(NH6-1)*dht
+
+		write (*,*) 'nh6=',nh6
+       write (*,*) 'duration=',hours
+
 c	hours=720
         write (*,*) 'duration=',hours
 
