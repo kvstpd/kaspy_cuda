@@ -178,6 +178,10 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	initValues->read_grd(initValues->m_v_wind_grd, &w_data->kxv, &w_data->kyv, &w_data->ktv, &w_data->xkvi, &w_data->xkva, &w_data->ykvi, &w_data->ykva, &w_data->tkvi, &w_data->tkva, &c_vwd );
 	
 	
+	int size = w_data->kx * w_data->ky * w_data->kt;
+	
+	save_z_(&w_data->kx, &size , c_press, "c_press.ttt");
+	
 	
 	common_vars->dht = (w_data->tka - w_data->tki) / (w_data->kt - 1.0f);
 	
@@ -473,7 +477,7 @@ extern "C" void readgr3_(int * nx,int * ny,int * nz,float * xmi,float * xma,floa
 }*/
 
 
-extern "C" void save_z_(int * nx,int * nsize,float * z, char * name)
+extern "C" void save_z_(int * nx,int * nsize,float * z, const char * name)
 {
 	//printf("here\n");
 	//printf("z is %f \n", z[0]);

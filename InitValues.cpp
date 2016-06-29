@@ -256,7 +256,7 @@ void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 				
 			}
 			
-			printf("read %d values\n", readValues - 1);
+			//printf("read %d values\n", readValues - 1);
 			
 			
 			

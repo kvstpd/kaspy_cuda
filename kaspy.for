@@ -203,6 +203,14 @@ c		dht=(tka-tki)/(kt-1)
 			stop
 		end if
 
+
+		iasize = kx*ky*kt
+
+		
+
+c		save_z_(int * nx,int * nsize,float * z, char * name)
+
+
 C
 C     READ IN GRID DATA AND INITIAL AND LATERAL BOUNDARY CONDITIONS
 C------------------------------------------------------------------------
