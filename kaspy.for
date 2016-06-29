@@ -92,8 +92,8 @@ c        ! ALL TOGETHER 8760 hours
      8     ff_end
 
       COMMON/F_WIND/kx,ky,kt,kxu,kyu,ktu,kxv,kyv,ktv,
-     1  XKI,XKA,YKI,YKA,XKUI,XKUA,YKUI,YKUA,
-     2  XKVI,XKVA,YKVI,YKVA
+     1  XKI,XKA,YKI,YKA,TKI,TKA,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,
+     2  XKVI,XKVA,YKVI,YKVA,TKVI,TKVA
 
       real*8
      5     SEL(IM,JM),SSEL(IM,JM),SFA(IM,JM),SSFA(IM,JM),SFEL(IM,JM),
@@ -159,17 +159,17 @@ c      PRESS=PRESS/1000
 
 
 C     READ wind DATA
-      nameu='u1979.GR3'//CHAR(0)
+c      nameu='u1979.GR3'//CHAR(0)
 
 c		call cycler_get_int_param("pressure_grd"//CHAR(0),nameu )
 
 c		write(6, *) nameu
 
-      CALL READDIMGR3(KXU,KYU,KTU,nameu)
-      ALLOCATE (UWD(KXU,KYU,KTU))
+c      CALL READDIMGR3(KXU,KYU,KTU,nameu)
+c      ALLOCATE (UWD(KXU,KYU,KTU))
 c ,UWD0(KXU,KYU))
-      CALL READGR3
-     1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
+c      CALL READGR3
+c     1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
 C  береп б 0 !!!!!!
 C      UWD=0
 
@@ -177,13 +177,13 @@ C      UWD=0
 
 
 
-      namev='v1979.GR3'//CHAR(0)
-      CALL READDIMGR3(KXV,KYV,KTV,namev)
-      ALLOCATE (VWD(KXV,KYV,KTV))
+c      namev='v1979.GR3'//CHAR(0)
+c      CALL READDIMGR3(KXV,KYV,KTV,namev)
+c      ALLOCATE (VWD(KXV,KYV,KTV))
 c ,VWD0(KXV,KYV))
-      CALL READGR3
-     1 (KXV,KYV,KTV,XKVI,XKVA,YKVI,YKVA,TKVI,TKVA,namev,VWD)
-      VWD=0
+c      CALL READGR3
+c     1 (KXV,KYV,KTV,XKVI,XKVA,YKVI,YKVA,TKVI,TKVA,namev,VWD)
+c      VWD=0
 
 
 		dht=(tka-tki)/(kt-1)
@@ -196,7 +196,7 @@ c ,VWD0(KXV,KYV))
 		icycler = -1
 
        call cycler_create(icycler, dht, arrays_marker,
-     1  ff_marker, kx, PRESS(1,1,1), uwd(1,1,1), vwd(1,1,1))
+     1  ff_marker, kx)
 
 		if (icycler.lt.0) then
 			write(6,*) "cycler creation failed!"

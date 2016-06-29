@@ -145,17 +145,23 @@ typedef struct{
     float xka;
     float yki;
     float yka;
-    
+	float tki;
+	float tka;
+	
     float xkui;
     float xkua;
     float ykui;
     float ykua;
-    
+	float tkui;
+	float tkua;
+	
     float xkvi;
     float xkva;
     float ykvi;
     float ykva;
-    
+	float tkvi;
+	float tkva;
+	
 } fortran_wind_data;
 
 
