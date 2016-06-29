@@ -72,6 +72,9 @@ DrawArrayWindow.o: DrawArrayWindow.cu
 multithreading.o: multithreading.cpp
 	$(NVCC) -ccbin clang $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
 
+InitValues.obj: InitValues.cpp
+	$(NVCC) -ccbin clang $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
+
 oclean:
 	rm -f *.o
 

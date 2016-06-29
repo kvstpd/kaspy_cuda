@@ -13,6 +13,7 @@
 		2BA310AD1CF4582C00F501CF /* KaspyCycler.cu */ = {isa = PBXFileReference; lastKnownFileType = text; path = KaspyCycler.cu; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		2BA310AE1CF4582C00F501CF /* KaspyCycler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KaspyCycler.h; sourceTree = "<group>"; };
 		2BB58ABD1CF73C98002770AB /* Makefile.cygother */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.cygother; sourceTree = "<group>"; };
+		2BBB5E8C1D244BB7000389E9 /* InitValues.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = InitValues.cpp; sourceTree = "<group>"; };
 		2BBBBB681CF4CE8E00629C93 /* Makefile.MacCUDA */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.MacCUDA; sourceTree = "<group>"; };
 		2BD529EC1D1D5CF300B573DA /* multithreading.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = multithreading.cpp; sourceTree = "<group>"; };
 		2BD529ED1D1D5CFB00B573DA /* multithreading.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = multithreading.h; sourceTree = "<group>"; };
@@ -36,6 +37,7 @@
 				2BE06F361CF415A900038345 /* comblk.for */,
 				2BE06F371CF415A900038345 /* cycler.cpp */,
 				2BD529EE1D1D605E00B573DA /* InitValues.h */,
+				2BBB5E8C1D244BB7000389E9 /* InitValues.cpp */,
 				2BD529EF1D1D60CA00B573DA /* Kaspy.ini */,
 				2BA310AE1CF4582C00F501CF /* KaspyCycler.h */,
 				2BA310AD1CF4582C00F501CF /* KaspyCycler.cu */,
