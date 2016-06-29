@@ -167,16 +167,18 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	//1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
 	
 	
-	initValues->read_grd(initValues->m_pressure_grd, &m_fWindData->kx, &m_fWindData->ky, &m_fWindData->kt, &m_fWindData->xki, &m_fWindData->xka, &m_fWindData->yki, &m_fWindData->yka, &m_fWindData->tki, &m_fWindData->tka, &c_press, 0.001f );
-
-	initValues->read_grd(initValues->m_u_wind_grd, &m_fWindData->kxu, &m_fWindData->kyu, &m_fWindData->ktu, &m_fWindData->xkui, &m_fWindData->xkua, &m_fWindData->ykui, &m_fWindData->ykua, &m_fWindData->tkui, &m_fWindData->tkua, &c_uwd );
+	fortran_wind_data * w_data = (fortran_wind_data *)wind_marker;
 	
-	initValues->read_grd(initValues->m_v_wind_grd, &m_fWindData->kxv, &m_fWindData->kyv, &m_fWindData->ktv, &m_fWindData->xkvi, &m_fWindData->xkva, &m_fWindData->ykvi, &m_fWindData->ykva, &m_fWindData->tkvi, &m_fWindData->tkva, &c_vwd );
+	
+	initValues->read_grd(initValues->m_pressure_grd, &w_data->kx, &w_data->ky, &w_data->kt, &w_data->xki, &w_data->xka, &w_data->yki, &w_data->yka, &w_data->tki, &w_data->tka, &c_press, 0.001f );
+
+	initValues->read_grd(initValues->m_u_wind_grd, &w_data->kxu, &w_data->kyu, &w_data->ktu, &w_data->xkui, &w_data->xkua, &w_data->ykui, &w_data->ykua, &w_data->tkui, &w_data->tkua, &c_uwd );
+	
+	initValues->read_grd(initValues->m_v_wind_grd, &w_data->kxv, &w_data->kyv, &w_data->ktv, &w_data->xkvi, &w_data->xkva, &w_data->ykvi, &w_data->ykva, &w_data->tkvi, &w_data->tkva, &c_vwd );
 	
 	
     cycler = new KaspyCycler((fortran_common_vars *)vars_marker,
-                             (fortran_common_arrays *)arrays_marker, (fortran_ffloats *)ffloats_marker,
-                             (fortran_wind_data *)wind_marker,
+                             (fortran_common_arrays *)arrays_marker, (fortran_ffloats *)ffloats_marker, w_data,
                              c_press, c_uwd, c_vwd);
 	
 	
