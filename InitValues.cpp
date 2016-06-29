@@ -155,8 +155,8 @@ void InitValues::get_string_parameter(char * parName, char * param)
 
 
 void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
-			  float * xmi = 0, float * xma = 0, float * ymi = 0, float * yma = 0,
-			  float * zmi = 0, float * zma = 0, float * z = 0)
+			  float * xmi, float * xma, float * ymi, float * yma,
+			  float * zmi, float * zma, float * z)
 {
 	char lineChars[1024];
 	char * line = &lineChars[0];
