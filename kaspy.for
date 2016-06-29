@@ -130,14 +130,14 @@ C--------------------------------------------------------------------
 
 
 
-c       namep='pr1979.GR3'//CHAR(0)
-c       CALL FFREADDIMGR3(KX,KY,KT,namep)
+       namep='pr1979.GR3'//CHAR(0)
+       CALL FFREADDIMGR3(KX,KY,KT,namep)
 
-c		write(6, *) KX,KY,KT
+		write(6, *) KX,KY,KT
 
-c      ALLOCATE (PRESS(KX,KY,KT))
+      ALLOCATE (PRESS(KX,KY,KT))
 c ,PRESS0(KX,KY))
-c      CALL FFREADGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
+      CALL FFREADGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
 
 
 ccc      NH6=KT   1 DURATION !!!
@@ -180,17 +180,17 @@ c     	 call save_z(KXU,kssize,UWD, "f_uwd.ttt")
 
 
 
-      namev='v1979.GR3'//CHAR(0)
-      CALL FFREADDIMGR3(KXV,KYV,KTV,namev)
-      ALLOCATE (VWD(KXV,KYV,KTV))
+c      namev='v1979.GR3'//CHAR(0)
+c      CALL FFREADDIMGR3(KXV,KYV,KTV,namev)
+c      ALLOCATE (VWD(KXV,KYV,KTV))
 c ,VWD0(KXV,KYV))
-      CALL FFREADGR3
-     1 (KXV,KYV,KTV,XKVI,XKVA,YKVI,YKVA,TKVI,TKVA,namev,VWD)
+c      CALL FFREADGR3
+c     1 (KXV,KYV,KTV,XKVI,XKVA,YKVI,YKVA,TKVI,TKVA,namev,VWD)
 c      VWD=0
 
-		kssize = kxv * kyv * ktv
+c		kssize = kxv * kyv * ktv
 
-		call save_z(KXV,kssize,VWD, "f_vwd.ttt")
+c		call save_z(KXV,kssize,VWD, "f_vwd.ttt")
 
 c		dht=(tka-tki)/(kt-1)
 
@@ -202,7 +202,7 @@ c		dht=(tka-tki)/(kt-1)
 		icycler = -1
 
        call cycler_create(icycler, dht, arrays_marker,
-     1  ff_marker, kx)
+     1  ff_marker, kx, press)
 
 		if (icycler.lt.0) then
 			write(6,*) "cycler creation failed!"
