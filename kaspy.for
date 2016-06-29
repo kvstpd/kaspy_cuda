@@ -148,7 +148,7 @@ ccc      NH6=KT   1 DURATION !!!
 		!write(6, *) NH6
 
 
-c      PRESS=PRESS/1000
+      PRESS=PRESS/1000
 
 c		kssize = kx * ky * kt
 
