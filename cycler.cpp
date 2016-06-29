@@ -180,7 +180,9 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	
 	int size = w_data->kx * w_data->ky * w_data->kt;
 	
-	save_z_(&w_data->kx, &size , c_press, "c_press.ttt");
+	initValues->save_z("c_press.ttt", c_press, size, w_data->kx);
+	
+
 	
 	
 	common_vars->dht = (w_data->tka - w_data->tki) / (w_data->kt - 1.0f);
