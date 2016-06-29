@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include <stdlib.h>
 
 #include "InitValues.h"
 
@@ -168,7 +168,7 @@ void InitValues::get_string_parameter(char * parName, char * param)
 
 void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 			  float * xmi, float * xma, float * ymi, float * yma,
-			  float * zmi, float * zma, float ** z = 0, float multiplier)
+			  float * zmi, float * zma, float ** z, float multiplier)
 {
 	char lineChars[1024];
 	char * line = &lineChars[0];
@@ -189,7 +189,7 @@ void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 		}
 		else
 		{
-			print("GR3 file read error!\n");
+			printf("GR3 file read error!\n");
 			return;
 		}
 		
@@ -227,7 +227,7 @@ void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 			
 			if (!zz)
 			{
-				print("memory allocation error!\n");
+				printf("memory allocation error!\n");
 				return;
 			}
 			
