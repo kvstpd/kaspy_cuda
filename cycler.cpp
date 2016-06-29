@@ -178,9 +178,9 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	initValues->read_grd(initValues->m_v_wind_grd, &w_data->kxv, &w_data->kyv, &w_data->ktv, &w_data->xkvi, &w_data->xkva, &w_data->ykvi, &w_data->ykva, &w_data->tkvi, &w_data->tkva, &c_vwd );
 	
 	
-	int size = w_data->kxu * w_data->kyu * w_data->ktu;
+	int size = w_data->kxv * w_data->kyv * w_data->ktv;
 	
-	initValues->save_z("c_uwd.ttt", c_uwd, size, w_data->kxu);
+	initValues->save_z("c_vwd.ttt", c_vwd, size, w_data->kxv);
 	
 
 	
