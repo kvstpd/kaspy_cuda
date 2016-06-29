@@ -132,7 +132,7 @@ extern "C" void cycler_get_string_param_(char * parName, char * param)
 
 
 void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
-                int * wind_marker, float * press, float * uwd, float * vwd)
+                int * wind_marker)
 {
     if ((initValues == 0) || (vars_marker == 0) || (arrays_marker == 0)
         || (ffloats_marker == 0) || (wind_marker == 0))
@@ -171,11 +171,11 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	fortran_common_vars * common_vars = (fortran_common_vars *)vars_marker;
 	
 	
-	//initValues->read_grd(initValues->m_pressure_grd, &w_data->kx, &w_data->ky, &w_data->kt, &w_data->xki, &w_data->xka, &w_data->yki, &w_data->yka, &w_data->tki, &w_data->tka, &c_press, 0.001f );
+	initValues->read_grd(initValues->m_pressure_grd, &w_data->kx, &w_data->ky, &w_data->kt, &w_data->xki, &w_data->xka, &w_data->yki, &w_data->yka, &w_data->tki, &w_data->tka, &c_press, 0.001f );
 
-	//initValues->read_grd(initValues->m_u_wind_grd, &w_data->kxu, &w_data->kyu, &w_data->ktu, &w_data->xkui, &w_data->xkua, &w_data->ykui, &w_data->ykua, &w_data->tkui, &w_data->tkua, &c_uwd );
+	initValues->read_grd(initValues->m_u_wind_grd, &w_data->kxu, &w_data->kyu, &w_data->ktu, &w_data->xkui, &w_data->xkua, &w_data->ykui, &w_data->ykua, &w_data->tkui, &w_data->tkua, &c_uwd );
 	
-	//initValues->read_grd(initValues->m_v_wind_grd, &w_data->kxv, &w_data->kyv, &w_data->ktv, &w_data->xkvi, &w_data->xkva, &w_data->ykvi, &w_data->ykva, &w_data->tkvi, &w_data->tkva, &c_vwd );
+	initValues->read_grd(initValues->m_v_wind_grd, &w_data->kxv, &w_data->kyv, &w_data->ktv, &w_data->xkvi, &w_data->xkva, &w_data->ykvi, &w_data->ykva, &w_data->tkvi, &w_data->tkva, &c_vwd );
 	
 	
 	//int size = w_data->kxv * w_data->kyv * w_data->ktv;
@@ -185,14 +185,14 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 
 	
 	
-	//common_vars->dht = (w_data->tka - w_data->tki) / (w_data->kt - 1.0f);
+	common_vars->dht = (w_data->tka - w_data->tki) / (w_data->kt - 1.0f);
 	
 	
 	
 	
     cycler = new KaspyCycler(common_vars, (fortran_common_arrays *)arrays_marker,
 							 (fortran_ffloats *)ffloats_marker, w_data,
-                             press, uwd, vwd);
+                             c_press, c_uwd, c_vwd);
 	
 	
 	*icycler = 0;
@@ -204,16 +204,16 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 
 // Intel Fortran WIN naming
 extern "C" void CYCLER_CREATE(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
-                             int * wind_marker, float * press, float * uwd, float * vwd)
+                             int * wind_marker)
 {
-    _i_cycler_init(icycler, vars_marker, arrays_marker, ffloats_marker, wind_marker, press, uwd, vwd);
+    _i_cycler_init(icycler, vars_marker, arrays_marker, ffloats_marker, wind_marker);
 }
 
 // GFortran Unix naming
 extern "C" void cycler_create_(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
                               int * wind_marker)
 {
-    _i_cycler_init(icycler, vars_marker, arrays_marker, ffloats_marker, wind_marker, 0, 0, 0);
+    _i_cycler_init(icycler, vars_marker, arrays_marker, ffloats_marker, wind_marker);
 }
 
 
