@@ -186,7 +186,7 @@ c     1 (KXV,KYV,KTV,XKVI,XKVA,YKVI,YKVA,TKVI,TKVA,namev,VWD)
 c      VWD=0
 
 
-		dht=(tka-tki)/(kt-1)
+c		dht=(tka-tki)/(kt-1)
 
        arrays_marker = 3.1415926535897932384626433832795010
        arrays_end_marker = 0.9876543211234567890
