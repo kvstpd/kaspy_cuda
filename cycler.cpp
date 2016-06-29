@@ -204,7 +204,7 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 
 // Intel Fortran WIN naming
 extern "C" void CYCLER_CREATE(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
-                             int * wind_marker, float * press, , float * uwd, float * vwd)
+                             int * wind_marker, float * press, float * uwd, float * vwd)
 {
     _i_cycler_init(icycler, vars_marker, arrays_marker, ffloats_marker, wind_marker, press, uwd, vwd);
 }
