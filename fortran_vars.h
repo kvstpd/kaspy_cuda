@@ -124,9 +124,9 @@ typedef struct{
 } fortran_ffloats;
 
 
-//       COMMON/F_WIND/kx,ky,kt,kxu,kyu,ktu,kxv,kyv,ktv,
-//1  XKI,XKA,YKI,YKA,XKUI,XKUA,YKUI,YKUA,
-//2  XKVI,XKVA,YKVI,YKVA
+//            COMMON/F_WIND/kx,ky,kt, kxu,kyu,ktu, kxv,kyv,ktv,
+//1  XKI,XKA,YKI,YKA,TKI,TKA, XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,
+//2  XKVI,XKVA,YKVI,YKVA,TKVI,TKVA
 
 typedef struct{
     int kx;

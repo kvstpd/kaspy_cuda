@@ -130,14 +130,14 @@ C--------------------------------------------------------------------
 
 
 
-c c     namep='pr1979.GR3'//CHAR(0)
-c      CALL READDIMGR3(KX,KY,KT,namep)
+     namep='pr1979.GR3'//CHAR(0)
+      CALL READDIMGR3(KX,KY,KT,namep)
 
-c		write(6, *) KX,KY,KT
+		write(6, *) KX,KY,KT
 
-c      ALLOCATE (PRESS(KX,KY,KT))
+      ALLOCATE (PRESS(KX,KY,KT))
 c ,PRESS0(KX,KY))
-c c     CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
+     CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
 
 
 ccc      NH6=KT   1 DURATION !!!
@@ -148,10 +148,11 @@ ccc      NH6=KT   1 DURATION !!!
 		!write(6, *) NH6
 
 
-c      PRESS=PRESS/1000
-   
+      PRESS=PRESS/1000
 
+		kssize = kx * ky * kt
 
+	 call save_z(KX,kssize,PRESS, "f_press.ttt")
 
 
 
@@ -204,7 +205,7 @@ c		dht=(tka-tki)/(kt-1)
 		end if
 
 
-		iasize = kx*ky*kt
+c 		iasize = kx*ky*kt
 
 		
 
