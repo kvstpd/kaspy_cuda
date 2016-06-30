@@ -189,7 +189,7 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	
 	initValues->read_stations(&nstations, &c_stations_x, &c_stations_y, &c_station_elves);
 	
-	printf("read %d stations", nstations);
+	printf("read %d stations\n", nstations);
 	
 	//int size = w_data->kxv * w_data->kyv * w_data->ktv;
 	
