@@ -189,8 +189,8 @@ void InitValues::read_stations(int * n, float ** sx, float ** sy, float ** s_dat
 	
 	if (hnd!= NULL)
 	{
-		float * xx = malloc(MAX_STATIONS * sizeof(float));
-		float * yy = malloc(MAX_STATIONS * sizeof(float));
+		float * xx = (float *)malloc(MAX_STATIONS * sizeof(float));
+		float * yy = (float *)malloc(MAX_STATIONS * sizeof(float));
 		
 		if (xx && yy)
 		{
@@ -211,7 +211,7 @@ void InitValues::read_stations(int * n, float ** sx, float ** sy, float ** s_dat
 			
 			*n = readValues;
 			
-			float * ss = malloc(readValues * m_iterations * sizeof(float));
+			float * ss = (float *)malloc(readValues * m_iterations * sizeof(float));
 			
 			if (ss)
 			{
