@@ -35,6 +35,20 @@ float grav = 9.806;
 
 CachingDeviceAllocator  g_allocator(true);
 
+
+
+float * g_stations_x = 0;
+float * g_stations_y = 0;
+
+float * g_station_elves = 0;
+
+__device__ float * dev_stations_x = 0;
+__device__ float * dev_stations_y = 0;
+
+__device__ float * dev_station_elves = 0;
+
+
+
 __device__ float * dev_fbu = 0;
 __device__ float * dev_fbv = 0;
 __device__ float * dev_ffu = 0;
@@ -1568,7 +1582,12 @@ int KaspyCycler::init_device()
 		&& (cudaMalloc((void **)&g_art, m_height * sizeof(float)) == cudaSuccess)
 		
 		&& (cudaMalloc((void **)&g_dx, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_dy, m_height * sizeof(float)) == cudaSuccess))
+		&& (cudaMalloc((void **)&g_dy, m_height * sizeof(float)) == cudaSuccess)
+		
+		//&& (cudaMalloc((void **)&g_stations_x, MAX_STATIONS * sizeof(float)) == cudaSuccess)
+		//&& (cudaMalloc((void **)&g_stations_y, MAX_STATIONS * sizeof(float)) == cudaSuccess)
+		//&& (cudaMalloc((void **)&g_station_elves, MAX_STATIONS * sizeof(float)) == cudaSuccess)
+		)
 	{
 		printf("GPU memory allocated\n");
 		

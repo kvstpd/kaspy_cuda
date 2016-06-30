@@ -12,6 +12,7 @@
 
 #include "InitValues.h"
 
+#include "fortran_vars.h"
 
 
 
@@ -124,8 +125,18 @@ void InitValues::scan_parameter(char * parName, char * parValue)
 		
 		printf("V wind GRD file is %s\n", m_v_wind_grd);
 	}
-	
-	
+	else if (strcmp("initial_tide_grd", parName) == 0)
+	{
+		sscanf(parValue, "%s", m_initial_tide_grd);
+		
+		printf("Tide GRD file is %s\n", m_initial_tide_grd);
+	}
+	else if (strcmp("stations_file", parName) == 0)
+	{
+		sscanf(parValue, "%s", m_stations_file);
+		
+		printf("Stations file is %s\n", m_stations_file);
+	}
 }
 
 void InitValues::get_int_parameter(char * parName, int * param)
@@ -164,6 +175,68 @@ void InitValues::get_string_parameter(char * parName, char * param)
 		strncpy(param, m_pressure_grd, strlen(m_pressure_grd)+1 );
 	}
 }
+
+
+void InitValues::read_stations(int * n, float ** sx, float ** sy, float ** s_data)
+{
+	
+	char lineChars[1024];
+	char * line = &lineChars[0];
+	
+	int readValues = 0;
+	
+	FILE * hnd = fopen(m_stations_file, "r");
+	
+	if (hnd!= NULL)
+	{
+		float * xx = alloc(MAX_STATIONS * sizeof(float));
+		float * yy = alloc(MAX_STATIONS * sizeof(float));
+		
+		if (xx && yy)
+		{
+			*sx = xx;
+			*sy = yy;
+			
+			while ((line = fgets(line, sizeof(lineChars), hnd)))
+			{
+				sscanf(line, "%f %f", xx++, yy++);
+				
+				readValues++;
+				
+				if (readValues >= MAX_STATIONS)
+				{
+					break;
+				}
+			}
+			
+			*n = readValues;
+			
+			float * ss = alloc(readValues * m_iterations * sizeof(float));
+			
+			if (ss)
+			{
+				*s_data = ss;
+			}
+			else
+			{
+				printf("memory allocation error!\n");
+			}
+		}
+		else
+		{
+			printf("memory allocation error!\n");
+		}
+		
+		fclose(hnd);
+	}
+	else
+	{
+		printf("stations file read error!\n");
+	}
+	
+
+}
+
 
 
 void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,

@@ -39,6 +39,13 @@ float * c_uwd = 0;
 float * c_vwd = 0;
 
 
+
+float * c_stations_x = 0;
+float * c_stations_y = 0;
+
+float * c_station_elves = 0;
+
+
 void _i_cycler_time()
 {
     double new_time;
@@ -178,6 +185,12 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	initValues->read_grd(initValues->m_v_wind_grd, &w_data->kxv, &w_data->kyv, &w_data->ktv, &w_data->xkvi, &w_data->xkva, &w_data->ykvi, &w_data->ykva, &w_data->tkvi, &w_data->tkva, &c_vwd );
 	
 	
+	int nstations = 0;
+	
+	initValues->read_stations(&nstations, &c_stations_x, &c_stations_y, &c_station_elves);
+	
+	printf("read %d stations", nstations);
+	
 	//int size = w_data->kxv * w_data->kyv * w_data->ktv;
 	
 	//initValues->save_z("c_vwd.ttt", c_vwd, size, w_data->kxv);
@@ -187,7 +200,7 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	
 	common_vars->dht = (w_data->tka - w_data->tki) / (float)(w_data->kt - 1);
 	
-	printf("tka %f tki %f kt %d dht %f\n",w_data->tka, w_data->tki, w_data->kt,  common_vars->dht );
+	//printf("tka %f tki %f kt %d dht %f\n",w_data->tka, w_data->tki, w_data->kt,  common_vars->dht );
 	
 	
     cycler = new KaspyCycler(common_vars, (fortran_common_arrays *)arrays_marker,
@@ -404,6 +417,20 @@ void _i_cycler_destroy(int * icycler)
 		free(c_vwd);
 	}
 	
+	if (c_stations_x)
+	{
+		free(c_stations_x);
+	}
+	
+	if (c_stations_y)
+	{
+		free(c_stations_y);
+	}
+	
+	if (c_station_elves)
+	{
+		free(c_station_elves);
+	}
 	
 	if (defaultGlWindow)
 	{

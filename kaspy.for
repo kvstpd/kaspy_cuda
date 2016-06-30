@@ -101,17 +101,11 @@ c        ! ALL TOGETHER 8760 hours
      8     su(im,jm),sv(im,jm),ssu(im,jm),ssv(im,jm),
      9     ssuv(im,jm),ssue(im,jm),ssve(im,jm)
       
-      REAL, ALLOCATABLE :: PRESS(:,:,:),uwd(:,:,:),vwd(:,:,:)
-c      REAL, ALLOCATABLE :: PRESS0(:,:),uwd0(:,:),vwd0(:,:)
 
        real*8  ff_marker,ff_end
 
 
 
-
-
-C      PUBLIC PRESS
-C      COMMON/wind/uwd,vwd
      
 
 C--------------------------------------------------------------------
@@ -128,7 +122,7 @@ C--------------------------------------------------------------------
 
 	  call cycler_read_ini()
 
-		call cycler_get_int_param("iterations"//CHAR(0),NH6 )
+	  call cycler_get_int_param("iterations"//CHAR(0),NH6 )
 
 
        arrays_marker = 3.1415926535897932384626433832795010
@@ -147,11 +141,7 @@ C--------------------------------------------------------------------
 		end if
 
 
-c 		iasize = kx*ky*kt
 
-		
-
-c		save_z_(int * nx,int * nsize,float * z, char * name)
 
 
 C
@@ -339,10 +329,9 @@ c		write(6,*) icycler
 
 
 
-c call display(surf,im,jm,im,jm,-1.0,1.0,0)
         iold=0
 
-                     DO 9000 IINT=1,IEND
+		DO 9000 IINT=1,IEND
 
       timeh=(iint-1)*dti/3600.0
       ihour_s=600/dti
@@ -752,31 +741,5 @@ c      V2=URAND(IX)
 	RETURN
 	END
 
-      SUBROUTINE FFREADDIMGR3(NX,NY,NZ,NAME)
-	CHARACTER*20 NAME
-      INTEGER NX,NY,NZ
 
-      OPEN(1,FILE=NAME)
-	READ(1,*)
-	READ(1,*)NX,NY,NZ
-	CLOSE(1)
-	RETURN
-	END
-      
-      SUBROUTINE FFREADGR3(NX,NY,NZ,XMI,XMA,YMI,YMA,ZMI,ZMA,NAME,Z)
-	REAL Z(NX,NY,NZ),XMI,XMA,YMI,YMA,ZMI,ZMA
-      INTEGER NX,NY,NZ,I,J,K
-      CHARACTER*20 NAME
-
-      OPEN(1,FILE=NAME)
-	READ(1,*)
-	READ(1,*)NX,NY,NZ
-      READ(1,*) XMI,XMA
-      READ(1,*) YMI,YMA
-      READ(1,*) ZMI,ZMA
-	READ(1,*)(((Z(I,J,K),I=1,NX),J=1,NY),K=1,NZ)
-
-	CLOSE(1)
-	RETURN
-	END
       

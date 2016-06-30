@@ -41,6 +41,11 @@ public:
 				  float * zmi = 0, float * zma = 0, float ** z = 0, float multiplier = 1.0);
 
 	
+	
+	void read_stations(int * n, float ** sx, float ** sy, float ** s_data);
+
+	
+	
 	void save_z(const char * name, float * z, int zSize, int nCols);
 
 	
