@@ -1235,7 +1235,7 @@ void KaspyCycler::makeWsurf()
 			iold=itimeh;
 		
 			
-			dev_fill_station_data<<< blocksPerStations, threadsPerBlock>>>(itimeh);
+			//dev_fill_station_data<<< blocksPerStations, threadsPerBlock>>>(itimeh);
 
 		}
 		
