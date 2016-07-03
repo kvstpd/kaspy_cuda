@@ -357,7 +357,7 @@ extern "C" void CYCLER_GET_DATA_BACK(int * icycler)
 }
 
 
-CUT_THREADROUTINE cycler_work(void * data)
+CUT_THREADPROC cycler_work(void * data)
 {
 	if (cycler)
 	{
@@ -372,7 +372,7 @@ CUT_THREADROUTINE cycler_work(void * data)
 // Intel Fortran WIN naming
 extern "C" void CYCLER_WSURF(int * icycler)
 {
-	cycler_thread = cutStartThread(cycler_work, icycler);
+	cycler_thread = cutStartThread((CUT_THREADROUTINE)cycler_work, icycler);
 	
 	cutEndThread(cycler_thread);
 	
