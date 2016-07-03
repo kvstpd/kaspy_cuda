@@ -45,6 +45,8 @@ float * g_station_elves = 0;
 __device__ int * dev_stations_x = 0;
 __device__ int * dev_stations_y = 0;
 
+__device__ int * dev_nstations = 0;
+
 __device__ float * dev_station_elves = 0;
 
 
@@ -946,6 +948,23 @@ __global__ void adv_bot_3()
 
 
 
+__global__ void dev_fill_station_data(int khour)
+{
+	int n = blockDim.x * blockIdx.x + threadIdx.x;
+	
+	int ji;
+	
+	if (n < dev_nstations)
+	{
+		ji = dev_stations_y[n] * dev_width + dev_stations_x[n];
+		
+		dev_station_elves[khour * dev_nstations + n] = dev_el[ji]
+	}
+}
+
+
+
+
 float * KaspyCycler::getElves()
 {
 	return g_el;
@@ -1126,6 +1145,18 @@ void KaspyCycler::getDataToCPU()
 		
 		exit(-1);
 	}
+	
+	
+	cudaError_t err = cudaMemcpy(m_station_elves, g_station_elves,  m_stations * sizeof(float), cudaMemcpyDeviceToHost);
+	
+	if (err != cudaSuccess)
+	{
+		fprintf(stderr, "Failed to update tation data  (error code %s)!\n", cudaGetErrorString(err));
+		
+		deinit_device();
+		
+		exit(-1);
+	}
 }
 
 
@@ -1161,6 +1192,7 @@ void KaspyCycler::makeWsurf()
 	
 	int blocksPerGridJ = (m_height + threadsPerBlock - 1) / threadsPerBlock;
 	int blocksPerGridI = (m_width + threadsPerBlock - 1) / threadsPerBlock;
+	int blocksPerStations = (m_stations + threadsPerBlock - 1) / threadsPerBlock;
 	
 	dim3 threadsPerSquareBlock(initValues->m_cuda_threads_2d_x, initValues->m_cuda_threads_2d_y);
 	
@@ -1192,7 +1224,9 @@ void KaspyCycler::makeWsurf()
 		if (itimeh > iold)
 		{
 			iold=itimeh;
+		
 			
+			dev_fill_station_data<<< blocksPerStations, threadsPerBlock>>>(itimeh);
 			getDataToCPU();
 			
 			printf("elves t=%f ", timeh);
@@ -1263,7 +1297,7 @@ void KaspyCycler::makeWsurf()
 			g_vwd0 = g_vwd + (itime6 - 1) * windVSize;
 			getWindPressure('v');
 			
-			printf("PPP\n");
+			//printf("PPP\n");
 		}
 		
 		
@@ -1721,6 +1755,9 @@ int KaspyCycler::init_device()
 		&& (cudaMemcpyToSymbol(dev_stations_x, &g_stations_x, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_stations_y, &g_stations_y, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_station_elves, &g_station_elves, sizeof(float *)) == cudaSuccess)
+		
+		&& (cudaMemcpyToSymbol(dev_nstations, &m_stations, sizeof(int)) == cudaSuccess)
+		
 		)
 	{
 		printf("Device pointers initialized\n");
