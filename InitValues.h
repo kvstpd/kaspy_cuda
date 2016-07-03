@@ -61,6 +61,7 @@ public:
 	char m_v_wind_grd[128];
 	char m_initial_tide_grd[128];
 	char m_stations_file[128];
+	char m_output_stations[128];
 	
 	
 private:

@@ -1438,7 +1438,7 @@ void KaspyCycler::makeWsurf()
 	getDataToCPU();
 	
 	
-	FILE * hnd = fopen("c_res.txt", "w");
+	FILE * hnd = fopen(initValues->m_output_stations, "w");
 	
 	if (hnd!= NULL)
 	{
@@ -1450,8 +1450,7 @@ void KaspyCycler::makeWsurf()
 			{
 				fprintf(hnd, " %9.3f ", m_station_elves[(i-1) * m_stations + k]  );
 			}
-			
-			
+						
 			fprintf(hnd, " \n");
 		}
 		

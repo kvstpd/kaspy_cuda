@@ -372,10 +372,10 @@ extern "C" void CYCLER_WSURF(int * icycler)
         cycler->makeWsurf();
     }
 	
-	if (initValues && defaultGlWindow && (cycler->m_fVars->iint % initValues->m_iters_per_frame == 0 ))
+	/*if (initValues && defaultGlWindow && (cycler->m_fVars->iint % initValues->m_iters_per_frame == 0 ))
 	{
 		defaultGlWindow->gl_draw_frame();
-	}
+	}*/
 	
 }
 

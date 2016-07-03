@@ -137,6 +137,12 @@ void InitValues::scan_parameter(char * parName, char * parValue)
 		
 		printf("Stations file is %s\n", m_stations_file);
 	}
+	else if (strcmp("output_stations", parName) == 0)
+	{
+		sscanf(parValue, "%s", m_output_stations);
+		
+		printf("Will output station data to %s\n", m_output_stations);
+	}
 }
 
 void InitValues::get_int_parameter(char * parName, int * param)
