@@ -1181,7 +1181,7 @@ void KaspyCycler::makeWsurf()
 		
 		
 		
-		if (mod(i,ihour_s) == 1)
+		if ( (i % ihour_s) == 1)
 		{
 			findElves();
 			printf("elves t=%f level=%f,%f \n", timeh, m_fVars->elfmin, m_fVars->elfmax);
