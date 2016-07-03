@@ -1461,7 +1461,7 @@ void KaspyCycler::makeWsurf()
 			
 			for (int k=0; k<m_stations; k++)
 			{
-				fprintf(hnd, "\t%f9.3\t", m_station_elves[(i-1) * m_stations + k]  );
+				fprintf(hnd, " %9.3f ", m_station_elves[(i-1) * m_stations + k]  );
 			}
 			
 			
