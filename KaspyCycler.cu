@@ -1150,7 +1150,7 @@ void KaspyCycler::makeWsurf()
 	float ftim;
 	int itimeh;
 	int itime6;
-	int itime6_old;
+	int itime6_old  = 0;
 	
     int pressSize = m_fWindData->kx * m_fWindData->ky;
     int windUSize = m_fWindData->kxu * m_fWindData->kyu;
@@ -1191,6 +1191,7 @@ void KaspyCycler::makeWsurf()
 		
 		if (itimeh > iold)
 		{
+			iold=itimeh;
 			
 			//		 call cycler_get_data_back(icycler)
 		//		 write(77,'(101f10.3)') timeh,(el(stx(kk),sty(kk)),kk=1,nstation)
@@ -1388,10 +1389,7 @@ void KaspyCycler::makeWsurf()
 		{
 			printf("error calling swap_arrays_5 kernel! \n");
 		}
-		
-		
-		
-		iold=itimeh;
+
 	}
 	
 	
