@@ -1230,28 +1230,6 @@ void KaspyCycler::makeWsurf()
 		}
 		
 		
-		if (itimeh > iold)
-		{
-			iold=itimeh;
-		
-			
-			dev_fill_station_data<<< blocksPerStations, threadsPerBlock>>>(itimeh);
-			/*getDataToCPU();
-			
-			printf("elves t=%f ", timeh);
-			
-			for (int k=0; k<m_stations; k++)
-			{
-				printf("\t%f\t", m_fArrays->el[ m_stations_y[k] ] [m_stations_x[k] ]);
-			}
-			
-			
-			printf(" \n");*/
-			
-			//		 call cycler_get_data_back(icycler)
-		//		 write(77,'(101f10.3)') timeh,(el(stx(kk),sty(kk)),kk=1,nstation)
-		}
-		
 		
 		
 		ftim = fmodf(timeh6, 1.0f);
@@ -1444,6 +1422,17 @@ void KaspyCycler::makeWsurf()
 		{
 			printf("error calling swap_arrays_5 kernel! \n");
 		}
+		
+		
+		if (itimeh > iold)
+		{
+			iold=itimeh;
+			
+			
+			dev_fill_station_data<<< blocksPerStations, threadsPerBlock>>>(itimeh);
+			
+		}
+		
 
 	}
 	
