@@ -28,7 +28,7 @@ public:
 
 	void gl_deinit();
 
-	void gl_draw_frame();
+	void gl_show();
 
 	void clear_gl_objects();
 

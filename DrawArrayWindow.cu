@@ -290,10 +290,10 @@ int DrawArrayWindow::gl_rebuild_texture(int width, int height)
 }
 
 
-void DrawArrayWindow::gl_draw_frame()
+void DrawArrayWindow::gl_show()
 {
 	display();
-	glutMainLoopEvent();
+	glutMainLoop();
 }
 
 

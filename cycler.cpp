@@ -376,6 +376,12 @@ extern "C" void CYCLER_WSURF(int * icycler)
 {
 	cycler_thread = cutStartThread((CUT_THREADROUTINE)cycler_work, icycler);
 	
+	
+	if (initValues->m_show_window)
+	{
+		defaultGlWindow->gl_show();
+	}
+	
 	cutEndThread(cycler_thread);
 	
 	
