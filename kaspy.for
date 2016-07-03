@@ -244,7 +244,7 @@ C----------------------------------------------------------------------
 C
 C  Additional initial conditions
 
-      itime6_old=0
+c      itime6_old=0
 
 
       RAMP=1.
@@ -305,7 +305,7 @@ c      ro_ratio=1.29/1020.0
       END DO
       END DO 
       
-      open(77,file='wnd_press_90d.txt')
+c      open(77,file='wnd_press_90d.txt')
 c!      open(88,file='force1.txt') ALSO STATISTICS
 
 C
@@ -401,7 +401,7 @@ c c7000 CONTINUE
 C--------------------------------------------------------------------
 C             END PRINT SECTION
 C--------------------------------------------------------------------
- 9000                     CONTINUE
+c c9000                     CONTINUE
 
 
        call cycler_get_data_back(icycler)

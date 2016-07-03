@@ -1184,7 +1184,7 @@ void KaspyCycler::makeWsurf()
 		if ( (i % ihour_s) == 1)
 		{
 			findElves();
-			printf("elves t=%f level=%f,%f \n", timeh, m_fVars->elfmin, m_fVars->elfmax);
+			//printf("elves t=%f level=%f,%f \n", timeh, m_fVars->elfmin, m_fVars->elfmax);
 			//write(6,1117) 't=',timeh,'h','Sea level=',elfmax,elfmin,'m'
 		}
 		
@@ -1192,6 +1192,18 @@ void KaspyCycler::makeWsurf()
 		if (itimeh > iold)
 		{
 			iold=itimeh;
+			
+			cycler->getDataToCPU();
+			
+			printf("elves t=%f ", timeh);
+			
+			for (int k=0; k<m_stations; k++)
+			{
+				printf("\t%f\t", h_el[m_stations_x[k] + m_stations_y[k] * m_width  ]  );
+			}
+			
+			
+			printf(" \n");
 			
 			//		 call cycler_get_data_back(icycler)
 		//		 write(77,'(101f10.3)') timeh,(el(stx(kk),sty(kk)),kk=1,nstation)
