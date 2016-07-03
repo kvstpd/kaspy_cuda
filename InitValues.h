@@ -42,7 +42,7 @@ public:
 
 	
 	
-	void read_stations(int * n, float ** sx, float ** sy, float ** s_data);
+	void read_stations(int * n, int ** sx, int ** sy, float ** s_data);
 
 	
 	

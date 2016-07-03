@@ -177,7 +177,7 @@ void InitValues::get_string_parameter(char * parName, char * param)
 }
 
 
-void InitValues::read_stations(int * n, float ** sx, float ** sy, float ** s_data)
+void InitValues::read_stations(int * n, int ** sx, int ** sy, float ** s_data)
 {
 	
 	char lineChars[1024];
@@ -189,8 +189,8 @@ void InitValues::read_stations(int * n, float ** sx, float ** sy, float ** s_dat
 	
 	if (hnd!= NULL)
 	{
-		float * xx = (float *)malloc(MAX_STATIONS * sizeof(float));
-		float * yy = (float *)malloc(MAX_STATIONS * sizeof(float));
+		int * xx = (int *)malloc(MAX_STATIONS * sizeof(int));
+		int * yy = (int *)malloc(MAX_STATIONS * sizeof(int));
 		
 		if (xx && yy)
 		{
@@ -199,7 +199,7 @@ void InitValues::read_stations(int * n, float ** sx, float ** sy, float ** s_dat
 			
 			while ((line = fgets(line, sizeof(lineChars), hnd)))
 			{
-				sscanf(line, "%f %f", xx++, yy++);
+				sscanf(line, "%d %d", xx++, yy++);
 				
 				readValues++;
 				

@@ -37,13 +37,13 @@ CachingDeviceAllocator  g_allocator(true);
 
 
 
-float * g_stations_x = 0;
-float * g_stations_y = 0;
+int * g_stations_x = 0;
+int * g_stations_y = 0;
 
 float * g_station_elves = 0;
 
-__device__ float * dev_stations_x = 0;
-__device__ float * dev_stations_y = 0;
+__device__ int * dev_stations_x = 0;
+__device__ int * dev_stations_y = 0;
 
 __device__ float * dev_station_elves = 0;
 
@@ -1087,7 +1087,11 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpy(g_arv, &m_fArrays->arv[0],  m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_art, &m_fArrays->art[0],  m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_dx, &m_fArrays->dx[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
-		&& (cudaMemcpy(g_dy, &m_fArrays->dy[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess))
+		&& (cudaMemcpy(g_dy, &m_fArrays->dy[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
+		
+		&& (cudaMemcpy(g_stations_x, m_stations_x, m_stations * sizeof(int), cudaMemcpyHostToDevice) == cudaSuccess))
+		&& (cudaMemcpy(g_stations_y, m_stations_y, m_stations * sizeof(int), cudaMemcpyHostToDevice) == cudaSuccess))
+		)
 		
 	{
 		printf("GPU memory filled\n");
@@ -1584,9 +1588,10 @@ int KaspyCycler::init_device()
 		&& (cudaMalloc((void **)&g_dx, m_height * sizeof(float)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_dy, m_height * sizeof(float)) == cudaSuccess)
 		
-		//&& (cudaMalloc((void **)&g_stations_x, MAX_STATIONS * sizeof(float)) == cudaSuccess)
-		//&& (cudaMalloc((void **)&g_stations_y, MAX_STATIONS * sizeof(float)) == cudaSuccess)
-		//&& (cudaMalloc((void **)&g_station_elves, MAX_STATIONS * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_stations_x, m_stations * sizeof(int)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_stations_y, m_stations * sizeof(int)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_station_elves, m_stations * sizeof(float)) == cudaSuccess)
+
 		)
 	{
 		printf("GPU memory allocated\n");
@@ -1653,6 +1658,10 @@ int KaspyCycler::init_device()
 		&& (cudaMemcpyToSymbol(dev_press, &g_press, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_uwd, &g_uwd, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_vwd, &g_vwd, sizeof(float *)) == cudaSuccess)
+		
+		&& (cudaMemcpyToSymbol(dev_stations_x, &g_stations_x, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_stations_y, &g_stations_y, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_station_elves, &g_station_elves, sizeof(float *)) == cudaSuccess)
 		)
 	{
 		printf("Device pointers initialized\n");
