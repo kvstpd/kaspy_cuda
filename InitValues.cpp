@@ -211,7 +211,7 @@ void InitValues::read_stations(int * n, int ** sx, int ** sy, float ** s_data)
 			
 			*n = readValues;
 			
-			float * ss = (float *)malloc(readValues * m_duration * sizeof(float));
+			float * ss = (float *)malloc(readValues * (m_duration - 1) * sizeof(float));
 			
 			if (ss)
 			{

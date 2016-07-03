@@ -958,7 +958,7 @@ __global__ void dev_fill_station_data(int khour)
 	{
 		ji = dev_stations_y[n] * dev_width + dev_stations_x[n];
 		
-		dev_station_elves[khour * dev_nstations + n] = dev_el[ji];
+		dev_station_elves[(khour-1) * dev_nstations + n] = dev_el[ji];
 		
 		//printf("set st to %f", dev_el[ji]);
 		
@@ -1156,7 +1156,7 @@ void KaspyCycler::getDataToCPU()
 	}
 	
 	
-	err = cudaMemcpy(m_station_elves, g_station_elves,  m_duration * m_stations * sizeof(float), cudaMemcpyDeviceToHost);
+	err = cudaMemcpy(m_station_elves, g_station_elves,  (m_duration-1) * m_stations * sizeof(float), cudaMemcpyDeviceToHost);
 	
 	if (err != cudaSuccess)
 	{
@@ -1225,7 +1225,7 @@ void KaspyCycler::makeWsurf()
 		if ( (i % ihour_s) == 1)
 		{
 			findElves();
-			//printf("elves t=%f level=%f,%f \n", timeh, m_fVars->elfmin, m_fVars->elfmax);
+			printf("elves t=%f level=%f,%f \n", timeh, m_fVars->elfmin, m_fVars->elfmax);
 			//write(6,1117) 't=',timeh,'h','Sea level=',elfmax,elfmin,'m'
 		}
 		
@@ -1452,13 +1452,13 @@ void KaspyCycler::makeWsurf()
 	
 	
 	
-	for (int i=0; i<iold; i++)
+	for (int i=1; i<m_duration; i++)
 	{
 		printf("elves t=%d ", i);
 		
 		for (int k=0; k<m_stations; k++)
 		{
-			printf("\t%f\t", m_station_elves[i * m_stations + k]  );
+			printf("\t%f\t", m_station_elves[(i-1) * m_stations + k]  );
 		}
 		
 		
@@ -1711,7 +1711,7 @@ int KaspyCycler::init_device()
 		
 		&& (cudaMalloc((void **)&g_stations_x, m_stations * sizeof(int)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_stations_y, m_stations * sizeof(int)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_station_elves, m_duration *  m_stations * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_station_elves, (m_duration -1) *  m_stations * sizeof(float)) == cudaSuccess)
 
 		)
 	{
