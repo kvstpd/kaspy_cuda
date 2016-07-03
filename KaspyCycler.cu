@@ -959,6 +959,8 @@ __global__ void dev_fill_station_data(int khour)
 		ji = dev_stations_y[n] * dev_width + dev_stations_x[n];
 		
 		dev_station_elves[khour * dev_nstations + n] = dev_el[ji];
+		
+		printf("set st to %f", dev_el[ji]);
 	}
 }
 
@@ -1445,7 +1447,7 @@ void KaspyCycler::makeWsurf()
 	
 	for (int i=0; i<iold; i++)
 	{
-		printf("elves t=%d ", timeh);
+		printf("elves t=%d ", i);
 		
 		for (int k=0; k<m_stations; k++)
 		{
