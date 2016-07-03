@@ -962,10 +962,10 @@ __global__ void dev_fill_station_data(int khour)
 		
 		//printf("set st to %f", dev_el[ji]);
 		
-		if(n==0)
+		/*if(n==0)
 		{
 			printf("khour is %d elf is %f\n", khour, dev_station_elves[khour * dev_nstations + n]);
-		}
+		}*/
 	}
 	
 
@@ -1156,11 +1156,11 @@ void KaspyCycler::getDataToCPU()
 	}
 	
 	
-	err = cudaMemcpy(m_station_elves, g_station_elves,  m_stations * sizeof(float), cudaMemcpyDeviceToHost);
+	err = cudaMemcpy(m_station_elves, g_station_elves,  m_duration * m_stations * sizeof(float), cudaMemcpyDeviceToHost);
 	
 	if (err != cudaSuccess)
 	{
-		fprintf(stderr, "Failed to update tation data  (error code %s)!\n", cudaGetErrorString(err));
+		fprintf(stderr, "Failed to update station data  (error code %s)!\n", cudaGetErrorString(err));
 		
 		deinit_device();
 		
@@ -1711,7 +1711,7 @@ int KaspyCycler::init_device()
 		
 		&& (cudaMalloc((void **)&g_stations_x, m_stations * sizeof(int)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_stations_y, m_stations * sizeof(int)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_station_elves, m_stations * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_station_elves, m_duration *  m_stations * sizeof(float)) == cudaSuccess)
 
 		)
 	{
