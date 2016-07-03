@@ -1224,8 +1224,8 @@ void KaspyCycler::makeWsurf()
 		
 		if ( (i % ihour_s) == 1)
 		{
-			findElves();
-			printf("elves t=%f level=%f,%f \n", timeh, m_fVars->elfmin, m_fVars->elfmax);
+			//findElves();
+			//printf("elves t=%f level=%f,%f \n", timeh, m_fVars->elfmin, m_fVars->elfmax);
 			//write(6,1117) 't=',timeh,'h','Sea level=',elfmax,elfmin,'m'
 		}
 		
@@ -1299,13 +1299,13 @@ void KaspyCycler::makeWsurf()
 		
 		surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim);
 		
-		err = cudaGetLastError();
+		/*err = cudaGetLastError();
 		
 		if (err != cudaSuccess)
 		{
 			printf("error calling surf_and_flux_1 kernel!  (error code %s)!\n", cudaGetErrorString(err));
 			return;
-		}
+		}*/
 		
 		elf_and_flux_2<<<numSquareBlocks, threadsPerSquareBlock>>>();
 		
