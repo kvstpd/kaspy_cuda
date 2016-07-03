@@ -148,7 +148,11 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 		
         return ; 
     } 
-    
+	
+	
+	cycler_read_ini_();
+
+	
      
     _i_cycler_time();
 
@@ -205,7 +209,7 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	
     cycler = new KaspyCycler(common_vars, (fortran_common_arrays *)arrays_marker,
 							 (fortran_ffloats *)ffloats_marker, w_data,
-                             c_press, c_uwd, c_vwd, nstations, c_stations_x, c_stations_y, c_station_elves);
+                             c_press, c_uwd, c_vwd, nstations, c_stations_x, c_stations_y, c_station_elves, initValues->m_duration);
 	
 	
 	*icycler = 0;

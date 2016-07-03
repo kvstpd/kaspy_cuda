@@ -1135,16 +1135,25 @@ void KaspyCycler::makeWsurf()
 {
 	cudaError_t err;
 	
-    m_fVars->timeh6 = (m_fVars->timeh / m_fVars->dht) + 1.0f;
-
-    float timeh6 = (float)m_fVars->timeh6;
+	float hours =  (m_duration - 1 )*m_fVars->dht;
+	
+	
+	int n_iterations = int(hours * 3600.0/m_fVars->dte) + 2;
+	
+	
+	int iold = 0;
+	
+	int ihour_s = int(600.0 / m_fVars->dte);
+	
+	float timeh;
+	float timeh6;
+	float ftim;
+	int itimeh, itimeh6;
+	
 	
     int pressSize = m_fWindData->kx * m_fWindData->ky;
     int windUSize = m_fWindData->kxu * m_fWindData->kyu;
     int windVSize = m_fWindData->kxv * m_fWindData->kyv;
-	
-	
-	float ftim = fmodf(timeh6, 1.0f);
 	
 	
 	int threadsPerBlock = initValues->m_cuda_threads_1d;
@@ -1157,195 +1166,243 @@ void KaspyCycler::makeWsurf()
 	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
 	
-    
-    itime6 = (int)timeh6;
-
-    if (itime6 > itime6_old)
-    {
-        itime6_old = itime6;
-		
-		float * p_temp;
-		
-		p_temp = g_fxb;
-		g_fxb = g_fxf;
-		g_fxf = p_temp;
-		
-		p_temp = g_fyb;
-		g_fyb = g_fyf;
-		g_fyf = p_temp;
-		
-		p_temp = g_fb;
-		g_fb = g_ff;
-		g_ff = p_temp;
-		
-		p_temp = g_fbu;
-		g_fbu = g_ffu;
-		g_ffu = p_temp;
-		
-		p_temp = g_fbv;
-		g_fbv = g_ffv;
-		g_ffv = p_temp;
-		
-		cudaMemcpyToSymbol(dev_fxf, &g_fxf, sizeof(float *));
-		cudaMemcpyToSymbol(dev_fxb, &g_fxb, sizeof(float *));
-		cudaMemcpyToSymbol(dev_fyf, &g_fyf, sizeof(float *));
-		cudaMemcpyToSymbol(dev_fyb, &g_fyb, sizeof(float *));
-		cudaMemcpyToSymbol(dev_ff, &g_ff, sizeof(float *));
-		cudaMemcpyToSymbol(dev_fb, &g_fb, sizeof(float *));
-		cudaMemcpyToSymbol(dev_ffu, &g_ffu, sizeof(float *));
-		cudaMemcpyToSymbol(dev_fbu, &g_fbu, sizeof(float *));
-		cudaMemcpyToSymbol(dev_ffv, &g_ffv, sizeof(float *));
-		cudaMemcpyToSymbol(dev_fbv, &g_fbv, sizeof(float *));
-		
-
-		
-		g_press0 = g_press + (itime6 - 1) * pressSize;
-		getWindPressure('p');
-		
-		g_uwd0 =  g_uwd + (itime6 - 1) * windUSize;
-		getWindPressure('u');
-		
-		g_vwd0 = g_vwd + (itime6 - 1) * windVSize;
-		getWindPressure('v');
-
-
-	}
-
 	
-	surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim);
-	
-	err = cudaGetLastError();
-
-	if (err != cudaSuccess)
+	for (int i=0; i<n_iterations; i++)
 	{
-		printf("error calling surf_and_flux_1 kernel!  (error code %s)!\n", cudaGetErrorString(err));
-		return;
-	}
-	
-	elf_and_flux_2<<<numSquareBlocks, threadsPerSquareBlock>>>();
-	
-	if (cudaGetLastError() != cudaSuccess)
-	{
-		printf("error calling elf_and_flux_2 kernel! \n");
-	}
-
-	/// BCOND 1
-
-	
-	bcond_1_j<<< blocksPerGridJ, threadsPerBlock>>>();
-	
-	if (cudaGetLastError() != cudaSuccess)
-	{
-		printf("error calling bcond_1_j kernel! \n");
-	}
-	
-	bcond_1_i<<< blocksPerGridI, threadsPerBlock>>>();
-	
-	if (cudaGetLastError() != cudaSuccess)
-	{
-		printf("error calling bcond_1_i kernel! \n");
-	}
-	
-	bcond_1_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
-	
-	if (cudaGetLastError() != cudaSuccess)
-	{
-		printf("error calling bcond_1_ji kernel! \n");
-	}
-
-
-	
-	if (m_fVars->iint % 10 == 0)
-	{
-		//ADVAVE()
-		//       ADVUA=0 ?
-		//		FLUXUA=0 ?
-
+		m_fVars->timeh = i * m_fVars->dte / 3600.0;
 		
-		adv_fluxes_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		m_fVars->timeh6 = (m_fVars->timeh / m_fVars->dht) + 1.0;
 		
-		if (cudaGetLastError() != cudaSuccess)
+		timeh = (float)m_fVars->timeh;
+		timeh6 = (float)m_fVars->timeh6;
+		
+		itimeh=int(timeh);
+		
+		
+		
+		if (imod(i,ihour_s) == 1)
 		{
-			printf("error calling adv_fluxes_1 kernel! \n");
-		}
-		
-		adv_advua_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
-		
-		if (cudaGetLastError() != cudaSuccess)
-		{
-			printf("error calling adv_advua_1 kernel! \n");
-		}
-		
-		adv_fluxes_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
-		
-		if (cudaGetLastError() != cudaSuccess)
-		{
-			printf("error calling adv_fluxes_2 kernel! \n");
-		}
-		
-		adv_advva_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
-		
-		if (cudaGetLastError() != cudaSuccess)
-		{
-			printf("error calling adv_advva_2 kernel! \n");
+			findElves();
+			printf("elves t=%f level=%f,%f \n", timeh, m_fVars->elfmin, m_fVars->elfmax);
+			//write(6,1117) 't=',timeh,'h','Sea level=',elfmax,elfmin,'m'
 		}
 		
 		
+		if (itimeh > iold)
+		{
+			
+			//		 call cycler_get_data_back(icycler)
+		//		 write(77,'(101f10.3)') timeh,(el(stx(kk),sty(kk)),kk=1,nstation)
+		}
+		
+		
+		
+		ftim = fmodf(timeh6, 1.0f);
+		
+		itime6 = (int)timeh6;
+		
+		if (itime6 > itime6_old)
+		{
+			itime6_old = itime6;
+			
+			float * p_temp;
+			
+			p_temp = g_fxb;
+			g_fxb = g_fxf;
+			g_fxf = p_temp;
+			
+			p_temp = g_fyb;
+			g_fyb = g_fyf;
+			g_fyf = p_temp;
+			
+			p_temp = g_fb;
+			g_fb = g_ff;
+			g_ff = p_temp;
+			
+			p_temp = g_fbu;
+			g_fbu = g_ffu;
+			g_ffu = p_temp;
+			
+			p_temp = g_fbv;
+			g_fbv = g_ffv;
+			g_ffv = p_temp;
+			
+			cudaMemcpyToSymbol(dev_fxf, &g_fxf, sizeof(float *));
+			cudaMemcpyToSymbol(dev_fxb, &g_fxb, sizeof(float *));
+			cudaMemcpyToSymbol(dev_fyf, &g_fyf, sizeof(float *));
+			cudaMemcpyToSymbol(dev_fyb, &g_fyb, sizeof(float *));
+			cudaMemcpyToSymbol(dev_ff, &g_ff, sizeof(float *));
+			cudaMemcpyToSymbol(dev_fb, &g_fb, sizeof(float *));
+			cudaMemcpyToSymbol(dev_ffu, &g_ffu, sizeof(float *));
+			cudaMemcpyToSymbol(dev_fbu, &g_fbu, sizeof(float *));
+			cudaMemcpyToSymbol(dev_ffv, &g_ffv, sizeof(float *));
+			cudaMemcpyToSymbol(dev_fbv, &g_fbv, sizeof(float *));
+			
+			
+			
+			g_press0 = g_press + (itime6 - 1) * pressSize;
+			getWindPressure('p');
+			
+			g_uwd0 =  g_uwd + (itime6 - 1) * windUSize;
+			getWindPressure('u');
+			
+			g_vwd0 = g_vwd + (itime6 - 1) * windVSize;
+			getWindPressure('v');
+			
+			
+		}
+		
+		
+		surf_and_flux_1<<<numSquareBlocks, threadsPerSquareBlock>>>(ftim);
+		
+		err = cudaGetLastError();
+		
+		if (err != cudaSuccess)
+		{
+			printf("error calling surf_and_flux_1 kernel!  (error code %s)!\n", cudaGetErrorString(err));
+			return;
+		}
+		
+		elf_and_flux_2<<<numSquareBlocks, threadsPerSquareBlock>>>();
+		
+		if (cudaGetLastError() != cudaSuccess)
+		{
+			printf("error calling elf_and_flux_2 kernel! \n");
+		}
+		
+		/// BCOND 1
+		
+		
+		bcond_1_j<<< blocksPerGridJ, threadsPerBlock>>>();
+		
+		if (cudaGetLastError() != cudaSuccess)
+		{
+			printf("error calling bcond_1_j kernel! \n");
+		}
+		
+		bcond_1_i<<< blocksPerGridI, threadsPerBlock>>>();
+		
+		if (cudaGetLastError() != cudaSuccess)
+		{
+			printf("error calling bcond_1_i kernel! \n");
+		}
+		
+		bcond_1_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		
+		if (cudaGetLastError() != cudaSuccess)
+		{
+			printf("error calling bcond_1_ji kernel! \n");
+		}
+		
+		
+		
+		if (m_fVars->iint % 10 == 0)
+		{
+			//ADVAVE()
+			//       ADVUA=0 ?
+			//		FLUXUA=0 ?
+			
+			
+			adv_fluxes_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
+			
+			if (cudaGetLastError() != cudaSuccess)
+			{
+				printf("error calling adv_fluxes_1 kernel! \n");
+			}
+			
+			adv_advua_1<<< numSquareBlocks, threadsPerSquareBlock>>>();
+			
+			if (cudaGetLastError() != cudaSuccess)
+			{
+				printf("error calling adv_advua_1 kernel! \n");
+			}
+			
+			adv_fluxes_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
+			
+			if (cudaGetLastError() != cudaSuccess)
+			{
+				printf("error calling adv_fluxes_2 kernel! \n");
+			}
+			
+			adv_advva_2<<< numSquareBlocks, threadsPerSquareBlock>>>();
+			
+			if (cudaGetLastError() != cudaSuccess)
+			{
+				printf("error calling adv_advva_2 kernel! \n");
+			}
+			
+			
 		 adv_bot_3<<< numSquareBlocks, threadsPerSquareBlock>>>();
+			
+			if (cudaGetLastError() != cudaSuccess)
+			{
+				printf("error calling adv_bot_3 kernel! \n");
+			}
+			
+			
+			// END ADVAVE();
+		}
+		
+		
+		uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
 		
 		if (cudaGetLastError() != cudaSuccess)
 		{
-			printf("error calling adv_bot_3 kernel! \n");
+			printf("error calling uaf_and_vaf_3 kernel! \n");
 		}
-	
-
-		// END ADVAVE();
-	}
-	
-	
-	uaf_and_vaf_3<<<numSquareBlocks, threadsPerSquareBlock>>>();
-	
-	if (cudaGetLastError() != cudaSuccess)
-	{
-		printf("error calling uaf_and_vaf_3 kernel! \n");
-	}
-
-	
+		
+		
 	 bcond_2_j<<< blocksPerGridJ, threadsPerBlock>>>();
-	
-	if (cudaGetLastError() != cudaSuccess)
-	{
-		printf("error calling bcond_2_j kernel! \n");
-	}
-	
+		
+		if (cudaGetLastError() != cudaSuccess)
+		{
+			printf("error calling bcond_2_j kernel! \n");
+		}
+		
 	 bcond_2_i<<< blocksPerGridI, threadsPerBlock>>>();
-	
-	if (cudaGetLastError() != cudaSuccess)
-	{
-		printf("error calling bcond_2_i kernel! \n");
+		
+		if (cudaGetLastError() != cudaSuccess)
+		{
+			printf("error calling bcond_2_i kernel! \n");
+		}
+		
+		bcond_2_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
+		
+		if (cudaGetLastError() != cudaSuccess)
+		{
+			printf("error calling bcond_2_ji kernel! \n");
+		}
+		
+		tps_and_other_arrays_4<<<numSquareBlocks, threadsPerSquareBlock>>>();
+		
+		if (cudaGetLastError() != cudaSuccess)
+		{
+			printf("error calling tps_and_other_arrays_4 kernel! \n");
+		}
+		
+		
+		swap_arrays_5<<<1, 1>>>();
+		
+		if (cudaGetLastError() != cudaSuccess)
+		{
+			printf("error calling swap_arrays_5 kernel! \n");
+		}
+		
+		
+		
+		iold=itimeh;
 	}
 	
-	bcond_2_ji<<< numSquareBlocks, threadsPerSquareBlock>>>();
 	
-	if (cudaGetLastError() != cudaSuccess)
-	{
-		printf("error calling bcond_2_ji kernel! \n");
-	}
 	
-	tps_and_other_arrays_4<<<numSquareBlocks, threadsPerSquareBlock>>>();
-	
-	if (cudaGetLastError() != cudaSuccess)
-	{
-		printf("error calling tps_and_other_arrays_4 kernel! \n");
-	}
 
+	
+	
 
-	swap_arrays_5<<<1, 1>>>();
+	
+	
+    
 
-	if (cudaGetLastError() != cudaSuccess)
-	{
-		printf("error calling swap_arrays_5 kernel! \n");
-	}
 }
 
 

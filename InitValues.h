@@ -10,7 +10,7 @@ class InitValues
 {
 public:
 	InitValues(char * init_file = 0) :
-	m_iterations(4),
+	m_duration(4),
 	m_cuda_threads_1d(256),
 	m_cuda_threads_2d_x(8),
 	m_cuda_threads_2d_y(8),
@@ -49,7 +49,7 @@ public:
 	void save_z(const char * name, float * z, int zSize, int nCols);
 
 	
-	unsigned int m_iterations;
+	unsigned int m_duration;
 	unsigned int m_cuda_threads_1d;
 	unsigned int m_cuda_threads_2d_x;
 	unsigned int m_cuda_threads_2d_y;

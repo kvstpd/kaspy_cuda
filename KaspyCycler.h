@@ -21,7 +21,7 @@ public:
     
     KaspyCycler(fortran_common_vars * for_vars, fortran_common_arrays * for_arrays,
                 fortran_ffloats * for_floats, fortran_wind_data * for_wind_data,
-                float * for_press, float * for_uwd, float * for_vwd, int n_stations, int * c_stations_x, int * c_stations_y, float * c_station_elves) :
+                float * for_press, float * for_uwd, float * for_vwd, int n_stations, int * c_stations_x, int * c_stations_y, float * c_station_elves, int n_duration) :
     m_width(F_DATA_WIDTH),
     m_height(F_DATA_HEIGHT),
     m_fVars(for_vars),
@@ -39,6 +39,7 @@ public:
 	m_stations_x(c_stations_x),
 	m_stations_y(c_stations_y),
 	m_station_elves(c_station_elves),
+	m_duration(n_duration),
 //    m_vwd0(for_vwd0),
 	m_gpu_device(-1),
 	d_temp_storage(0),
@@ -79,6 +80,7 @@ public:
     int m_height;
  
 	int m_stations;
+	int m_duration;
 
     fortran_common_vars * m_fVars;
     fortran_common_arrays * m_fArrays;

@@ -71,11 +71,11 @@ void InitValues::read()
 
 void InitValues::scan_parameter(char * parName, char * parValue)
 {
-	if (strcmp("iterations", parName) == 0)
+	if (strcmp("duration", parName) == 0)
 	{
-		sscanf(parValue, "%d", &m_iterations);
+		sscanf(parValue, "%d", &m_duration);
 		
-		printf("have to iterate %d times\n", m_iterations);
+		printf("duration %d hours\n", m_duration);
 	}
 	else if (strcmp("show_window", parName) == 0)
 	{
@@ -141,9 +141,9 @@ void InitValues::scan_parameter(char * parName, char * parValue)
 
 void InitValues::get_int_parameter(char * parName, int * param)
 {
-	if (strcmp("iterations", parName) == 0)
+	if (strcmp("duration", parName) == 0)
 	{
-		*param = m_iterations;
+		*param = m_duration;
 	}
 	else if (strcmp("show_window", parName) == 0)
 	{
@@ -211,7 +211,7 @@ void InitValues::read_stations(int * n, int ** sx, int ** sy, float ** s_data)
 			
 			*n = readValues;
 			
-			float * ss = (float *)malloc(readValues * m_iterations * sizeof(float));
+			float * ss = (float *)malloc(readValues * m_duration * sizeof(float));
 			
 			if (ss)
 			{

@@ -120,9 +120,9 @@ C--------------------------------------------------------------------
       integer ijloc(2)
 
 
-	  call cycler_read_ini()
+c	  call cycler_read_ini()
 
-	  call cycler_get_int_param("iterations"//CHAR(0),NH6 )
+c	  call cycler_get_int_param("iterations"//CHAR(0),NH6 )
 
 
        arrays_marker = 3.1415926535897932384626433832795010
@@ -165,13 +165,13 @@ C     END READING DATA
 167	nstation=i-1
 
 
-        hours=(NH6-1)*dht
+c        hours=(NH6-1)*dht
 
-		write (*,*) 'nh6=',nh6
-       write (*,*) 'duration=',hours
+c		write (*,*) 'nh6=',nh6
+c       write (*,*) 'duration=',hours
 
 c	hours=720
-        write (*,*) 'duration=',hours
+c        write (*,*) 'duration=',hours
 
 c     read wind file
 	 
@@ -213,20 +213,20 @@ c	DTE=20.0
       DTE2=DTE*2
       DTI2=DTI*2
 
-      IEND=HOURS*3600/DTI+2
+c      IEND=HOURS*3600/DTI+2
 
-      write(6,*)
-      write(6,*)
-      write(6,*)
-      write(6,*)
-      write(6,*) 'Duration (hours)',hours
+c      write(6,*)
+c      write(6,*)
+c      write(6,*)
+c      write(6,*)
+c      write(6,*) 'Duration (hours)',hours
 c******
 c      Read(*,*) hours
 	
 
 
 	tprni=1.0
-      IEND=HOURS*3600/DTI+2
+c      IEND=HOURS*3600/DTI+2
       IPRINT=PRTD1*3600/100
       ISWTCH=ISWTCH*3600
 C
@@ -329,47 +329,47 @@ c		write(6,*) icycler
 
 
 
-        iold=0
+c        iold=0
+c
+c		DO 9000 IINT=1,IEND
+c
+c      timeh=(iint-1)*dti/3600.0
+c      ihour_s=600/dti
+c
+c	iwrite=mod(iint,ihour_s)
+c
+c      if(iwrite.eq.1) then
 
-		DO 9000 IINT=1,IEND
-
-      timeh=(iint-1)*dti/3600.0
-      ihour_s=600/dti
-
-	iwrite=mod(iint,ihour_s)
-
-      if(iwrite.eq.1) then
-
-		 call cycler_find_elves(icycler)
-		write(6,1117) 't=',timeh,'h','Sea level=',elfmax,elfmin,'m'
-
-
-1117   FORMAT(a3,f12.4,1x,a1,5x,a10,f8.4,1x,f8.4,1x,a1,a1)
-      end if
+c		 call cycler_find_elves(icycler)
+c		write(6,1117) 't=',timeh,'h','Sea level=',elfmax,elfmin,'m'
+c
+c
+c1117   FORMAT(a3,f12.4,1x,a1,5x,a10,f8.4,1x,f8.4,1x,a1,a1)
+c c     end if
 c*************************************************
 
-      itimeh=int(timeh)
+c      itimeh=int(timeh)
 
 
 
-     	if(itimeh.gt.iold) then  !! writing to file and compute statiatics,
+c     	if(itimeh.gt.iold) then  !! writing to file and compute statiatics,
 c STATISTICS WAS HERE
-		call cycler_get_data_back(icycler)
-		write(77,'(101f10.3)') timeh,(el(stx(kk),sty(kk)),kk=1,nstation)
-	   end if
+c		call cycler_get_data_back(icycler)
+c		write(77,'(101f10.3)') timeh,(el(stx(kk),sty(kk)),kk=1,nstation)
+c	   end if
 
 
        call cycler_wsurf(icycler)
 
 
-       iold=itimeh
+c       iold=itimeh
 
 
 C
 C--------------------------------------------------------------------
 C           BEGIN PRINT SECTION
 C--------------------------------------------------------------------
-      ktime=timeh 
+c      ktime=timeh
 c      if (ktime.gt.ktime0) then
 c      print velocities
 c        i0=191
@@ -397,7 +397,7 @@ c      end if
 
 
 
- 7000 CONTINUE
+c c7000 CONTINUE
 C--------------------------------------------------------------------
 C             END PRINT SECTION
 C--------------------------------------------------------------------
