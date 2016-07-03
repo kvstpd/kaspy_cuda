@@ -1148,8 +1148,9 @@ void KaspyCycler::makeWsurf()
 	float timeh;
 	float timeh6;
 	float ftim;
-	int itimeh, itimeh6;
-	
+	int itimeh;
+	int itime6;
+	int itime6_old;
 	
     int pressSize = m_fWindData->kx * m_fWindData->ky;
     int windUSize = m_fWindData->kxu * m_fWindData->kyu;
@@ -1180,7 +1181,7 @@ void KaspyCycler::makeWsurf()
 		
 		
 		
-		if (imod(i,ihour_s) == 1)
+		if (mod(i,ihour_s) == 1)
 		{
 			findElves();
 			printf("elves t=%f level=%f,%f \n", timeh, m_fVars->elfmin, m_fVars->elfmax);

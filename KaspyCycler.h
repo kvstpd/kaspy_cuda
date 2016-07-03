@@ -28,8 +28,6 @@ public:
     m_fArrays(for_arrays),
     m_fFloats(for_floats),
     m_fWindData(for_wind_data),
-    itime6(0),
-    itime6_old(0),
     m_press(for_press),
 //    m_press0(for_press0),
     m_uwd(for_uwd),
@@ -100,8 +98,7 @@ public:
 private:
     //float ftim;
     //float btim;
-    int itime6;
-    int itime6_old;
+
     
 	int m_gpu_device;
 
