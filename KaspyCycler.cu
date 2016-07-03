@@ -1451,19 +1451,28 @@ void KaspyCycler::makeWsurf()
 	getDataToCPU();
 	
 	
+	FILE * hnd = fopen("c_res.txt", "w");
 	
-	for (int i=1; i<m_duration; i++)
+	if (hnd!= NULL)
 	{
-		printf("elves t=%d ", i);
-		
-		for (int k=0; k<m_stations; k++)
+		for (int i=1; i<m_duration; i++)
 		{
-			printf("\t%f\t", m_station_elves[(i-1) * m_stations + k]  );
+			fprintf(hnd, "elves t=%d ", i);
+			
+			for (int k=0; k<m_stations; k++)
+			{
+				fprintf(hnd, "\t%f9.3\t", m_station_elves[(i-1) * m_stations + k]  );
+			}
+			
+			
+			fprintf(hnd, " \n");
 		}
 		
-		
-		printf(" \n");
+		fclose(hnd);
 	}
+	
+	
+
 	
 	
 
