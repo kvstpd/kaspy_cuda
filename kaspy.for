@@ -82,7 +82,7 @@ c        ! ALL TOGETHER 8760 hours
 
 
       INCLUDE 'comblk.for'    
-      LOGICAL SEAMT
+
  
 
       COMMON/F_FLOATS/ff_marker,
@@ -106,23 +106,13 @@ c        ! ALL TOGETHER 8760 hours
 
 
 
-     
-
-C--------------------------------------------------------------------
-      REAL ISPI,ISP2I
       DATA PI/3.141592654/,SMALL/1.E-10/
-      character crr
-      integer icr,stx(100),sty(100)
-      equivalence (icr,crr)
-      data icr/13/
+
       DATA ri/0.01745329252/,GEE/9.807/
       CHARACTER*20 NAME,namep,nameu,namev,nameh
       integer ijloc(2)
 
 
-c	  call cycler_read_ini()
-
-c	  call cycler_get_int_param("iterations"//CHAR(0),NH6 )
 
 
        arrays_marker = 3.1415926535897932384626433832795010
@@ -157,23 +147,9 @@ C  of course create varable boundary conditions.
 C********************************************************************
 
 C     END READING DATA      
-      
-	open(111,file='s66.txt'//CHAR(0))
-	do i=1,100
-	read(111,*,end=167) stx(i),sty(i)
-	end do
-167	nstation=i-1
 
 
-c        hours=(NH6-1)*dht
 
-c		write (*,*) 'nh6=',nh6
-c       write (*,*) 'duration=',hours
-
-c	hours=720
-c        write (*,*) 'duration=',hours
-
-c     read wind file
 	 
       GRAV=9.806
       TBIAS=0.
@@ -181,11 +157,7 @@ c     read wind file
       IINT=0
       TIMEh=0.
       ittt=0
-C
-      SEAMT=.FALSE.
 
-c      ampl=0.0
-c	awind=-22.3/3.6 
       time0=1.0
 c
 	     
@@ -200,38 +172,17 @@ C  N.B.: TPRNI=0. yields zero  horizontal diffusivity !!
       MODE=2
       NREAD=0
 C
-      ISWTCH=100000
-      IPRTD2=4
-ccc	ISPLIT=19
-c	DTE=21.0526315789
 
-	ISPLIT=1
-c	DTE=20.0
 
-      DTI=DTE*ISPLIT 
-      DTI=DTE*FLOAT(ISPLIT)
-      DTE2=DTE*2
-      DTI2=DTI*2
-
-c      IEND=HOURS*3600/DTI+2
-
-c      write(6,*)
-c      write(6,*)
-c      write(6,*)
-c      write(6,*)
-c      write(6,*) 'Duration (hours)',hours
-c******
-c      Read(*,*) hours
-	
+       DTE2=DTE*2
 
 
 	tprni=1.0
 c      IEND=HOURS*3600/DTI+2
-      IPRINT=PRTD1*3600/100
-      ISWTCH=ISWTCH*3600
+
+
 C
-      ISPI=1.E0/FLOAT(ISPLIT)
-      ISP2I=1.E0/(2.E0*FLOAT(ISPLIT))
+
 C----------------------------------------------------------------------
 C             ESTABLISH PROBLEM CHARACTERISTICS
 C          ****** ALL UNITS IN M.K.S. SYSTEM ******
