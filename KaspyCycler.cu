@@ -1193,13 +1193,13 @@ void KaspyCycler::makeWsurf()
 		{
 			iold=itimeh;
 			
-			cycler->getDataToCPU();
+			getDataToCPU();
 			
 			printf("elves t=%f ", timeh);
 			
 			for (int k=0; k<m_stations; k++)
 			{
-				printf("\t%f\t", h_el[m_stations_x[k] + m_stations_y[k] * m_width  ]  );
+				printf("\t%f\t", m_fArrays->el[ m_stations_y[k] ] [m_stations_x[k] ]);
 			}
 			
 			
