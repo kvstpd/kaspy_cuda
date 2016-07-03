@@ -141,6 +141,8 @@ extern "C" void cycler_get_string_param_(char * parName, char * param)
 void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
                 int * wind_marker)
 {
+	cycler_read_ini_();
+	
     if ((initValues == 0) || (vars_marker == 0) || (arrays_marker == 0)
         || (ffloats_marker == 0) || (wind_marker == 0))
     {
@@ -149,9 +151,6 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
         return ; 
     } 
 	
-	
-	cycler_read_ini_();
-
 	
      
     _i_cycler_time();
