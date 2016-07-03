@@ -956,7 +956,7 @@ __global__ void dev_fill_station_data(int khour)
 	
 	if (n < dev_nstations)
 	{
-		ji = dev_stations_y[n] * dev_width + dev_stations_x[n];
+		ji = (dev_stations_y[n] - 1) * dev_width + dev_stations_x[n] - 1;
 		
 		dev_station_elves[(khour-1) * dev_nstations + n] = dev_el[ji];
 		
@@ -1230,6 +1230,15 @@ void KaspyCycler::makeWsurf()
 		}
 		
 		
+		if (itimeh > iold)
+		{
+			iold=itimeh;
+		
+			
+			dev_fill_station_data<<< blocksPerStations, threadsPerBlock>>>(itimeh);
+
+		}
+		
 		
 		
 		ftim = fmodf(timeh6, 1.0f);
@@ -1422,17 +1431,6 @@ void KaspyCycler::makeWsurf()
 		{
 			printf("error calling swap_arrays_5 kernel! \n");
 		}
-		
-		
-		if (itimeh > iold)
-		{
-			iold=itimeh;
-			
-			
-			dev_fill_station_data<<< blocksPerStations, threadsPerBlock>>>(itimeh);
-			
-		}
-		
 
 	}
 	
