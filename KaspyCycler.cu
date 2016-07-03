@@ -964,7 +964,7 @@ __global__ void dev_fill_station_data(int khour)
 		
 		if(n==0)
 		{
-			printf("khour is %d elf is %f\n", n, dev_station_elves[khour * dev_nstations + n]);
+			printf("khour is %d elf is %f\n", khour, dev_station_elves[khour * dev_nstations + n]);
 		}
 	}
 	
