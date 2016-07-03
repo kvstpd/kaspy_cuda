@@ -45,6 +45,8 @@ int * c_stations_y = 0;
 
 float * c_station_elves = 0;
 
+CUTThread cycler_thread;
+
 
 void _i_cycler_time()
 {
@@ -355,31 +357,33 @@ extern "C" void CYCLER_GET_DATA_BACK(int * icycler)
 }
 
 
-
-// GFortran Unix naming
-extern "C" void cycler_wsurf_(int * icycler)
+CUT_THREADROUTINE cycler_work(void * data)
 {
-    if (cycler)
-    {
-        cycler->makeWsurf();
-    }
-	
-
+	if (cycler)
+	{
+		cycler->makeWsurf();
+	}
 }
+
+
+
+
 
 // Intel Fortran WIN naming
 extern "C" void CYCLER_WSURF(int * icycler)
 {
-    if (cycler)
-    {
-        cycler->makeWsurf();
-    }
+	cycler_thread = cutStartThread(cycler_work, icycler);
 	
-	/*if (initValues && defaultGlWindow && (cycler->m_fVars->iint % initValues->m_iters_per_frame == 0 ))
-	{
-		defaultGlWindow->gl_draw_frame();
-	}*/
+	cutEndThread(cycler_thread);
 	
+	
+	cutDestroyThread(cycler_thread);
+}
+
+// GFortran Unix naming
+extern "C" void cycler_wsurf_(int * icycler)
+{
+	CYCLER_WSURF(icycler);
 }
 
 
