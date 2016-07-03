@@ -1089,8 +1089,8 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpy(g_dx, &m_fArrays->dx[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_dy, &m_fArrays->dy[0], m_height * sizeof(float), cudaMemcpyHostToDevice) == cudaSuccess)
 		
-		&& (cudaMemcpy(g_stations_x, m_stations_x, m_stations * sizeof(int), cudaMemcpyHostToDevice) == cudaSuccess))
-		&& (cudaMemcpy(g_stations_y, m_stations_y, m_stations * sizeof(int), cudaMemcpyHostToDevice) == cudaSuccess))
+		&& (cudaMemcpy(g_stations_x, m_stations_x, m_stations * sizeof(int), cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy(g_stations_y, m_stations_y, m_stations * sizeof(int), cudaMemcpyHostToDevice) == cudaSuccess)
 		)
 		
 	{
