@@ -1227,7 +1227,7 @@ void KaspyCycler::makeWsurf()
 		
 			
 			dev_fill_station_data<<< blocksPerStations, threadsPerBlock>>>(itimeh);
-			getDataToCPU();
+			/*getDataToCPU();
 			
 			printf("elves t=%f ", timeh);
 			
@@ -1237,7 +1237,7 @@ void KaspyCycler::makeWsurf()
 			}
 			
 			
-			printf(" \n");
+			printf(" \n");*/
 			
 			//		 call cycler_get_data_back(icycler)
 		//		 write(77,'(101f10.3)') timeh,(el(stx(kk),sty(kk)),kk=1,nstation)
@@ -1439,6 +1439,25 @@ void KaspyCycler::makeWsurf()
 	}
 	
 	
+	getDataToCPU();
+	
+	
+	
+	for (int i=0; i<iold; i++)
+	{
+		printf("elves t=%d ", timeh);
+		
+		for (int k=0; k<m_stations; k++)
+		{
+			printf("\t%f\t", m_station_elves[i * m_stations + k]  );
+		}
+		
+		
+		printf(" \n");
+	}
+	
+	
+
 }
 
 
