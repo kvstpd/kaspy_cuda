@@ -1250,7 +1250,7 @@ void KaspyCycler::makeWsurf()
 			g_vwd0 = g_vwd + (itime6 - 1) * windVSize;
 			getWindPressure('v');
 			
-			printf("PPP\N");
+			printf("PPP\n");
 		}
 		
 		
