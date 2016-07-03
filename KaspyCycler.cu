@@ -45,7 +45,7 @@ float * g_station_elves = 0;
 __device__ int * dev_stations_x = 0;
 __device__ int * dev_stations_y = 0;
 
-__device__ int * dev_nstations = 0;
+__device__ int dev_nstations = 0;
 
 __device__ float * dev_station_elves = 0;
 
@@ -958,7 +958,7 @@ __global__ void dev_fill_station_data(int khour)
 	{
 		ji = dev_stations_y[n] * dev_width + dev_stations_x[n];
 		
-		dev_station_elves[khour * dev_nstations + n] = dev_el[ji]
+		dev_station_elves[khour * dev_nstations + n] = dev_el[ji];
 	}
 }
 
@@ -1147,7 +1147,7 @@ void KaspyCycler::getDataToCPU()
 	}
 	
 	
-	cudaError_t err = cudaMemcpy(m_station_elves, g_station_elves,  m_stations * sizeof(float), cudaMemcpyDeviceToHost);
+	err = cudaMemcpy(m_station_elves, g_station_elves,  m_stations * sizeof(float), cudaMemcpyDeviceToHost);
 	
 	if (err != cudaSuccess)
 	{
