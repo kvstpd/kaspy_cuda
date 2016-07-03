@@ -364,7 +364,7 @@ CUT_THREADPROC cycler_work(void * data)
 		cycler->makeWsurf();
 	}
 	
-	CUT_THREADEND
+	CUT_THREADEND;
 }
 
 
