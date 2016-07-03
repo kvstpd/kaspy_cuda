@@ -155,7 +155,7 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	
 	
      
-    _i_cycler_time();
+    //_i_cycler_time();
 
 	 
 	if (initValues->m_show_window)
