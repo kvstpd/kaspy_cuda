@@ -960,8 +960,15 @@ __global__ void dev_fill_station_data(int khour)
 		
 		dev_station_elves[khour * dev_nstations + n] = dev_el[ji];
 		
-		printf("set st to %f", dev_el[ji]);
+		//printf("set st to %f", dev_el[ji]);
+		
+		if(n==0)
+		{
+			printf("khour is %d elf is %f\n", dev_el[ji]);
+		}
 	}
+	
+
 }
 
 
