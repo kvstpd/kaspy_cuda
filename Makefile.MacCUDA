@@ -54,7 +54,7 @@ all : build/kaspy
 test : build/kaspy
 	cp -f Kaspy.ini build/Kaspy.ini && cd build && pwd && ./kaspy
 
-build/kaspy : kaspy.o cycler.o KaspyCycler.o DrawArrayWindow.o multithreading.o
+build/kaspy : kaspy.o cycler.o KaspyCycler.o DrawArrayWindow.o multithreading.o InitValues.o
 	$(NVCC) -ccbin gfortran $(OPT_FLAGS) -o $@ $(LDFLAGS) $(GENCODE_FLAGS) $(GLUT_LIBS)  $+
 
 kaspy.o: kaspy.for
@@ -72,7 +72,7 @@ DrawArrayWindow.o: DrawArrayWindow.cu
 multithreading.o: multithreading.cpp
 	$(NVCC) -ccbin clang $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
 
-InitValues.obj: InitValues.cpp
+InitValues.o: InitValues.cpp
 	$(NVCC) -ccbin clang $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<
 
 oclean:

@@ -2,8 +2,8 @@
 #define DrawArrayWindow_hpp
 
 
-#define DAW_START_WINDOW_WIDTH 1024
-#define DAW_START_WINDOW_HEIGHT 1024
+#define DAW_START_WINDOW_WIDTH 256
+#define DAW_START_WINDOW_HEIGHT 256
 
 
 struct cudaArray;
