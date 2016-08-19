@@ -34,17 +34,19 @@
 void display(void);
 void keyboard(unsigned char key, int /*x*/, int /*y*/);
 void reshape(int x, int y);
-void idle(void);
+//void idle(void);
 void cleanup(void);
+
+void gg_timer(int to_next_frame)
 
 
 static DrawArrayWindow * currentWindow = 0;
 
-static time_t timeWindowStarted;
+//static time_t timeWindowStarted;
 
-static int framesDrawn;
+//static int framesDrawn;
 
-static double framesPerSec;
+//static double framesPerSec;
 
 
 
@@ -189,7 +191,7 @@ int DrawArrayWindow::gl_init(int device, double fps)
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
     glutReshapeFunc(reshape);
-	glutIdleFunc(idle);
+	//glutIdleFunc(idle);
 	
 
 	 glutCloseFunc(cleanup);
@@ -210,11 +212,16 @@ int DrawArrayWindow::gl_init(int device, double fps)
 
 	currentWindow = this;
 
-	framesDrawn = 0;
+	//framesDrawn = 0;
 	////
-	framesPerSec = fps;
+	//framesPerSec = fps;
 	
-	time(&timeWindowStarted);
+	//time(&timeWindowStarted);
+	
+	unsigned int msesc_in_frame = (unsigned int)(1000.0 / fps);
+	
+	
+	glutTimerFunc(msesc_in_frame, gg_timer, msesc_in_frame);
 	
 	
 	setbuf(stdout,NULL);
@@ -441,7 +448,7 @@ void reshape(int x, int y)
 	}	
 }
 
-void idle(void)
+/*void idle(void)
 {
 	time_t nowtime;
 	
@@ -460,7 +467,19 @@ void idle(void)
 	
 	
 	
+}*/
+
+void gg_timer(int to_next_frame)
+{
+	if (to_next_frame && currentWindow)
+	{
+		glutTimerFunc(to_next_frame, gg_timer, to_next_frame);
+		
+		glutPostRedisplay();
+	}
 }
+
+
 
 void cleanup(void)
 {

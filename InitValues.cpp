@@ -105,7 +105,7 @@ void InitValues::scan_parameter(char * parName, char * parValue)
 	{
 		sscanf(parValue, "%lf", &m_frames_per_second);
 		
-		printf("Will draw %f frames per second %s\n",m_frames_per_second, parValue);
+		printf("Will draw %f frames per second\n",m_frames_per_second);
 	}
 	else if (strcmp("pressure_grd", parName) == 0)
 	{
