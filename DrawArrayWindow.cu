@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <time.h>
 
 
 #include "DrawArrayWindow.h"
@@ -33,10 +34,17 @@
 void display(void);
 void keyboard(unsigned char key, int /*x*/, int /*y*/);
 void reshape(int x, int y);
+void idle(void);
 void cleanup(void);
 
 
 static DrawArrayWindow * currentWindow = 0;
+
+static time_t timeWindowStarted;
+
+static int framesDrawn;
+
+static double framesPerSec;
 
 
 
@@ -181,7 +189,8 @@ int DrawArrayWindow::gl_init(int device)
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
     glutReshapeFunc(reshape);
-
+	glutIdleFunc(idle);
+	
 
 	 glutCloseFunc(cleanup);
 
@@ -201,6 +210,13 @@ int DrawArrayWindow::gl_init(int device)
 
 	currentWindow = this;
 
+	framesDrawn = 0;
+	////
+	framesPerSec = 15.0;
+	
+	time(&timeWindowStarted);
+	
+	
 	setbuf(stdout,NULL);
     printf("GL init finished\n");
     
@@ -423,6 +439,27 @@ void reshape(int x, int y)
 	{
 		currentWindow->gl_rebuild_texture(x, y);
 	}	
+}
+
+void idle(void)
+{
+	time_t nowtime;
+	
+	time(&nowtime);
+	
+	double windowTime = difftime(now,timeWindowStarted);
+	
+	int shouldBeFrames = (int)(windowTime / framesPerSec);
+	
+	if (shouldBeFrames > framesDrawn)
+	{
+		display();
+		
+		framesDrawn = shouldBeFrames;
+	}
+	
+	
+	
 }
 
 void cleanup(void)
