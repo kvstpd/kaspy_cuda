@@ -37,7 +37,7 @@ void reshape(int x, int y);
 //void idle(void);
 void cleanup(void);
 
-void gg_timer(int to_next_frame)
+void gg_timer(int to_next_frame);
 
 
 static DrawArrayWindow * currentWindow = 0;
