@@ -447,7 +447,7 @@ void idle(void)
 	
 	time(&nowtime);
 	
-	double windowTime = difftime(now,timeWindowStarted);
+	double windowTime = difftime(nowtime,timeWindowStarted);
 	
 	int shouldBeFrames = (int)(windowTime / framesPerSec);
 	
