@@ -301,7 +301,7 @@ extern "C" void CYCLER_LOAD(int * icycler)
 			
 			if (initValues && initValues->m_show_window)
 			{
-				if (defaultGlWindow->gl_init(device) < 0)
+				if (defaultGlWindow->gl_init(device, initValues->m_frames_per_second) < 0)
 				{
 					printf("unable to init GL window!\n");
 					*icycler = -1;
