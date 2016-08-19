@@ -101,11 +101,11 @@ void InitValues::scan_parameter(char * parName, char * parValue)
 		
 		printf("Will have %d 2-D CUDA threads on Y axis\n", m_cuda_threads_2d_y);
 	}
-	else if (strcmp("iters_per_frame", parName) == 0)
+	else if (strcmp("frames_per_second", parName) == 0)
 	{
-		sscanf(parValue, "%d", &m_iters_per_frame);
+		sscanf(parValue, "%f", &m_frames_per_second);
 		
-		printf("Will make %d iterations before drawing new frame\n",m_iters_per_frame);
+		printf("Will draw %f  frames per second\n",m_frames_per_second);
 	}
 	else if (strcmp("pressure_grd", parName) == 0)
 	{
@@ -167,9 +167,9 @@ void InitValues::get_int_parameter(char * parName, int * param)
 	{
 		*param = m_cuda_threads_2d_y;
 	}
-	else if (strcmp("iters_per_frame", parName) == 0)
+	else if (strcmp("frames_per_second", parName) == 0)
 	{
-		*param = m_iters_per_frame;
+		*param = m_frames_per_second;
 	}
 }
 

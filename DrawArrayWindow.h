@@ -22,7 +22,7 @@ public:
 	~DrawArrayWindow();
 
 	void set_data_to_display(float * gpu_zdata, float * gpu_hdata, int w, int h, int p_w);
-	int gl_init(int device);
+	int gl_init(int device, double fps);
 
 	int gl_rebuild_texture(int width, int height);
 

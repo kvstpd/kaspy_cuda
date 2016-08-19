@@ -14,7 +14,7 @@ public:
 	m_cuda_threads_1d(256),
 	m_cuda_threads_2d_x(8),
 	m_cuda_threads_2d_y(8),
-	m_iters_per_frame(10),
+	m_frames_per_second(10.0),
 	m_show_window(false)
 	{
 		if (init_file == 0)
@@ -54,7 +54,8 @@ public:
 	unsigned int m_cuda_threads_2d_x;
 	unsigned int m_cuda_threads_2d_y;
 	unsigned int m_show_window;
-	unsigned int m_iters_per_frame;
+	
+	double m_frames_per_second;
 	
 	char m_pressure_grd[128];
 	char m_u_wind_grd[128];

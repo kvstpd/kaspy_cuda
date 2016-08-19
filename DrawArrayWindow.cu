@@ -158,7 +158,7 @@ void DrawArrayWindow::set_data_to_display(float * gpu_zdata, float * gpu_hdata, 
 }
 
 
-int DrawArrayWindow::gl_init(int device)
+int DrawArrayWindow::gl_init(int device, double fps)
 {
 	int argc = 0;
 
@@ -212,7 +212,7 @@ int DrawArrayWindow::gl_init(int device)
 
 	framesDrawn = 0;
 	////
-	framesPerSec = 15.0;
+	framesPerSec = fps;
 	
 	time(&timeWindowStarted);
 	
@@ -449,7 +449,7 @@ void idle(void)
 	
 	double windowTime = difftime(nowtime,timeWindowStarted);
 	
-	int shouldBeFrames = (int)(windowTime / framesPerSec);
+	int shouldBeFrames = (int)(windowTime * framesPerSec);
 	
 	if (shouldBeFrames > framesDrawn)
 	{
