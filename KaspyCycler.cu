@@ -1173,7 +1173,7 @@ void KaspyCycler::getDataToCPU()
 
 void KaspyCycler::makeWsurf()
 {
-	cudaError_t err;
+	//cudaError_t err;
 	
 	float hours =  (m_duration - 1 )*m_fVars->dht;
 	

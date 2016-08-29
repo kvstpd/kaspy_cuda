@@ -38,12 +38,18 @@ float * c_press = 0;
 float * c_uwd = 0;
 float * c_vwd = 0;
 
+float * c_h = 0;
+
 
 
 int * c_stations_x = 0;
 int * c_stations_y = 0;
 
 float * c_station_elves = 0;
+
+fortran_wind_data * w_data = 0;
+fortran_common_vars * common_vars = 0;
+fortran_common_arrays * common_arrays = 0;
 
 CUTThread cycler_thread;
 
@@ -179,8 +185,11 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	//1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
 	
 	
-	fortran_wind_data * w_data = (fortran_wind_data *)wind_marker;
-	fortran_common_vars * common_vars = (fortran_common_vars *)vars_marker;
+	w_data = (fortran_wind_data *)wind_marker;
+	common_vars = (fortran_common_vars *)vars_marker;
+	
+	common_arrays = (fortran_common_arrays *)arrays_marker;
+
 	
 	
 	initValues->read_grd(initValues->m_pressure_grd, &w_data->kx, &w_data->ky, &w_data->kt, &w_data->xki, &w_data->xka, &w_data->yki, &w_data->yka, &w_data->tki, &w_data->tka, &c_press, 0.001f );
@@ -450,6 +459,11 @@ void _i_cycler_destroy(int * icycler)
 		free(c_station_elves);
 	}
 	
+	if (c_h)
+	{
+		free(c_h);
+	}
+	
 	if (defaultGlWindow)
 	{
 		defaultGlWindow->gl_deinit();
@@ -486,22 +500,57 @@ extern "C" void CYCLER_DESTROY(int * icycler)
 
 
  
-/*extern "C" void READDIMGR3(int * nx,int * ny,int * nz,char * name)
+extern "C" void TIDEGEN_C(char * name)
 { 
 	if (initValues)
 	{
-		initValues->read_grd(name, nx,ny,nz);
+		initValues->tide_from_grd(name, &common_vars->xmi, &common_vars->xma, &common_vars->ymi, &common_vars->yma,  &c_h);
 	}
 }
 
-extern "C" void readdimgr3_(int * nx,int * ny,int * nz,char * name)
+extern "C" void tidegen_c_(char * name)
 {
 	if (initValues)
 	{
-		initValues->read_grd(name, nx,ny,nz);
+		printf("C_H is %llx\n", (unsigned long long)c_h);
+		
+		initValues->tide_from_grd(name, &common_vars->xmi, &common_vars->xma, &common_vars->ymi, &common_vars->yma,  &c_h);
+		
+		printf("NOW C_H is %llx\n", (unsigned long long)c_h);
 	}
 }
 
+extern "C" void tidegen_check_()
+{
+	float diff = 0.0f;
+	
+	float * h1 = c_h;
+	float * h2 = &common_arrays->h[0][0];
+	
+	int ind;
+	
+	printf("ADDR is %llx\n", h1);
+	
+	for (int i = 0; i < F_DATA_WIDTH; i++)
+	{
+		for (int j = 0; j < F_DATA_HEIGHT; j++)
+		{
+			ind = j * F_DATA_WIDTH + i;
+			
+			diff = fabs(h1[ind] - h2[ind]);
+			
+			if (diff >= 0.001f)
+			{
+				printf("FAIL at %d %d\n", i, j);
+				break;
+			}
+		}
+	
+	}
+	printf("HERE\n");
+}
+
+/*
 extern "C" void READGR3(int * nx,int * ny,int * nz,float * xmi,float * xma,float * ymi,float * yma,float * zmi,float * zma,
 						char * name,float * z)
 {  
