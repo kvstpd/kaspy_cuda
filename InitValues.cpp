@@ -329,7 +329,7 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 		printf("SET *h addr to %llx\n", (unsigned long long)*h);
 		
 		
-		hh+= 1;
+		hh+= F_DATA_WIDTH + 1;
 		
 		while (!mustEnd && ((line = fgets(line, sizeof(lineChars), hnd))))
 		{
@@ -337,7 +337,7 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 			
 			while ((val = strchr(val, ' ')))
 			{
-				if ((readValues % F_DATA_WIDTH) == (F_DATA_WIDTH-2))
+				if ((readValues % F_DATA_WIDTH) == (F_DATA_WIDTH-1))
 				{
 					hh+= 2;
 					readValues +=2;
