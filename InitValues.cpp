@@ -340,6 +340,7 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 				if ((readValues % F_DATA_WIDTH) == (F_DATA_WIDTH-1))
 				{
 					hh+= 2;
+
 					readValues +=2;
 				}
 				
