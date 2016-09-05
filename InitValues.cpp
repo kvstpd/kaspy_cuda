@@ -245,6 +245,182 @@ void InitValues::read_stations(int * n, int ** sx, int ** sy, float ** s_data)
 
 
 
+
+void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ymi, float * yma, float ** h)
+{
+	float sl[F_DATA_WIDTH * F_DATA_HEIGHT];
+	int nx, ny;
+	float along1, alat1;
+	float along2, alat2;
+	
+	char lineChars[1024];
+	char * line = &lineChars[0];
+	
+	FILE * hnd = fopen(name, "r");
+	
+	int readValues = 0;
+	
+	float small = 1.E-10;
+	float dg = 111111.1;
+	float grav=9.81;
+	float ri = F_PI/180.0;
+	
+	
+	if (hnd!= NULL)
+	{
+		fgets(line, sizeof(lineChars), hnd);
+		
+		if ((line = fgets(line, sizeof(lineChars), hnd)))
+		{
+			sscanf(line, "%d %d", &nx, &ny);
+		}
+		else
+		{
+			printf("GR3 file read error!\n");
+			return;
+		}
+		
+		if ((line = fgets(line, sizeof(lineChars), hnd)))
+		{
+			sscanf(line, "%f %f", &along1,&along2);
+		}
+		else
+		{
+			printf("GR3 file read error!\n");
+			return;
+		}
+		
+		
+		if ((line = fgets(line, sizeof(lineChars), hnd)))
+		{
+			sscanf(line, "%f %f", &alat1,&alat2);
+		}
+		else
+		{
+			printf("GR3 file read error!\n");
+			return;
+		}
+		
+		
+		int maxValues =  (nx + 2) * (ny + 2);
+		
+		char * val;
+		
+		bool mustEnd = false;
+		
+		int nchars;
+		
+		float * hh = (float *) malloc(maxValues * sizeof(float) );
+		
+		printf("nx=%d, ny=%d, maxValues=%d, II=%d, JJ=%d \n", nx, ny, maxValues, F_DATA_WIDTH, F_DATA_HEIGHT);
+		
+		
+		if (!hh)
+		{
+			printf("memory allocation error!\n");
+			return;
+		}
+		
+		float * hh0 = hh;
+		
+		printf("h addr is %llx\n", (unsigned long long)h);
+		printf("*h  was %llx\n", (unsigned long long)*h);
+		
+		*h = hh0;
+		
+		printf("SET *h addr to %llx\n", (unsigned long long)*h);
+		
+		
+		hh+= F_DATA_WIDTH + 1;
+		
+		while (!mustEnd && ((line = fgets(line, sizeof(lineChars), hnd))))
+		{
+			val = line;
+			
+			while ((val = strchr(val, ' ')))
+			{
+				if ((readValues % F_DATA_WIDTH) == (F_DATA_WIDTH-1))
+				{
+					hh+= 2;
+					readValues +=2;
+				}
+				
+				if (++readValues > maxValues)
+				{
+					//printf("reached ix %d iy %d iz %d\n", ix, iy, iz);
+					mustEnd = true;
+					break;
+				}
+				
+				
+				
+				sscanf(val, "%f%n", hh++, &nchars );
+				
+				
+				
+				val += nchars;
+			}
+			
+		}
+		
+		//printf("TIDE read %d values\n", readValues - 1);
+		
+		//printf("\nread for TIDE::: nx=%d, ny=%d, along1=%f, along2=%f, alat1=%f, alat2=%f\n\n", nx, ny, along1, along2, alat1, alat2);
+		
+		float dlat=(alat2-alat1)/(ny-1.0);
+		float dlong=(along2-along1)/(nx-1.0);
+		
+		
+		/*for (int i = 1; i < (F_DATA_WIDTH-1); i++)
+		 {
+			hh0[(F_DATA_HEIGHT-1) *  F_DATA_WIDTH + i] = hh0[(F_DATA_HEIGHT-2) *  F_DATA_WIDTH + i];
+			hh0[i] = hh0[1 *  F_DATA_WIDTH + i];
+		 }
+		 
+		 for (int j = 0; j < F_DATA_HEIGHT; j++)
+		 {
+			hh0[j *  F_DATA_WIDTH + F_DATA_WIDTH - 1] = hh0[j *  F_DATA_WIDTH + F_DATA_WIDTH - 2];
+			hh0[j *  F_DATA_WIDTH ] = hh0[j *  F_DATA_WIDTH + 1];
+		 }
+		 */
+		
+		*xmi = along1-dlong;
+		*xma = along2+dlong;
+		
+		*ymi = alat1-dlat;
+		*yma = alat2+dlat;
+		
+		
+		while (hh0 < hh)
+		{
+			if ((*hh0) <= 0.5f)
+			{
+				*hh0 = 1.5f;
+			}
+			else if ((*hh0) <= 0.5f)
+			{
+				*hh0 = 4.0f;
+			}
+			
+			hh0++;
+		}
+		
+		
+		
+		fclose(hnd);
+		
+	}
+	else
+	{
+		printf("cannot open GR3 file!\n");
+		return;
+	}
+	
+}
+
+
+
+
 void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 			  float * xmi, float * xma, float * ymi, float * yma,
 			  float * zmi, float * zma, float ** z, float multiplier)
@@ -353,6 +529,11 @@ void InitValues::read_grd(char * name, int * nx, int * ny, int * nz,
 		fclose(hnd);
 		
 
+	}
+	else
+	{
+		printf("cannot open GR3 file!\n");
+		return;
 	}
 }
 

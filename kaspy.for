@@ -138,7 +138,16 @@ C
 C     READ IN GRID DATA AND INITIAL AND LATERAL BOUNDARY CONDITIONS
 C------------------------------------------------------------------------
       nameh='kaspi_1_5mR.grd'//CHAR(0)
-      CALL TIDEGEN(nameh)
+
+c		write(6,*) '1   xmi=',xmi,'xma=',xma,'ymi=',ymi,'yma=',yma
+
+		CALL TIDEGEN_C(nameh)
+c		write(6,*) '2   xmi=',xmi,'xma=',xma,'ymi=',ymi,'yma=',yma
+		CALL TIDEGEN(nameh)
+c		write(6,*) '3   xmi=',xmi,'xma=',xma,'ymi=',ymi,'yma=',yma
+
+		CALL TIDEGEN_CHECK()
+
 C
 C********************************************************************
 C  Note that lateral thermodynamic boundary conditions are often set equal
