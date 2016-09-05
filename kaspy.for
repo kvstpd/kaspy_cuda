@@ -520,6 +520,7 @@ C
       real sl(im,jm)
 	DATA PI/3.141592654/,SMALL/1.E-10/DG/111111.1/
 	character*20 nameh
+c	CHARACTER*20 namehhh
       grav=9.81 
 c      
       RI=PI/180.0
@@ -538,6 +539,9 @@ c        OPEN(8,FILE='faz.txt')
 	  READ(1,*) (H(I,J),I=2,IMm1)
 	  end do
         CLOSE(1)
+
+
+
       dlat=(alat2-alat1)/(ny-1.0)
       dlong=(along2-along1)/(nx-1.0)
 c     surrounded bourder
@@ -549,6 +553,11 @@ c     surrounded bourder
 		h(im,j)=h(imm1,j)
 		h(1,j)=h(2,j)
       end do
+
+
+
+
+
 
       xmi=along1-dlong
       xma=along2+dlong
@@ -573,7 +582,13 @@ c	  tide_l0=0.5
 		end if 	 
         end do
 	  end do
-      
+
+c		namehhh='for_h.ttt'//CHAR(0)
+c		jwm = 10
+c		jisize = im * jm
+c		call save_z(jwm, jisize, h, namehhh)
+
+
         hmax=0.0
       DO 12 J=1,JM
         yy=cos(ri*(alat1+dlat*(j-0.5)))

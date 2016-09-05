@@ -1102,7 +1102,7 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpy(g_wubot,&m_fArrays->wubot[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_wvbot,&m_fArrays->wvbot[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_cbc,&m_fArrays->cbc[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
-		&& (cudaMemcpy(g_h,&m_fArrays->h[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy(g_h, m_h /*&m_fArrays->h[0][0]*/, s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		
 		&& (cudaMemcpy(g_press,&m_press[0],press_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_uwd,&m_uwd[0],uwd_data_size, cudaMemcpyHostToDevice) == cudaSuccess)

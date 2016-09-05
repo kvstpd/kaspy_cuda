@@ -221,7 +221,7 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	
     cycler = new KaspyCycler(common_vars, (fortran_common_arrays *)arrays_marker,
 							 (fortran_ffloats *)ffloats_marker, w_data,
-                             c_press, c_uwd, c_vwd, nstations, c_stations_x, c_stations_y, c_station_elves, initValues->m_duration);
+                             c_press, c_uwd, c_vwd, nstations, c_stations_x, c_stations_y, c_station_elves, initValues->m_duration, c_h);
 	
 	
 	*icycler = 0;
@@ -252,6 +252,8 @@ extern "C" void cycler_load_(int * icycler)
 {
     if (cycler)
     {
+		//common_arrays->h = c_h;
+		
 		int device = cycler->init_device();
 		
 		if (device >= 0)
@@ -300,6 +302,8 @@ extern "C" void CYCLER_LOAD(int * icycler)
 {
 	if (cycler)
 	{
+		//common_arrays->h = c_h;
+		
 		int device = cycler->init_device();
 		
 		if (device >= 0)
@@ -588,6 +592,17 @@ extern "C" void readgr3_(int * nx,int * ny,int * nz,float * xmi,float * xma,floa
 	}
 }*/
 
+
+extern "C" void save_z_(int * nx,int * nsize,float * z, const char * name)
+{
+	//printf("here\n");
+	//printf("z is %f \n", z[0]);
+	
+	if (initValues)
+	{
+		initValues->save_z(name, z, *nsize, *nx);
+	}
+}
 
 extern "C" void SAVE_Z(int * nx,int * nsize,float * z, const char * name)
 {

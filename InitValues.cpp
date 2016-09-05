@@ -15,6 +15,7 @@
 #include "fortran_vars.h"
 
 
+extern "C" void SAVE_Z(int * nx,int * nsize,float * z, const char * name);
 
 
 void InitValues::read()
@@ -252,6 +253,7 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 	int nx, ny;
 	float along1, alat1;
 	float along2, alat2;
+	int dum1, dum2;
 	
 	char lineChars[1024];
 	char * line = &lineChars[0];
@@ -300,6 +302,20 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 			printf("GR3 file read error!\n");
 			return;
 		}
+		
+		
+		if ((line = fgets(line, sizeof(lineChars), hnd)))
+		{
+			sscanf(line, "%d %d", &dum1, &dum2);
+		}
+		else
+		{
+			printf("GR3 file read error!\n");
+			return;
+		}
+		
+		
+		
 		
 		
 		int maxValues =  (nx + 2) * (ny + 2);
@@ -363,6 +379,8 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 			
 		}
 		
+
+		
 		//printf("TIDE read %d values\n", readValues - 1);
 		
 		//printf("\nread for TIDE::: nx=%d, ny=%d, along1=%f, along2=%f, alat1=%f, alat2=%f\n\n", nx, ny, along1, along2, alat1, alat2);
@@ -371,7 +389,7 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 		float dlong=(along2-along1)/(nx-1.0);
 		
 		
-		/*for (int i = 1; i < (F_DATA_WIDTH-1); i++)
+		for (int i = 1; i < (F_DATA_WIDTH-1); i++)
 		 {
 			hh0[(F_DATA_HEIGHT-1) *  F_DATA_WIDTH + i] = hh0[(F_DATA_HEIGHT-2) *  F_DATA_WIDTH + i];
 			hh0[i] = hh0[1 *  F_DATA_WIDTH + i];
@@ -382,7 +400,10 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 			hh0[j *  F_DATA_WIDTH + F_DATA_WIDTH - 1] = hh0[j *  F_DATA_WIDTH + F_DATA_WIDTH - 2];
 			hh0[j *  F_DATA_WIDTH ] = hh0[j *  F_DATA_WIDTH + 1];
 		 }
-		 */
+		
+	
+		
+		
 		
 		*xmi = along1-dlong;
 		*xma = along2+dlong;
@@ -391,13 +412,15 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 		*yma = alat2+dlat;
 		
 		
+		hh = hh0 + maxValues;
+		
 		while (hh0 < hh)
 		{
 			if ((*hh0) <= 0.5f)
 			{
 				*hh0 = 1.5f;
 			}
-			else if ((*hh0) <= 0.5f)
+			else if ((*hh0) <= 4.0f)
 			{
 				*hh0 = 4.0f;
 			}
@@ -405,6 +428,13 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 			hh0++;
 		}
 		
+		
+		/*int jm = 10;
+		int ijm = maxValues;
+		
+		const char  namehhh [] =  "c_h.ttt\0";
+		
+		SAVE_Z(&jm, &ijm, *h, &namehhh[0]);*/
 		
 		
 		fclose(hnd);
