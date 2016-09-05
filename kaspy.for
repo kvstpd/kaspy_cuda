@@ -199,9 +199,7 @@ C             ESTABLISH PROBLEM CHARACTERISTICS
 C          ****** ALL UNITS IN M.K.S. SYSTEM ******
 C      F,BLANK AND B REFERS TO FORWARD,CENTRAL AND BACKWARD TIME LEVELS.
 C----------------------------------------------------------------------
-      IP=IM
-      ISK=2
-      JSK=2
+
 
 C
 C  Additional initial conditions
@@ -613,16 +611,12 @@ c		call save_z(jwm, jisize, h, namehhh)
       DTMAX=MIN(DTM,DTMAX)
       end do
 
+c		write(6,*) 'dtmax F is',dtmax
+
       dte=0.5*dtmax   !!!! dte determination
       n=3600/dte+1
       dte=real(3600.0)/real(n)
-C
-C
-      IP=IM
-      ISK=2
-      JSK=2
-C     CALL PRXY('  TOPOGRAPHY 1 ',TIME, H,IP,ISK,JM,JSK,10.)
-C
+
       DO J=1,JM
       DO I=1,IM
       FSM(I,J)=0.

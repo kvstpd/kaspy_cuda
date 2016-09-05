@@ -248,7 +248,7 @@ void InitValues::read_stations(int * n, int ** sx, int ** sy, float ** s_data)
 
 
 
-void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ymi, float * yma, float ** h, fortran_common_arrays * common_arrays)
+void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_common_vars * common_vars, char * name, float * xmi, float * xma, float * ymi, float * yma, float ** h)
 {
 	float sl[F_DATA_WIDTH * F_DATA_HEIGHT];
 	int nx, ny;
@@ -417,8 +417,46 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 		
 		float hmax = 0.0f;
 		
-		while (hh0 < hh)
+		
+		
+		for (int i=0; i<F_DATA_WIDTH; i++)
 		{
+			for (int j=0; j<F_DATA_HEIGHT; j++)
+			{
+				int ji = j * F_DATA_WIDTH + i;
+				
+				if ((hh0[ji]) <= 0.5f)
+				{
+					hh0[ji] = 1.5f;
+				}
+				else if ((hh0[ji]) <= 4.0f)
+				{
+					hh0[ji] = 4.0f;
+				}
+				
+				if ((hh0[ji]) > hmax )
+				{
+					hmax = hh0[ji];
+				}
+				
+				if ((hh0[ji]) > 1.6f )
+				{
+					common_arrays->fsm[j][i] = 1.0f;
+				}
+				else
+				{
+					common_arrays->fsm[j][i] = 0.0f;
+				}
+				
+			}
+		}
+		
+
+		
+		
+		/*while (hh0 < hh)
+		{
+			
 			if ((*hh0) <= 0.5f)
 			{
 				*hh0 = 1.5f;
@@ -434,7 +472,8 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 			}
 			
 			hh0++;
-		}
+		}*/
+		
 		
 		
 		/*int jm = 10;
@@ -448,16 +487,25 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 		fclose(hnd);
 
 		
-		float yy, tdx, tdy, tart;
+		float yy, tdx, tdy, tart, dtm;
+		float dtmax =  10000.0f;
+		
 		
 		for (int j=0; j<F_DATA_HEIGHT; j++)
 		{
-			yy = cosf(ri * (alat1+dlat*(j-0.5)));
+			yy = cosf(ri * (alat1+dlat*(j+0.5)));
 			
 			tdy = dlat*dg;
 			tdx = dlong*dg*yy;
 			
 			tart = tdx * tdy;
+			
+			dtm = tdx/sqrtf(hmax * grav);
+			
+			if (dtm < dtmax)
+			{
+				dtmax = dtm;
+			}
 			
 			common_arrays->dx[j] = tdx;
 			common_arrays->dy[j] = tdy;
@@ -466,11 +514,9 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 			common_arrays->cor[j] = F_PI / 12.0f / 3600.0f / yy;
 		}
 		
-		
-		
-		
-		
-		
+
+		common_vars->dte = 3600.0 / (floor(3600.0 / (0.5 * dtmax) ) + 1.0 );
+
 	}
 	else
 	{
