@@ -247,7 +247,7 @@ void InitValues::read_stations(int * n, int ** sx, int ** sy, float ** s_data)
 
 
 
-void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ymi, float * yma, float ** h)
+void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ymi, float * yma, float ** h, fortran_common_arrays * common_arrays)
 {
 	float sl[F_DATA_WIDTH * F_DATA_HEIGHT];
 	int nx, ny;
@@ -328,7 +328,7 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 		
 		float * hh = (float *) malloc(maxValues * sizeof(float) );
 		
-		printf("nx=%d, ny=%d, maxValues=%d, II=%d, JJ=%d \n", nx, ny, maxValues, F_DATA_WIDTH, F_DATA_HEIGHT);
+		//printf("nx=%d, ny=%d, maxValues=%d, II=%d, JJ=%d \n", nx, ny, maxValues, F_DATA_WIDTH, F_DATA_HEIGHT);
 		
 		
 		if (!hh)
@@ -339,12 +339,12 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 		
 		float * hh0 = hh;
 		
-		printf("h addr is %llx\n", (unsigned long long)h);
-		printf("*h  was %llx\n", (unsigned long long)*h);
+		//printf("h addr is %llx\n", (unsigned long long)h);
+		//printf("*h  was %llx\n", (unsigned long long)*h);
 		
 		*h = hh0;
 		
-		printf("SET *h addr to %llx\n", (unsigned long long)*h);
+		//printf("SET *h addr to %llx\n", (unsigned long long)*h);
 		
 		
 		hh+= F_DATA_WIDTH + 1;
@@ -414,6 +414,8 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 		
 		hh = hh0 + maxValues;
 		
+		float hmax = 0.0f;
+		
 		while (hh0 < hh)
 		{
 			if ((*hh0) <= 0.5f)
@@ -423,6 +425,11 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 			else if ((*hh0) <= 4.0f)
 			{
 				*hh0 = 4.0f;
+			}
+			
+			if ((*hh0) > hmax )
+			{
+				hmax = (*hh0);
 			}
 			
 			hh0++;
@@ -438,6 +445,45 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 		
 		
 		fclose(hnd);
+		
+		/*
+		 hmax=0.0
+		 DO 12 J=1,JM
+		 yy=cos(ri*(alat1+dlat*(j-0.5)))
+		 DY(J)=dlat*dg
+		 DX(J)=dlong*dg*yy
+		 ART(J)=DX(J)*DY(J)
+		 ARU(j)=ART(J)
+		 ARV(j)=ART(J)
+		 COR(J)=pi/12.0/3600/yy
+		 12  CONTINUE
+		 
+		 
+		 */
+		
+		
+		float yy, tdx, tdy, tart;
+		
+		for (int j=0; j<F_DATA_HEIGHT; j++)
+		{
+			yy = cosf(ri * (alat1+dlat*(j-0.5)));
+			
+			tdy = dlat*dg;
+			tdx = dlong*dg*yy;
+			
+			tart = tdx * tdy;
+			
+			common_arrays->dx[j] = tdx;
+			common_arrays->dy[j] = tdy;
+			common_arrays->art[j] = common_arrays->aru[j] = common_arrays->arv[j] = tart;
+			
+			common_arrays->cor[j] = F_PI / 12.0f / 3600.0f / yy;
+		}
+		
+		
+		
+		
+		
 		
 	}
 	else
