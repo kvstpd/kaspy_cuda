@@ -304,6 +304,8 @@ extern "C" void CYCLER_LOAD(int * icycler)
 	{
 		//common_arrays->h = c_h;
 		
+		cycler->m_h = c_h;
+		
 		int device = cycler->init_device();
 		
 		if (device >= 0)
