@@ -10,9 +10,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <math.h>
+
 #include "InitValues.h"
 
-#include "fortran_vars.h"
 
 
 extern "C" void SAVE_Z(int * nx,int * nsize,float * z, const char * name);
