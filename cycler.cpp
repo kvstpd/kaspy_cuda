@@ -553,6 +553,11 @@ extern "C" void tidegen_check_()
 	printf("HERE\n");
 }
 
+extern "C" void TIDEGEN_CHECK()
+{
+	tidegen_check_();
+
+}
 
  
 /*extern "C" void READDIMGR3(int * nx,int * ny,int * nz,char * name)
