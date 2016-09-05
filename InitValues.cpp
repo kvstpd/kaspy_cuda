@@ -446,22 +446,7 @@ void InitValues::tide_from_grd(char * name, float * xmi, float * xma, float * ym
 		
 		
 		fclose(hnd);
-		
-		/*
-		 hmax=0.0
-		 DO 12 J=1,JM
-		 yy=cos(ri*(alat1+dlat*(j-0.5)))
-		 DY(J)=dlat*dg
-		 DX(J)=dlong*dg*yy
-		 ART(J)=DX(J)*DY(J)
-		 ARU(j)=ART(J)
-		 ARV(j)=ART(J)
-		 COR(J)=pi/12.0/3600/yy
-		 12  CONTINUE
-		 
-		 
-		 */
-		
+
 		
 		float yy, tdx, tdy, tart;
 		
