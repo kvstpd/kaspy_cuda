@@ -515,11 +515,11 @@ extern "C" void tidegen_c_(char * name)
 {
 	if (initValues)
 	{
-		printf("C_H is %llx\n", (unsigned long long)c_h);
+		//printf("C_H is %llx\n", (unsigned long long)c_h);
 		
 		initValues->tide_from_grd(name, &common_vars->xmi, &common_vars->xma, &common_vars->ymi, &common_vars->yma,  &c_h);
 		
-		printf("NOW C_H is %llx\n", (unsigned long long)c_h);
+		//printf("NOW C_H is %llx\n", (unsigned long long)c_h);
 	}
 }
 
@@ -532,7 +532,7 @@ extern "C" void tidegen_check_()
 	
 	int ind;
 	
-	printf("ADDR is %llx\n", (unsigned long long)h1);
+	
 	
 	for (int i = 0; i < F_DATA_WIDTH; i++)
 	{
