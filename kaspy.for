@@ -143,12 +143,12 @@ c		write(6,*) '1   xmi=',xmi,'xma=',xma,'ymi=',ymi,'yma=',yma
 
 
 c		write(6,*) '2   xmi=',xmi,'xma=',xma,'ymi=',ymi,'yma=',yma
-c		//CALL TIDEGEN(nameh)
+		CALL TIDEGEN(nameh)
 c		write(6,*) '3   xmi=',xmi,'xma=',xma,'ymi=',ymi,'yma=',yma
 		CALL TIDEGEN_C(nameh)
 
 
-c		//CALL TIDEGEN_CHECK()
+		CALL TIDEGEN_CHECK()
 
 C
 C********************************************************************
