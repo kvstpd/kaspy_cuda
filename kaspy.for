@@ -545,14 +545,14 @@ c        OPEN(8,FILE='faz.txt')
 c cc     dlat=(alat2-alat1)/(ny-1.0)
 c      dlong=(along2-along1)/(nx-1.0)
 c     surrounded bourder
-      do i=2,imm1
-          h(i,jm)=h(i,jmm1)
-          h(i,1)=h(i,2)
-	end do
-      do j=1,jm
-		h(im,j)=h(imm1,j)
-		h(1,j)=h(2,j)
-      end do
+c      do i=2,imm1
+c          h(i,jm)=h(i,jmm1)
+c          h(i,1)=h(i,2)
+c	end do
+c      do j=1,jm
+c		h(im,j)=h(imm1,j)
+c		h(1,j)=h(2,j)
+c      end do
 
 
 
