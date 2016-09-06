@@ -590,15 +590,15 @@ c		call save_z(jwm, jisize, h, namehhh)
 
 
         hmax=0.0
-      DO 12 J=1,JM
-        yy=cos(ri*(alat1+dlat*(j-0.5)))
-        DY(J)=dlat*dg
-        DX(J)=dlong*dg*yy
-        ART(J)=DX(J)*DY(J)
-        ARU(j)=ART(J)
-        ARV(j)=ART(J)
-        COR(J)=pi/12.0/3600/yy
-  12  CONTINUE
+c      DO 12 J=1,JM
+c        yy=cos(ri*(alat1+dlat*(j-0.5)))
+c        DY(J)=dlat*dg
+cc        DX(J)=dlong*dg*yy
+c        ART(J)=DX(J)*DY(J)
+c        ARU(j)=ART(J)
+c        ARV(j)=ART(J)
+c        COR(J)=pi/12.0/3600/yy
+c  12  CONTINUE
       DTMAX=10000
       do i=1,im
       do j=1,jm
