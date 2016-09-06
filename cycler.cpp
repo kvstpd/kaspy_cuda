@@ -52,6 +52,10 @@ fortran_wind_data * w_data = 0;
 fortran_common_vars * common_vars = 0;
 fortran_common_arrays * common_arrays = 0;
 
+fortran_ffloats * common_floats = 0;
+
+
+
 CUTThread cycler_thread;
 
 
@@ -147,13 +151,11 @@ extern "C" void cycler_get_string_param_(char * parName, char * param)
 }
 
 
-void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
-                int * wind_marker)
+void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, int * wind_marker)
 {
 	cycler_read_ini_();
 	
-    if ((initValues == 0) || (vars_marker == 0) || (arrays_marker == 0)
-        || (ffloats_marker == 0) || (wind_marker == 0))
+    if ((initValues == 0) || (vars_marker == 0) || (arrays_marker == 0) || (wind_marker == 0))
     {
 		*icycler = -1;
 		
@@ -190,6 +192,8 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	
 	common_arrays = (fortran_common_arrays *)arrays_marker;
 	
+	common_floats = (fortran_ffloats *) malloc(sizeof(fortran_ffloats) );
+	
 	
 	initValues->read_grd(initValues->m_pressure_grd, &w_data->kx, &w_data->ky, &w_data->kt, &w_data->xki, &w_data->xka, &w_data->yki, &w_data->yka, &w_data->tki, &w_data->tka, &c_press, 0.001f );
 
@@ -220,7 +224,7 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	_i_cycler_time();
 	
     cycler = new KaspyCycler(common_vars, (fortran_common_arrays *)arrays_marker,
-							 (fortran_ffloats *)ffloats_marker, w_data,
+							 common_floats, w_data,
                              c_press, c_uwd, c_vwd, nstations, c_stations_x, c_stations_y, c_station_elves, initValues->m_duration);
 	
 	
@@ -232,17 +236,15 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 
 
 // Intel Fortran WIN naming
-extern "C" void CYCLER_CREATE(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
-                             int * wind_marker)
+extern "C" void CYCLER_CREATE(int * icycler, float * vars_marker, double * arrays_marker,  int * wind_marker)
 {
-    _i_cycler_init(icycler, vars_marker, arrays_marker, ffloats_marker, wind_marker);
+    _i_cycler_init(icycler, vars_marker, arrays_marker, wind_marker);
 }
 
 // GFortran Unix naming
-extern "C" void cycler_create_(int * icycler, float * vars_marker, double * arrays_marker, double * ffloats_marker,
-                              int * wind_marker)
+extern "C" void cycler_create_(int * icycler, float * vars_marker, double * arrays_marker, int * wind_marker)
 {
-    _i_cycler_init(icycler, vars_marker, arrays_marker, ffloats_marker, wind_marker);
+    _i_cycler_init(icycler, vars_marker, arrays_marker, wind_marker);
 }
 
 

@@ -122,8 +122,7 @@ c        ! ALL TOGETHER 8760 hours
 
 		icycler = -1
 
-       call cycler_create(icycler, dht, arrays_marker,
-     1  ff_marker, kx)
+       call cycler_create(icycler, dht, arrays_marker, kx)
 
 		if (icycler.lt.0) then
 			write(6,*) "cycler creation failed!"
@@ -160,13 +159,13 @@ c      DO 81 I=1,IM
 c      D(I,J)=H(I,J)+EL(I,J)
 c   81 CONTINUE
    
-      FXF=0
-      FYF=0
-      FXB=0
-      FYB=0
-      FF=100
-      FB=100
-      FA=0
+c      FXF=0
+c      FYF=0
+c      FXB=0
+c      FYB=0
+c      FF=100
+c      FB=100
+c      FA=0
       SEL=0
       SSEL=0
       SFA=0
