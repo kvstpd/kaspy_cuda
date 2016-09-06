@@ -410,6 +410,7 @@ void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_co
 		
 		float hmax = 0.0f;
 		
+		float t_cbc;
 		
 		
 		for (int i=0; i<F_DATA_WIDTH; i++)
@@ -435,10 +436,28 @@ void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_co
 				if ((hh0[ji]) > 1.6f )
 				{
 					common_arrays->fsm[j][i] = 1.0f;
+					
+					
+					t_cbc =  logf(0.5f * hh0[ji] / 0.01f);
+					t_cbc =  0.16f / (t_cbc * t_cbc);
+					
+					if (t_cbc < .0025f)
+					{
+						t_cbc = .0025f;
+					}
+					
+					common_arrays->cbc[j][i] = t_cbc;
+					
+					/*Z0B=.01
+					CBCMIN=.0025E0
+					IF (fsm(i,j).gt.0.5)THEN
+					CBC(I,J)=MAX(CBCMIN,.16E0/LOG(0.5*H(I,J)/Z0B)**2)*/
 				}
 				else
 				{
 					common_arrays->fsm[j][i] = 0.0f;
+					
+					common_arrays->cbc[j][i] = 0.0f;
 				}
 				
 				
@@ -455,6 +474,8 @@ void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_co
 				common_arrays->vab[j][i] = 0.0f;
 				common_arrays->elb[j][i] = 0.0f;
 				
+				
+	
 				//UAB(I,J)=0.0
 				//VAB(I,J)=0.0
 				//ELB(I,J)=0.0

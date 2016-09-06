@@ -139,26 +139,21 @@ C------------------------------------------------------------------------
 		CALL TIDEGEN_C(nameh)
 
 
-	 
-      GRAV=9.806
 
-
-
-      RAMP=1.
 C A very empirical specification of the bottom roughness
 C          parameter follows
-      DO 45 J=1,JM
-      DO 45 I=1,IM
+c      DO 45 J=1,JM
+c      DO 45 I=1,IM
       
-      Z0B=.01
-      CBCMIN=.0025E0
-      IF (fsm(i,j).gt.0.5)THEN
-      CBC(I,J)=MAX(CBCMIN,.16E0/LOG(0.5*H(I,J)
-     1        /Z0B)**2)
-        ELSE
-        CBC(I,J)=0
-        END IF
-45    CONTINUE
+c      Z0B=.01
+c      CBCMIN=.0025E0
+c      IF (fsm(i,j).gt.0.5)THEN
+c      CBC(I,J)=MAX(CBCMIN,.16E0/LOG(0.5*H(I,J)
+c     1        /Z0B)**2)
+c        ELSE
+c        CBC(I,J)=0
+c        END IF
+c45    CONTINUE
 C   Evaluate external CFL time step
       DO 81 J=1,JM
       DO 81 I=1,IM
@@ -188,8 +183,7 @@ C   Evaluate external CFL time step
       ssuv=0
       sue=0
       sve=0
-      
-c      ro_ratio=1.29/1020.0
+
       
       NSTAT=0
       BTIM=1
@@ -202,22 +196,12 @@ c      ro_ratio=1.29/1020.0
       END DO
       END DO 
       
-c      open(77,file='wnd_press_90d.txt')
-c!      open(88,file='force1.txt') ALSO STATISTICS
 
-C
-c      TIME=TIMEI
-C***********************************************************************
-C                                                                      *
-C                  BEGIN NUMERICAL INTEGRATION                         *
-C                                                                      *
-C***********************************************************************
-C
 
 		call cycler_load(icycler)
 
 
-c		write(6,*) icycler
+
 
         if (icycler.lt.0) then
 			write(6,*) "cycler initialization failed!"
