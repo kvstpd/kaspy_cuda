@@ -542,8 +542,8 @@ c        OPEN(8,FILE='faz.txt')
 
 
 
-      dlat=(alat2-alat1)/(ny-1.0)
-      dlong=(along2-along1)/(nx-1.0)
+c cc     dlat=(alat2-alat1)/(ny-1.0)
+c      dlong=(along2-along1)/(nx-1.0)
 c     surrounded bourder
       do i=2,imm1
           h(i,jm)=h(i,jmm1)
