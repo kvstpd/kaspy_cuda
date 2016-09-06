@@ -589,7 +589,7 @@ c		jisize = im * jm
 c		call save_z(jwm, jisize, h, namehhh)
 
 
-        hmax=0.0
+c        hmax=0.0
 c      DO 12 J=1,JM
 c        yy=cos(ri*(alat1+dlat*(j-0.5)))
 c        DY(J)=dlat*dg
@@ -639,13 +639,13 @@ c      call SLPMIN(H,IM,JM,FSM,SL)
 
 	   
 C
-      DO 51 J=1,JM
-      DO 51 I=1,IM
-      UAB(I,J)=0.0   
-      VAB(I,J)=0.0
-      ELB(I,J)=0.0           
-      AAM2D=2
-   51 CONTINUE
+c      DO 51 J=1,JM
+c      DO 51 I=1,IM
+c      UAB(I,J)=0.0
+c      VAB(I,J)=0.0
+c      ELB(I,J)=0.0
+c      AAM2D=2
+c   51 CONTINUE
 C------------------------------------------------
 C  Set lateral boundary conditions for use in S.R.BCOND. 
 C  In the seamount problem the east and west BCs are open 
