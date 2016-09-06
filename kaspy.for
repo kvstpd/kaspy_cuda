@@ -599,23 +599,23 @@ c        ARU(j)=ART(J)
 c        ARV(j)=ART(J)
 c        COR(J)=pi/12.0/3600/yy
 c  12  CONTINUE
-      DTMAX=10000
-      do i=1,im
-      do j=1,jm
-      hmax=max(h(i,j),hmax)
-      end do
-      end do
+c      DTMAX=10000
+c      do i=1,im
+c      do j=1,jm
+c      hmax=max(h(i,j),hmax)
+c      end do
+c      end do
 
-      do j=1,jm
-      DTM=DX(J)/SQRT(Hmax*GRAV)
-      DTMAX=MIN(DTM,DTMAX)
-      end do
+c      do j=1,jm
+c      DTM=DX(J)/SQRT(Hmax*GRAV)
+c      DTMAX=MIN(DTM,DTMAX)
+c      end do
 
 c		write(6,*) 'dtmax F is',dtmax
 
-      dte=0.5*dtmax   !!!! dte determination
-      n=3600/dte+1
-      dte=real(3600.0)/real(n)
+c      dte=0.5*dtmax   !!!! dte determination
+c      n=3600/dte+1
+c      dte=real(3600.0)/real(n)
 
       DO J=1,JM
       DO I=1,IM
