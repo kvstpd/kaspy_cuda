@@ -448,6 +448,25 @@ void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_co
 					common_arrays->fsm[j][i] = 0.0f;
 				}
 				
+				
+				if (i > 0 && j > 0 )
+				{
+					common_arrays->dum[j][i] = common_arrays->fsm[j][i-1] * common_arrays->fsm[j][i];
+					common_arrays->dvm[j][i] = common_arrays->fsm[j-1][i] * common_arrays->fsm[j][i];
+					//DUM(I,J)=FSM(I,J)*FSM(I-1,J)
+					//DVM(I,J)=FSM(I,J)*FSM(I,J-1)
+				}
+				
+				
+				common_arrays->uab[j][i] = 0.0f;
+				common_arrays->vab[j][i] = 0.0f;
+				common_arrays->elb[j][i] = 0.0f;
+				
+				//UAB(I,J)=0.0
+				//VAB(I,J)=0.0
+				//ELB(I,J)=0.0
+				
+				
 			}
 		}
 		
@@ -516,6 +535,8 @@ void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_co
 		
 
 		common_vars->dte = 3600.0 / (floor(3600.0 / (0.5 * dtmax) ) + 1.0 );
+		
+		common_arrays->aam2d = 2.0f;
 
 	}
 	else
