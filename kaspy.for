@@ -617,14 +617,14 @@ c      dte=0.5*dtmax   !!!! dte determination
 c      n=3600/dte+1
 c      dte=real(3600.0)/real(n)
 
-      DO J=1,JM
-      DO I=1,IM
-      FSM(I,J)=0.
-      DUM(I,J)=0.
-      DVM(I,J)=0.
-      IF(H(I,J).GT.1.6) FSM(I,J)=1.
-      ENDDO
-      ENDDO
+c      DO J=1,JM
+c      DO I=1,IM
+c      FSM(I,J)=0.
+c      DUM(I,J)=0.
+c      DVM(I,J)=0.
+c      IF(H(I,J).GT.1.6) FSM(I,J)=1.
+c      ENDDO
+c      ENDDO
 c c     DO J=2,JM
 c      DO I=2,IM
 c      DUM(I,J)=FSM(I,J)*FSM(I-1,J)
