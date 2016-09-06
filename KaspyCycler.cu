@@ -1237,6 +1237,8 @@ void KaspyCycler::makeWsurf()
 		
 			
 			dev_fill_station_data<<< blocksPerStations, threadsPerBlock>>>(itimeh);
+			
+			/// STATISTICS HERE
 
 		}
 		

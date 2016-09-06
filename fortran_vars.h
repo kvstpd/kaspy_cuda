@@ -126,6 +126,32 @@ typedef struct{
 } fortran_ffloats;
 
 
+/*COMMON/F_STATS/SEL,SSEL,SFA,SSFA,SFEL,SFAR,SSFAR,SFELR,
+ 8     su,sv,ssu,ssv,ssuv,ssue,ssve*/
+
+
+typedef struct{
+	double marker;
+	float sel[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float ssel[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float sfa[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float ssfa[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float sfel[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float sfar[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float ssfar[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float sfelr[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float su[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float sv[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float ssu[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float ssv[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float ssuv[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float ssue[F_DATA_HEIGHT][F_DATA_WIDTH];
+	float ssve[F_DATA_HEIGHT][F_DATA_WIDTH];
+	double end_marker;
+} fortran_stats;
+
+
+
 //            COMMON/F_WIND/kx,ky,kt, kxu,kyu,ktu, kxv,kyv,ktv,
 //1  XKI,XKA,YKI,YKA,TKI,TKA, XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,
 //2  XKVI,XKVA,YKVI,YKVA,TKVI,TKVA
