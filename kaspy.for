@@ -155,10 +155,10 @@ c        CBC(I,J)=0
 c        END IF
 c45    CONTINUE
 C   Evaluate external CFL time step
-      DO 81 J=1,JM
-      DO 81 I=1,IM
-      D(I,J)=H(I,J)+EL(I,J)
-   81 CONTINUE
+c      DO 81 J=1,JM
+c      DO 81 I=1,IM
+c      D(I,J)=H(I,J)+EL(I,J)
+c   81 CONTINUE
    
       FXF=0
       FYF=0
@@ -184,23 +184,9 @@ C   Evaluate external CFL time step
       sue=0
       sve=0
 
-      
-      NSTAT=0
-      BTIM=1
-      FTIM=0
-      
-      AFSM=0
-      DO J=1,JM
-      DO I=1,IM
-        AFSM=AFSM+FSM(I,J)
-      END DO
-      END DO 
-      
 
 
 		call cycler_load(icycler)
-
-
 
 
         if (icycler.lt.0) then
