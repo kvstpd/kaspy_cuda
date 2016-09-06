@@ -509,7 +509,7 @@ extern "C" void TIDEGEN_C(char * name)
 {
 	if (initValues)
 	{
-		initValues->tide_from_grd(common_arrays, common_vars, name, &common_vars->xmi, &common_vars->xma, &common_vars->ymi, &common_vars->yma,  &c_h);
+		initValues->tide_from_grd(common_arrays, common_vars, name,  &c_h);
 	}
 }
 
@@ -519,7 +519,7 @@ extern "C" void tidegen_c_(char * name)
 	{
 		//printf("C_H is %llx\n", (unsigned long long)c_h);
 		
-		initValues->tide_from_grd(common_arrays, common_vars, name, &common_vars->xmi, &common_vars->xma, &common_vars->ymi, &common_vars->yma,  &c_h);
+		initValues->tide_from_grd(common_arrays, common_vars, name, &c_h);
 		
 		//printf("NOW C_H is %llx\n", (unsigned long long)c_h);
 	}

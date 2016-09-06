@@ -248,7 +248,7 @@ void InitValues::read_stations(int * n, int ** sx, int ** sy, float ** s_data)
 
 
 
-void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_common_vars * common_vars, char * name, float * xmi, float * xma, float * ymi, float * yma, float ** h)
+void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_common_vars * common_vars, char * name, float ** h)
 {
 	float sl[F_DATA_WIDTH * F_DATA_HEIGHT];
 	int nx, ny;
@@ -406,11 +406,11 @@ void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_co
 		
 		
 		
-		*xmi = along1-dlong;
-		*xma = along2+dlong;
+		common_vars->xmi = along1-dlong;
+		common_vars->xma = along2+dlong;
 		
-		*ymi = alat1-dlat;
-		*yma = alat2+dlat;
+		common_vars->ymi = alat1-dlat;
+		common_vars->yma = alat2+dlat;
 		
 		
 		hh = hh0 + maxValues;
@@ -473,34 +473,7 @@ void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_co
 
 		
 		
-		/*while (hh0 < hh)
-		{
-			
-			if ((*hh0) <= 0.5f)
-			{
-				*hh0 = 1.5f;
-			}
-			else if ((*hh0) <= 4.0f)
-			{
-				*hh0 = 4.0f;
-			}
-			
-			if ((*hh0) > hmax )
-			{
-				hmax = (*hh0);
-			}
-			
-			hh0++;
-		}*/
-		
-		
-		
-		/*int jm = 10;
-		int ijm = maxValues;
-		
-		const char  namehhh [] =  "c_h.ttt\0";
-		
-		SAVE_Z(&jm, &ijm, *h, &namehhh[0]);*/
+
 		
 		
 		fclose(hnd);

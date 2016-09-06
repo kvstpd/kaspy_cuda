@@ -570,18 +570,18 @@ c     surrounded bourder
 	kmax=0
 	hmin=4.0        
 c	  tide_l0=0.5
-        DO J=1,JM
-        DO I=1,IM
-          if (h(i,j).le.hmin.and.h(i,j).gt.0.5) then
-	      kmin=kmin+1
-	      h(i,j)=hmin
-	    else
-            if (h(i,j).le.0.5) then
-              h(i,j)=1.5
-            end if 
-		end if 	 
-        end do
-	  end do
+c        DO J=1,JM
+c        DO I=1,IM
+c          if (h(i,j).le.hmin.and.h(i,j).gt.0.5) then
+c	      kmin=kmin+1
+c	      h(i,j)=hmin
+c	    else
+c            if (h(i,j).le.0.5) then
+c              h(i,j)=1.5
+c            end if
+c		end if
+c        end do
+c	  end do
 
 c		namehhh='for_h.ttt'//CHAR(0)
 c		jwm = 10
