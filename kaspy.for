@@ -625,12 +625,12 @@ c      dte=real(3600.0)/real(n)
       IF(H(I,J).GT.1.6) FSM(I,J)=1.
       ENDDO
       ENDDO
-      DO J=2,JM
-      DO I=2,IM
-      DUM(I,J)=FSM(I,J)*FSM(I-1,J)                                     
-      DVM(I,J)=FSM(I,J)*FSM(I,J-1)                                     
-      ENDDO
-      ENDDO
+c c     DO J=2,JM
+c      DO I=2,IM
+c      DUM(I,J)=FSM(I,J)*FSM(I-1,J)
+c      DVM(I,J)=FSM(I,J)*FSM(I,J-1)
+c      ENDDO
+c      ENDDO
 
 
 c      call SLPMIN(H,IM,JM,FSM,SL)
