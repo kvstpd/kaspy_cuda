@@ -559,16 +559,16 @@ c     surrounded bourder
 
 
 
-      xmi=along1-dlong
-      xma=along2+dlong
-
-      ymi=alat1-dlat
-      yma=alat2+dlat
-      
-      hmax=0.0
-      kmin=0
-	kmax=0
-	hmin=4.0        
+c      xmi=along1-dlong
+c      xma=along2+dlong
+c
+c      ymi=alat1-dlat
+c      yma=alat2+dlat
+c c
+c      hmax=0.0
+c      kmin=0
+c	kmax=0
+c	hmin=4.0
 c	  tide_l0=0.5
 c        DO J=1,JM
 c        DO I=1,IM
