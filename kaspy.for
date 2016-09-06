@@ -132,79 +132,16 @@ c        ! ALL TOGETHER 8760 hours
 
 
 
-
-
-C
 C     READ IN GRID DATA AND INITIAL AND LATERAL BOUNDARY CONDITIONS
 C------------------------------------------------------------------------
       nameh='kaspi_1_5mR.grd'//CHAR(0)
 
-c		write(6,*) '1   xmi=',xmi,'xma=',xma,'ymi=',ymi,'yma=',yma
-
-
-c		write(6,*) '2   xmi=',xmi,'xma=',xma,'ymi=',ymi,'yma=',yma
-c		CALL TIDEGEN(nameh)
-c		write(6,*) '3   xmi=',xmi,'xma=',xma,'ymi=',ymi,'yma=',yma
 		CALL TIDEGEN_C(nameh)
-
-
-c		CALL TIDEGEN_CHECK()
-
-C
-C********************************************************************
-C  Note that lateral thermodynamic boundary conditions are often set equal
-C  to the initial conditions and are held constant thereafter. Users can
-C  of course create varable boundary conditions.
-C********************************************************************
-
-C     END READING DATA      
-
 
 
 	 
       GRAV=9.806
-      TBIAS=0.
-      SBIAS=0.
-      IINT=0
-      TIMEh=0.
-      ittt=0
 
-      time0=1.0
-c
-	     
-      DAYS=5. 
-      PRTD1=5.   
-      ISPADV=10
-      SMOTH=0.10
-      HORCON=1.0
-C  N.B.: TPRNI=0. yields zero  horizontal diffusivity !!
-      TPRNI=0   
-      UMOL=2.E-5
-      MODE=2
-      NREAD=0
-C
-
-
-       DTE2=DTE*2
-
-
-	tprni=1.0
-c      IEND=HOURS*3600/DTI+2
-
-
-C
-
-C----------------------------------------------------------------------
-C             ESTABLISH PROBLEM CHARACTERISTICS
-C          ****** ALL UNITS IN M.K.S. SYSTEM ******
-C      F,BLANK AND B REFERS TO FORWARD,CENTRAL AND BACKWARD TIME LEVELS.
-C----------------------------------------------------------------------
-
-
-C
-C  Additional initial conditions
-
-c      itime6_old=0
 
 
       RAMP=1.
@@ -515,146 +452,7 @@ C
       RETURN
       END
 C
-      SUBROUTINE tidegen(nameh)
-       INCLUDE 'comblk.for'
-      real sl(im,jm)
-	DATA PI/3.141592654/,SMALL/1.E-10/DG/111111.1/
-	character*20 nameh
-c	CHARACTER*20 namehhh
-      grav=9.81 
-c      
-      RI=PI/180.0
-c        OPEN(1,FILE='Baltic_F.grd')
-        OPEN(1,FILE=nameh)
-	i251=imm1
 
-c        OPEN(7,FILE='amp.txt')
-c        OPEN(8,FILE='faz.txt')
-        READ(1,*)
-        READ(1,*)Nx,Ny
-        READ(1,*)along1,along2
-        READ(1,*)alat1,alat2
-        READ(1,*)
-        do j=2,jmm1 
-	  READ(1,*) (H(I,J),I=2,IMm1)
-	  end do
-        CLOSE(1)
-
-
-
-c cc     dlat=(alat2-alat1)/(ny-1.0)
-c      dlong=(along2-along1)/(nx-1.0)
-c     surrounded bourder
-c      do i=2,imm1
-c          h(i,jm)=h(i,jmm1)
-c          h(i,1)=h(i,2)
-c	end do
-c      do j=1,jm
-c		h(im,j)=h(imm1,j)
-c		h(1,j)=h(2,j)
-c      end do
-
-
-
-
-
-
-c      xmi=along1-dlong
-c      xma=along2+dlong
-c
-c      ymi=alat1-dlat
-c      yma=alat2+dlat
-c c
-c      hmax=0.0
-c      kmin=0
-c	kmax=0
-c	hmin=4.0
-c	  tide_l0=0.5
-c        DO J=1,JM
-c        DO I=1,IM
-c          if (h(i,j).le.hmin.and.h(i,j).gt.0.5) then
-c	      kmin=kmin+1
-c	      h(i,j)=hmin
-c	    else
-c            if (h(i,j).le.0.5) then
-c              h(i,j)=1.5
-c            end if
-c		end if
-c        end do
-c	  end do
-
-c		namehhh='for_h.ttt'//CHAR(0)
-c		jwm = 10
-c		jisize = im * jm
-c		call save_z(jwm, jisize, h, namehhh)
-
-
-c        hmax=0.0
-c      DO 12 J=1,JM
-c        yy=cos(ri*(alat1+dlat*(j-0.5)))
-c        DY(J)=dlat*dg
-cc        DX(J)=dlong*dg*yy
-c        ART(J)=DX(J)*DY(J)
-c        ARU(j)=ART(J)
-c        ARV(j)=ART(J)
-c        COR(J)=pi/12.0/3600/yy
-c  12  CONTINUE
-c      DTMAX=10000
-c      do i=1,im
-c      do j=1,jm
-c      hmax=max(h(i,j),hmax)
-c      end do
-c      end do
-
-c      do j=1,jm
-c      DTM=DX(J)/SQRT(Hmax*GRAV)
-c      DTMAX=MIN(DTM,DTMAX)
-c      end do
-
-c		write(6,*) 'dtmax F is',dtmax
-
-c      dte=0.5*dtmax   !!!! dte determination
-c      n=3600/dte+1
-c      dte=real(3600.0)/real(n)
-
-c      DO J=1,JM
-c      DO I=1,IM
-c      FSM(I,J)=0.
-c      DUM(I,J)=0.
-c      DVM(I,J)=0.
-c      IF(H(I,J).GT.1.6) FSM(I,J)=1.
-c      ENDDO
-c      ENDDO
-c c     DO J=2,JM
-c      DO I=2,IM
-c      DUM(I,J)=FSM(I,J)*FSM(I-1,J)
-c      DVM(I,J)=FSM(I,J)*FSM(I,J-1)
-c      ENDDO
-c      ENDDO
-
-
-c      call SLPMIN(H,IM,JM,FSM,SL)
-
-
-
-	   
-C
-c      DO 51 J=1,JM
-c      DO 51 I=1,IM
-c      UAB(I,J)=0.0
-c      VAB(I,J)=0.0
-c      ELB(I,J)=0.0
-c      AAM2D=2
-c   51 CONTINUE
-C------------------------------------------------
-C  Set lateral boundary conditions for use in S.R.BCOND. 
-C  In the seamount problem the east and west BCs are open 
-C  whereas the south and north BCs are closed through specification
-C  of the masks, FSM, DUM and DVM.
-C------------------------------------------------
-C
-      RETURN
-      END
 
 
       SUBROUTINE GAUSS(IX,S,AM,V)
