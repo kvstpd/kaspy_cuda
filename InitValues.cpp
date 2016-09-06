@@ -248,7 +248,7 @@ void InitValues::read_stations(int * n, int ** sx, int ** sy, float ** s_data)
 
 
 
-void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_common_vars * common_vars, char * name, float ** h)
+void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_common_vars * common_vars, char * name)
 {
 	float sl[F_DATA_WIDTH * F_DATA_HEIGHT];
 	int nx, ny;
@@ -327,23 +327,16 @@ void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_co
 		
 		int nchars;
 		
-		float * hh = (float *) malloc(maxValues * sizeof(float) );
+		float * hh = &common_arrays->h[0][0];
+		//(float *) malloc(maxValues * sizeof(float) );
 		
-		//printf("nx=%d, ny=%d, maxValues=%d, II=%d, JJ=%d \n", nx, ny, maxValues, F_DATA_WIDTH, F_DATA_HEIGHT);
-		
-		
-		if (!hh)
-		{
-			printf("memory allocation error!\n");
-			return;
-		}
-		
+
 		float * hh0 = hh;
 		
 		//printf("h addr is %llx\n", (unsigned long long)h);
 		//printf("*h  was %llx\n", (unsigned long long)*h);
 		
-		*h = hh0;
+		//*h = hh0;
 		
 		//printf("SET *h addr to %llx\n", (unsigned long long)*h);
 		

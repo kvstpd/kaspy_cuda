@@ -21,14 +21,13 @@ public:
     
     KaspyCycler(fortran_common_vars * for_vars, fortran_common_arrays * for_arrays,
                 fortran_ffloats * for_floats, fortran_wind_data * for_wind_data,
-                float * for_press, float * for_uwd, float * for_vwd, int n_stations, int * c_stations_x, int * c_stations_y, float * c_station_elves, int n_duration, float * c_h) :
+                float * for_press, float * for_uwd, float * for_vwd, int n_stations, int * c_stations_x, int * c_stations_y, float * c_station_elves, int n_duration) :
     m_width(F_DATA_WIDTH),
     m_height(F_DATA_HEIGHT),
     m_fVars(for_vars),
     m_fArrays(for_arrays),
     m_fFloats(for_floats),
     m_fWindData(for_wind_data),
-	m_h(c_h),
     m_press(for_press),
 //    m_press0(for_press0),
     m_uwd(for_uwd),

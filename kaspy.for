@@ -148,7 +148,7 @@ c		write(6,*) '3   xmi=',xmi,'xma=',xma,'ymi=',ymi,'yma=',yma
 		CALL TIDEGEN_C(nameh)
 
 
-		CALL TIDEGEN_CHECK()
+c		CALL TIDEGEN_CHECK()
 
 C
 C********************************************************************
@@ -525,20 +525,20 @@ c	CHARACTER*20 namehhh
 c      
       RI=PI/180.0
 c        OPEN(1,FILE='Baltic_F.grd')
-c        OPEN(1,FILE=nameh)
+        OPEN(1,FILE=nameh)
 	i251=imm1
 
 c        OPEN(7,FILE='amp.txt')
 c        OPEN(8,FILE='faz.txt')
-c        READ(1,*)
-c        READ(1,*)Nx,Ny
-c        READ(1,*)along1,along2
-c        READ(1,*)alat1,alat2
-c        READ(1,*)
-c        do j=2,jmm1
-c	  READ(1,*) (H(I,J),I=2,IMm1)
-c	  end do
-c        CLOSE(1)
+        READ(1,*)
+        READ(1,*)Nx,Ny
+        READ(1,*)along1,along2
+        READ(1,*)alat1,alat2
+        READ(1,*)
+        do j=2,jmm1 
+	  READ(1,*) (H(I,J),I=2,IMm1)
+	  end do
+        CLOSE(1)
 
 
 

@@ -1066,7 +1066,7 @@ void KaspyCycler::sendDataToGPU()
 	size_t uwd_data_size =  m_fWindData->kyu *  m_fWindData->kxu * m_fWindData->ktu * sizeof(float);
 	size_t vwd_data_size =  m_fWindData->kyv *  m_fWindData->kxv * m_fWindData->ktv * sizeof(float);
 	
-	printf("have m_h ADDR as %llx\n", (unsigned long long)m_h);
+	//printf("have m_h ADDR as %llx\n", (unsigned long long)m_h);
 
 	
 	if ( (cudaMemcpy(g_fbu,&m_fFloats->fbu[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
@@ -1104,7 +1104,7 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpy(g_wubot,&m_fArrays->wubot[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_wvbot,&m_fArrays->wvbot[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_cbc,&m_fArrays->cbc[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
-		&& (cudaMemcpy(g_h, m_h /*&m_fArrays->h[0][0]*/, s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		&& (cudaMemcpy(g_h, &m_fArrays->h[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		
 		&& (cudaMemcpy(g_press,&m_press[0],press_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_uwd,&m_uwd[0],uwd_data_size, cudaMemcpyHostToDevice) == cudaSuccess)

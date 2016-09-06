@@ -39,7 +39,7 @@ float * c_uwd = 0;
 float * c_vwd = 0;
 
 
-float * c_h = 0;
+//float * c_h = 0;
 
 
 
@@ -221,7 +221,7 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	
     cycler = new KaspyCycler(common_vars, (fortran_common_arrays *)arrays_marker,
 							 (fortran_ffloats *)ffloats_marker, w_data,
-                             c_press, c_uwd, c_vwd, nstations, c_stations_x, c_stations_y, c_station_elves, initValues->m_duration, c_h);
+                             c_press, c_uwd, c_vwd, nstations, c_stations_x, c_stations_y, c_station_elves, initValues->m_duration);
 	
 	
 	*icycler = 0;
@@ -304,7 +304,7 @@ extern "C" void CYCLER_LOAD(int * icycler)
 	{
 		//common_arrays->h = c_h;
 		
-		cycler->m_h = c_h;
+		//cycler->m_h = c_h;
 		
 		int device = cycler->init_device();
 		
@@ -464,10 +464,10 @@ void _i_cycler_destroy(int * icycler)
 		free(c_station_elves);
 	}
 	
-	if (c_h)
-	{
-		free(c_h);
-	}
+	//if (c_h)
+	//{
+	//	free(c_h);
+	//}
 	
 	if (defaultGlWindow)
 	{
@@ -509,7 +509,7 @@ extern "C" void TIDEGEN_C(char * name)
 {
 	if (initValues)
 	{
-		initValues->tide_from_grd(common_arrays, common_vars, name,  &c_h);
+		initValues->tide_from_grd(common_arrays, common_vars, name);
 	}
 }
 
@@ -519,12 +519,12 @@ extern "C" void tidegen_c_(char * name)
 	{
 		//printf("C_H is %llx\n", (unsigned long long)c_h);
 		
-		initValues->tide_from_grd(common_arrays, common_vars, name, &c_h);
+		initValues->tide_from_grd(common_arrays, common_vars, name);
 		
 		//printf("NOW C_H is %llx\n", (unsigned long long)c_h);
 	}
 }
-
+/*
 extern "C" void tidegen_check_()
 {
 	float diff = 0.0f;
@@ -560,7 +560,7 @@ extern "C" void TIDEGEN_CHECK()
 	tidegen_check_();
 
 }
-
+*/
  
 /*extern "C" void READDIMGR3(int * nx,int * ny,int * nz,char * name)
 { 

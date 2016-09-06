@@ -42,7 +42,7 @@ public:
 				  float * zmi = 0, float * zma = 0, float ** z = 0, float multiplier = 1.0);
 
 	
-	void tide_from_grd(fortran_common_arrays * common_arrays, fortran_common_vars * common_vars, char * name, float ** z);
+	void tide_from_grd(fortran_common_arrays * common_arrays, fortran_common_vars * common_vars, char * name);
 	
 	
 	void read_stations(int * n, int ** sx, int ** sy, float ** s_data);
