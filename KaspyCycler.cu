@@ -1018,7 +1018,7 @@ __global__ void dev_statistics_1(float ftim)
 	
 	float btim = 1.0f - ftim;
 	
-	float fa = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f;
+	//float fa = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f;
 	
 	
 	
