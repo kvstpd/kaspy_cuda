@@ -1239,6 +1239,7 @@ void KaspyCycler::writeStatistics()
 	
 	if (host_buf)
 	{
+		printf("have nstat %d!\n", m_nstat);
 		dev_statistics_finalize<<< numSquareBlocks, threadsPerSquareBlock>>>((float)m_nstat);
 		
 		
