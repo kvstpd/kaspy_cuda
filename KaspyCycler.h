@@ -54,7 +54,10 @@ public:
                m_fWindData->kxu, m_fWindData->kyu, m_fWindData->ktu,
                m_fWindData->kxv, m_fWindData->kyv, m_fWindData->ktv);
 		
-		printf("CCC device is %d", m_gpu_device);
+		
+		setbuf(stdout,NULL);
+		printf("\n\nCCC device is %d\n\n", m_gpu_device);
+		setbuf(stdout,NULL);
     }
     
  

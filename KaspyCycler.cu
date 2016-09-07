@@ -1674,7 +1674,9 @@ int KaspyCycler::init_device()
 	
 	size_t square_size = m_height*m_width * sizeof(float);
 	
-	printf("III device is %d", m_gpu_device);
+	setbuf(stdout,NULL);
+	printf("\n\nIII device is %d\n\n", m_gpu_device);
+	setbuf(stdout,NULL);
 	
 	if (m_gpu_device >= 0)
 	{
