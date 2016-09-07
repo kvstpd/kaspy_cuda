@@ -1020,6 +1020,12 @@ __global__ void dev_statistics_1(float ftim)
 	
 	int ji = j * dev_width + i;
 	
+	if (i < dev_width && j < dev_height)
+	{
+		dev_sel[ji] += dev_el[ji];
+		dev_ssel[ji] += dev_el[ji]*dev_el[ji];
+	}
+	
 	//float btim = 1.0f - ftim;
 	
 	//float fa = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f;
@@ -1029,8 +1035,7 @@ __global__ void dev_statistics_1(float ftim)
 	//dev_sfa[ji] += fa;
 	//dev_ssfa[ji] += fa*fa;
 	
-	dev_sel[ji] += dev_el[ji];
-	dev_ssel[ji] += dev_el[ji]*dev_el[ji];
+
 	//dev_sfel[ji] += dev_el[ji] * fa;
 	
 	
@@ -1045,20 +1050,24 @@ __global__ void dev_statistics_finalize(float nstat)
 	
 	
 	
-	//dev_sfa[ji] /= nstat;
-	dev_sel[ji] /= nstat;
-
-	//dev_sfar[ji] /= nstat;
-	
-	float prev_ssel = dev_ssel[ji];
-	
-	//dev_ssfa[ji] = (dev_ssfa[ji]/nstat - dev_sfa[ji]*dev_sfa[ji]) * 10000.0f;
-	dev_ssel[ji] = (dev_ssel[ji]/nstat - dev_sel[ji]*dev_sel[ji]) * 10000.0f;
-	
-	
-	if (dev_ssel[ji] >= 8570.0f)
+	if (i < dev_width && j < dev_height)
 	{
-		printf("something wrong at i=%d, j=%d, with nstat=%f, sel=%f, prev=%f\n", i, j, nstat, dev_sel[ji], prev_ssel);
+		//dev_sfa[ji] /= nstat;
+		dev_sel[ji] /= nstat;
+		
+		//dev_sfar[ji] /= nstat;
+		
+		float prev_ssel = dev_ssel[ji];
+		
+		//dev_ssfa[ji] = (dev_ssfa[ji]/nstat - dev_sfa[ji]*dev_sfa[ji]) * 10000.0f;
+		dev_ssel[ji] = (dev_ssel[ji]/nstat - dev_sel[ji]*dev_sel[ji]) * 10000.0f;
+		
+		
+		if (dev_ssel[ji] >= 8570.0f)
+		{
+			printf("something wrong at i=%d, j=%d, with nstat=%f, sel=%f, prev=%f\n", i, j, nstat, dev_sel[ji], prev_ssel);
+		}
+
 	}
 	
 }
