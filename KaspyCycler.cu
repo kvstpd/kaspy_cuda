@@ -1301,11 +1301,11 @@ void KaspyCycler::makeWsurf()
 			/// STATISTICS HERE
 
 			//
-			//dev_statistics_1<<< numSquareBlocks, threadsPerSquareBlock>>>(ftim);
+			dev_statistics_1<<< numSquareBlocks, threadsPerSquareBlock>>>(ftim);
 			
 			m_nstat++;
 			
-			printf("STTT %d\n", m_nstat);
+			//printf("STTT %d\n", m_nstat);
 		}
 		
 		
@@ -1674,9 +1674,9 @@ int KaspyCycler::init_device()
 	
 	size_t square_size = m_height*m_width * sizeof(float);
 	
-	setbuf(stdout,NULL);
-	printf("\n\nIII device is %d\n\n", m_gpu_device);
-	setbuf(stdout,NULL);
+	//setbuf(stdout,NULL);
+	//printf("\n\nIII device is %d\n\n", m_gpu_device);
+	//setbuf(stdout,NULL);
 	
 	if (m_gpu_device >= 0)
 	{

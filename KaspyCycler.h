@@ -55,9 +55,9 @@ public:
                m_fWindData->kxv, m_fWindData->kyv, m_fWindData->ktv);
 		
 		
-		setbuf(stdout,NULL);
-		printf("\n\nCCC device is %d\n\n", m_gpu_device);
-		setbuf(stdout,NULL);
+		//setbuf(stdout,NULL);
+		//printf("\n\nCCC device is %d\n\n", m_gpu_device);
+		//setbuf(stdout,NULL);
     }
     
  
