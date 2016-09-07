@@ -132,6 +132,16 @@ __device__ float * dev_py = 0;
 __device__ float * dev_temp = 0;
 
 
+__device__ float * g_sel = 0;
+__device__ float * g_ssel = 0;
+__device__ float * g_sfel = 0;
+
+__device__ float * dev_sel = 0;
+__device__ float * dev_ssel = 0;
+__device__ float * dev_sfel = 0;
+
+
+
 float * g_fbu = 0;
 float * g_fbv = 0;
 float * g_ffu = 0;
@@ -1710,6 +1720,10 @@ int KaspyCycler::init_device()
 		&& (cudaMalloc((void **)&g_stations_x, m_stations * sizeof(int)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_stations_y, m_stations * sizeof(int)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_station_elves, (m_duration -1) *  m_stations * sizeof(float)) == cudaSuccess)
+		
+		&& (cudaMalloc((void **)&g_sel, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssel, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_sfel, m_height * sizeof(float)) == cudaSuccess)
 
 		)
 	{
@@ -2018,6 +2032,23 @@ void KaspyCycler::deinit_device()
 		{
 			cudaFree(g_vwd);
 		}
+		
+		if (g_sel)
+		{
+			cudaFree(g_sel);
+		}
+		
+		
+		if (g_ssel)
+		{
+			cudaFree(g_ssel);
+		}
+		
+		if (g_sfel)
+		{
+			cudaFree(g_sfel);
+		}
+		
 		
 		if (d_temp_storage)
 		{
