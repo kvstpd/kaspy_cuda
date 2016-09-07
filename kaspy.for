@@ -83,7 +83,7 @@ C ---------------------------------------------------------
 
        call cycler_wsurf(icycler)
 
-
+		call cycler_get_data_back(icycler)
 
 
       call cycler_destroy(icycler)
