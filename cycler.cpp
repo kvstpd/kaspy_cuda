@@ -360,16 +360,15 @@ extern "C" void cycler_get_data_back_(int * icycler)
     if (cycler)
     {
         cycler->getDataToCPU();
+		
+		cycler->writeStatistics();
     }
 }
 
 // Intel Fortran WIN naming
 extern "C" void CYCLER_GET_DATA_BACK(int * icycler)
 {
-    if (cycler)
-    {
-        cycler->getDataToCPU();
-    }
+	cycler_get_data_back_(icycler);
 }
 
 
