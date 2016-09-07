@@ -1009,6 +1009,29 @@ __global__ void dev_fill_station_data(int khour)
 }
 
 
+__global__ void dev_statistics_1(float ftim)
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * dev_width + i;
+	
+	float btim = 1.0f - ftim;
+	
+	float fa = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f;
+	
+	
+	
+	dev_sfa[ji] += fa;
+	dev_ssfa[ji] += fa*fa;
+	
+	dev_sel[ji] += dev_el[ji];
+	dev_ssel[ji] += dev_el[ji]*dev_el[ji];
+	dev_sfel[ji] += dev_el[ji] * fa;
+	
+	
+}
+
 
 
 float * KaspyCycler::getElves()
@@ -1277,6 +1300,9 @@ void KaspyCycler::makeWsurf()
 			
 			/// STATISTICS HERE
 
+			dev_statistics_1<<< blocksPerStations, threadsPerBlock>>>(ftim);
+			
+			m_nstat++;
 		}
 		
 		
@@ -1782,7 +1808,21 @@ int KaspyCycler::init_device()
 	
 	if ( (cudaMemset (g_sel, 0, square_size) == cudaSuccess)
 		&& (cudaMemset (g_ssel, 0, square_size) == cudaSuccess)
-
+		&& (cudaMemset (g_sfel, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_sfa, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_ssfa, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_sfar, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_ssfar, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_sfelr, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_su, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_sv, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_ssu, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_ssv, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_ssuv, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_ssue, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_ssve, 0, square_size) == cudaSuccess)
+		
+		
 		)
 	{
 		printf("GPU memory zeroed\n");

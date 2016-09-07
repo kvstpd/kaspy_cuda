@@ -38,6 +38,7 @@ public:
 	m_stations_y(c_stations_y),
 	m_station_elves(c_station_elves),
 	m_duration(n_duration),
+	m_nstat(0),
 //    m_vwd0(for_vwd0),
 	m_gpu_device(-1),
 	d_temp_storage(0),
@@ -79,6 +80,8 @@ public:
  
 	int m_stations;
 	int m_duration;
+	
+	int m_nstat;
 
     fortran_common_vars * m_fVars;
     fortran_common_arrays * m_fArrays;
