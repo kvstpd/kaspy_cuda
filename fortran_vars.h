@@ -130,7 +130,7 @@ typedef struct{
  8     su,sv,ssu,ssv,ssuv,ssue,ssve*/
 
 
-typedef struct{
+/*typedef struct{
 	double marker;
 	float sel[F_DATA_HEIGHT][F_DATA_WIDTH];
 	float ssel[F_DATA_HEIGHT][F_DATA_WIDTH];
@@ -148,7 +148,7 @@ typedef struct{
 	float ssue[F_DATA_HEIGHT][F_DATA_WIDTH];
 	float ssve[F_DATA_HEIGHT][F_DATA_WIDTH];
 	double end_marker;
-} fortran_stats;
+} fortran_stats;*/
 
 
 

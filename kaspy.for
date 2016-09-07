@@ -16,14 +16,14 @@ C ---------------------------------------------------------
      2  XKVI,XKVA,YKVI,YKVA,TKVI,TKVA
 
 
-      COMMON/F_STATS/SEL,SSEL,SFA,SSFA,SFEL,SFAR,SSFAR,SFELR,
-     8     su,sv,ssu,ssv,ssuv,ssue,ssve
+c      COMMON/F_STATS/SEL,SSEL,SFA,SSFA,SFEL,SFAR,SSFAR,SFELR,
+c     8     su,sv,ssu,ssv,ssuv,ssue,ssve
 
-      real*8
-     5     SEL(IM,JM),SSEL(IM,JM),SFA(IM,JM),SSFA(IM,JM),SFEL(IM,JM),
-     6     SFAR(IM,JM),SSFAR(IM,JM),SFELR(IM,JM),
-     8     su(im,jm),sv(im,jm),ssu(im,jm),ssv(im,jm),
-     9     ssuv(im,jm),ssue(im,jm),ssve(im,jm)
+c      real*8
+c     5     SEL(IM,JM),SSEL(IM,JM),SFA(IM,JM),SSFA(IM,JM),SFEL(IM,JM),
+c     6     SFAR(IM,JM),SSFAR(IM,JM),SFELR(IM,JM),
+c     8     su(im,jm),sv(im,jm),ssu(im,jm),ssv(im,jm),
+c     9     ssuv(im,jm),ssue(im,jm),ssve(im,jm)
       
 
 
@@ -52,22 +52,22 @@ C ---------------------------------------------------------
 
 
 
-      SEL=0
-      SSEL=0
-      SFA=0
-      SSFA=0
-      SFEL=0
-      SFAR=0
-      SSFAR=0
-      SFELR=0
+c c     SEL=0
+c      SSEL=0
+c      SFA=0
+c      SSFA=0
+c      SFEL=0
+c      SFAR=0
+c      SSFAR=0
+c      SFELR=0
       
-      su=0
-      sv=0
-      ssu=0
-      ssv=0
-      ssuv=0
-      sue=0
-      sve=0
+c      su=0
+c      sv=0
+c      ssu=0
+c      ssv=0
+c      ssuv=0
+c      sue=0
+c      sve=0
 
 
 
