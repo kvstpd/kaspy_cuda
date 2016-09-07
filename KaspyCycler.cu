@@ -1300,7 +1300,7 @@ void KaspyCycler::makeWsurf()
 			
 			/// STATISTICS HERE
 
-			dev_statistics_1<<< blocksPerStations, threadsPerBlock>>>(ftim);
+			dev_statistics_1<<< numSquareBlocks, threadsPerSquareBlock>>>(ftim);
 			
 			m_nstat++;
 		}
