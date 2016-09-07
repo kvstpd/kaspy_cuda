@@ -98,6 +98,9 @@ C ---------------------------------------------------------
       SUBROUTINE WRITEGRD(NX,NY,NDX,Z,XMI,XMA,YMI,YMA,NAME)
 	CHARACTER*20 NAME
 	real*4 z(NDX,*),ZMI,ZMA
+
+	write(6,*) "writing to file: ", NAME
+
 	OPEN(1,FILE=NAME)
 	WRITE(1,200)
 	WRITE(1,201)NX,NY
