@@ -359,7 +359,7 @@ extern "C" void cycler_get_data_back_(int * icycler)
 {
     if (cycler)
     {
-        cycler->getDataToCPU();
+        //cycler->getDataToCPU();
 		
 		cycler->writeStatistics();
     }

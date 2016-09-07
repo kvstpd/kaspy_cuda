@@ -1355,6 +1355,9 @@ void KaspyCycler::makeWsurf()
 		
 		itimeh=int(timeh);
 		
+		ftim = fmodf(timeh6, 1.0f);
+		
+		itime6 = (int)timeh6;
 		
 		
 		if ( (i % ihour_s) == 1)
@@ -1383,9 +1386,9 @@ void KaspyCycler::makeWsurf()
 		
 		
 		
-		ftim = fmodf(timeh6, 1.0f);
 		
-		itime6 = (int)timeh6;
+		
+		
 		
 		if (itime6 > itime6_old)
 		{
