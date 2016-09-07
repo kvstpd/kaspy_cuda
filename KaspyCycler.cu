@@ -1023,11 +1023,11 @@ __global__ void dev_statistics_1(float ftim)
 	
 	
 	dev_sfa[ji] += fa;
-	dev_ssfa[ji] += fa*fa;
+	//dev_ssfa[ji] += fa*fa;
 	
-	dev_sel[ji] += dev_el[ji];
-	dev_ssel[ji] += dev_el[ji]*dev_el[ji];
-	dev_sfel[ji] += dev_el[ji] * fa;
+	//dev_sel[ji] += dev_el[ji];
+	//dev_ssel[ji] += dev_el[ji]*dev_el[ji];
+	//dev_sfel[ji] += dev_el[ji] * fa;
 	
 	
 }
