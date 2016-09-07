@@ -53,6 +53,8 @@ public:
                m_fWindData->kx, m_fWindData->ky, m_fWindData->kt,
                m_fWindData->kxu, m_fWindData->kyu, m_fWindData->ktu,
                m_fWindData->kxv, m_fWindData->kyv, m_fWindData->ktv);
+		
+		printf("CCC device is %d", m_gpu_device);
     }
     
  
