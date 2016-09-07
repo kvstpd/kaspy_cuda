@@ -132,14 +132,41 @@ __device__ float * dev_py = 0;
 __device__ float * dev_temp = 0;
 
 
-__device__ float * g_sel = 0;
-__device__ float * g_ssel = 0;
-__device__ float * g_sfel = 0;
+
 
 __device__ float * dev_sel = 0;
 __device__ float * dev_ssel = 0;
 __device__ float * dev_sfel = 0;
+__device__ float * dev_sfa = 0;
+__device__ float * dev_ssfa = 0;
+__device__ float * dev_sfar = 0;
+__device__ float * dev_ssfar = 0;
+__device__ float * dev_sfelr = 0;
+__device__ float * dev_su = 0;
+__device__ float * dev_sv = 0;
+__device__ float * dev_ssu = 0;
+__device__ float * dev_ssv = 0;
+__device__ float * dev_ssuv = 0;
+__device__ float * dev_ssue = 0;
+__device__ float * dev_ssve = 0;
 
+
+
+float * g_sel = 0;
+float * g_ssel = 0;
+float * g_sfel = 0;
+float * g_sfa = 0;
+float * g_ssfa = 0;
+float * g_sfar = 0;
+float * g_ssfar = 0;
+float * g_sfelr = 0;
+float * g_su = 0;
+float * g_sv = 0;
+float * g_ssu = 0;
+float * g_ssv = 0;
+float * g_ssuv = 0;
+float * g_ssue = 0;
+float * g_ssve = 0;
 
 
 float * g_fbu = 0;
@@ -1724,7 +1751,20 @@ int KaspyCycler::init_device()
 		&& (cudaMalloc((void **)&g_sel, m_height * sizeof(float)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_ssel, m_height * sizeof(float)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_sfel, m_height * sizeof(float)) == cudaSuccess)
-
+		&& (cudaMalloc((void **)&g_sfa, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssfa, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_sfar, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssfar, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_sfelr, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_su, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_sv, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssu, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssv, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssuv, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssue, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssve, m_height * sizeof(float)) == cudaSuccess)
+		
+		
 		)
 	{
 		printf("GPU memory allocated\n");
@@ -2049,6 +2089,56 @@ void KaspyCycler::deinit_device()
 			cudaFree(g_sfel);
 		}
 		
+		
+		if (g_sfa)
+		{
+			cudaFree(g_sfa);
+		}
+		if (g_ssfa)
+		{
+			cudaFree(g_ssfa);
+		}
+		if (g_sfar)
+		{
+			cudaFree(g_sfar);
+		}
+		if (g_ssfar)
+		{
+			cudaFree(g_ssfar);
+		}
+		if (g_sfelr)
+		{
+			cudaFree(g_sfelr);
+		}
+		
+		if (g_su)
+		{
+			cudaFree(g_su);
+		}
+		if (g_sv)
+		{
+			cudaFree(g_sv);
+		}
+		if (g_ssu)
+		{
+			cudaFree(g_ssu);
+		}
+		if (g_ssv)
+		{
+			cudaFree(g_ssv);
+		}
+		if (g_ssuv)
+		{
+			cudaFree(g_ssuv);
+		}
+		if (g_ssue)
+		{
+			cudaFree(g_ssue);
+		}
+		if (g_ssve)
+		{
+			cudaFree(g_ssve);
+		}
 		
 		if (d_temp_storage)
 		{
