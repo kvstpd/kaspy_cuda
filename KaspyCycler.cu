@@ -1173,12 +1173,12 @@ void KaspyCycler::sendDataToGPU()
 		&& (cudaMemcpy(g_fbv,&m_fFloats->fbv[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_ffu,&m_fFloats->ffu[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_ffv,&m_fFloats->ffv[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
-		&& (cudaMemcpy(g_fb,&m_fFloats->fb[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
-		&& (cudaMemcpy(g_ff,&m_fFloats->ff[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
-		&& (cudaMemcpy(g_fxb,&m_fFloats->fxb[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
-		&& (cudaMemcpy(g_fxf,&m_fFloats->fxf[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
-		&& (cudaMemcpy(g_fyb,&m_fFloats->fyb[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
-		&& (cudaMemcpy(g_fyf,&m_fFloats->fyf[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		//&& (cudaMemcpy(g_fb,&m_fFloats->fb[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		//&& (cudaMemcpy(g_ff,&m_fFloats->ff[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		//&& (cudaMemcpy(g_fxb,&m_fFloats->fxb[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		//&& (cudaMemcpy(g_fxf,&m_fFloats->fxf[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		//&& (cudaMemcpy(g_fyb,&m_fFloats->fyb[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
+		//&& (cudaMemcpy(g_fyf,&m_fFloats->fyf[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_wusurf,&m_fArrays->wusurf[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_wvsurf,&m_fArrays->wvsurf[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
 		&& (cudaMemcpy(g_dum,&m_fArrays->dum[0][0], s_data_size, cudaMemcpyHostToDevice) == cudaSuccess)
@@ -1906,6 +1906,10 @@ int KaspyCycler::init_device()
 		return m_gpu_device;
 	}
 	
+	float hundred = 100.0f;
+	
+	int * smuggled = (int *)hundred;
+	
 	
 	if ( (cudaMemset (g_sel, 0, square_size) == cudaSuccess)
 		&& (cudaMemset (g_ssel, 0, square_size) == cudaSuccess)
@@ -1923,6 +1927,13 @@ int KaspyCycler::init_device()
 		&& (cudaMemset (g_ssue, 0, square_size) == cudaSuccess)
 		&& (cudaMemset (g_ssve, 0, square_size) == cudaSuccess)
 		
+		&& (cudaMemset (g_fxf, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_fyf, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_fxb, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_fyb, 0, square_size) == cudaSuccess)
+		
+		&& (cudaMemset (g_ff, *smuggled, square_size) == cudaSuccess)
+		&& (cudaMemset (g_fb, *smuggled, square_size) == cudaSuccess)
 		
 		)
 	{
