@@ -1056,7 +1056,7 @@ __global__ void dev_statistics_finalize(float nstat)
 	dev_ssel[ji] = (dev_ssel[ji]/nstat - dev_sel[ji]*dev_sel[ji]) * 10000.0f;
 	
 	
-	if (dev_ssfa[ji] >= 8570.0f)
+	if (dev_ssel[ji] >= 8570.0f)
 	{
 		printf("something wrong at i=%d, j=%d, with nstat=%f, sel=%f, prev=%f\n", i, j, nstat, dev_sel[ji], prev_ssel);
 	}
