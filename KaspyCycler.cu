@@ -1908,7 +1908,7 @@ int KaspyCycler::init_device()
 	
 	float hundred = 100.0f;
 	
-	int * smuggled = (int *)hundred;
+	int * smuggled = (int *)&hundred;
 	
 	
 	if ( (cudaMemset (g_sel, 0, square_size) == cudaSuccess)
