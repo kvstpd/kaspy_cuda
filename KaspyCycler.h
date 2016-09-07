@@ -66,6 +66,9 @@ public:
 	
     void sendDataToGPU();
     void getDataToCPU();
+	
+	
+	void writeStatistics();
 
 
 	void getWindPressure(char uv);

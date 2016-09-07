@@ -25,6 +25,10 @@ using namespace cub;
 
 extern InitValues * initValues;
 
+extern "C" void WRITEGRD(int * NX, int * NY, int * NDX, float * Z, float * XMI, float * XMA, float * YMI, float * YMA,const char * NAME);
+
+
+
 
 
 void getbicubic(int nx, int ny, int nd, float * z, float * c);
@@ -1032,6 +1036,25 @@ __global__ void dev_statistics_1(float ftim)
 	
 }
 
+__global__ void dev_statistics_finalize(float nstat)
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * dev_width + i;
+	
+	
+	
+	dev_sfa[ji] /= nstat;
+	dev_sel[ji] /= nstat;
+
+	dev_sfar[ji] /= nstat;
+	
+	dev_ssfa[ji] = (dev_ssfa[ji]/nstat - dev_sfa[ji]*dev_sfa[ji]) * 10000.0f;
+	dev_ssel[ji] = (dev_ssel[ji]/nstat - dev_sel[ji]*dev_sel[ji]) * 10000.0f;
+	
+}
+
 
 
 float * KaspyCycler::getElves()
@@ -1195,6 +1218,56 @@ void KaspyCycler::sendDataToGPU()
 		exit(-1);
 	}
 	
+	
+}
+
+void KaspyCycler::writeStatistics()
+{
+	size_t s_data_size =  m_height * m_width *  sizeof(float);
+	
+	dim3 threadsPerSquareBlock(initValues->m_cuda_threads_2d_x, initValues->m_cuda_threads_2d_y);
+	
+	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
+	
+	
+	float * host_buf =  (float *) malloc(s_data_size );
+	
+	float * gpu_buf =  g_ssel;
+	
+	const char * stat_filename = "ssel.grd";
+	
+	
+	if (host_buf)
+	{
+		dev_statistics_finalize<<< numSquareBlocks, threadsPerSquareBlock>>>((float)m_nstat);
+		
+		
+		cudaError_t err = cudaMemcpy(host_buf, gpu_buf,  s_data_size, cudaMemcpyDeviceToHost);
+		
+		if (err == cudaSuccess)
+		{
+			// CALL WRITEGRD(IM,JM,IM,SSEL,xmi,xma,ymi,yma,NAME)
+			
+			WRITEGRD(&m_width, &m_height, &m_width, host_buf, &m_fVars->xmi, &m_fVars->xma,&m_fVars->ymi, &m_fVars->yma,stat_filename);
+
+		}
+		else
+		{
+			fprintf(stderr, "Failed to update statistics data  (error code %s)!\n", cudaGetErrorString(err));
+		}
+		
+		
+		
+		free(host_buf);
+	}
+	else
+	{
+		printf("memory allocation failed!\n");
+		
+		deinit_device();
+		
+		exit(-1);
+	}
 	
 }
 

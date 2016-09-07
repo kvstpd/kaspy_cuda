@@ -97,7 +97,7 @@ C ---------------------------------------------------------
 
       SUBROUTINE WRITEGRD(NX,NY,NDX,Z,XMI,XMA,YMI,YMA,NAME)
 	CHARACTER*20 NAME
-	real*8 z(NDX,*),ZMI,ZMA
+	real*4 z(NDX,*),ZMI,ZMA
 	OPEN(1,FILE=NAME)
 	WRITE(1,200)
 	WRITE(1,201)NX,NY
