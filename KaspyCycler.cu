@@ -1249,9 +1249,9 @@ void KaspyCycler::writeStatistics()
 	
 	float * host_buf =  (float *) malloc(s_data_size );
 	
-	float * gpu_buf =  g_sel;
+	float * gpu_buf =  g_ssel;
 	
-	const char * stat_filename = "sel.grd\0                           ";
+	const char * stat_filename = "ssel.grd\0                           ";
 	
 	
 	if (host_buf)
