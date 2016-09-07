@@ -1018,16 +1018,16 @@ __global__ void dev_statistics_1(float ftim)
 	
 	float btim = 1.0f - ftim;
 	
-	//float fa = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f;
+	float fa = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f;
 	
 	
 	
-	//dev_sfa[ji] += fa;
-	//dev_ssfa[ji] += fa*fa;
+	dev_sfa[ji] += fa;
+	dev_ssfa[ji] += fa*fa;
 	
-	//dev_sel[ji] += dev_el[ji];
-	//dev_ssel[ji] += dev_el[ji]*dev_el[ji];
-	//dev_sfel[ji] += dev_el[ji] * fa;
+	dev_sel[ji] += dev_el[ji];
+	dev_ssel[ji] += dev_el[ji]*dev_el[ji];
+	dev_sfel[ji] += dev_el[ji] * fa;
 	
 	
 }
@@ -1300,9 +1300,12 @@ void KaspyCycler::makeWsurf()
 			
 			/// STATISTICS HERE
 
-			dev_statistics_1<<< numSquareBlocks, threadsPerSquareBlock>>>(ftim);
+			//
+			//dev_statistics_1<<< numSquareBlocks, threadsPerSquareBlock>>>(ftim);
 			
 			m_nstat++;
+			
+			printf("STTT %d\n", m_nstat);
 		}
 		
 		
