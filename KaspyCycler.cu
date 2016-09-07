@@ -1643,6 +1643,8 @@ int KaspyCycler::init_device()
 {
 	int device_count = 0;
 	
+	size_t square_size = m_height*m_width * sizeof(float);
+	
 	if (m_gpu_device >= 0)
 	{
 		// already initialized
@@ -1692,43 +1694,43 @@ int KaspyCycler::init_device()
 	
 	
 	// Allocate GPU memory.
-	if ( (cudaMalloc((void **)&g_fbu, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_fbv, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_ffu, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_ffv, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_fb, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_ff, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_fxb, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_fxf, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_fyb, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_fyf, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_wusurf, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_wvsurf, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_dum, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_dvm, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_d, m_height*m_width * sizeof(float)) == cudaSuccess)
+	if ( (cudaMalloc((void **)&g_fbu, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fbv, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ffu, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ffv, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fb, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ff, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fxb, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fxf, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fyb, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fyf, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_wusurf, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_wvsurf, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_dum, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_dvm, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_d, square_size) == cudaSuccess)
 		
-		&& (cudaMalloc((void **)&g_fluxua, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_fluxva, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fluxua, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fluxva, square_size) == cudaSuccess)
 		
-		&& (cudaMalloc((void **)&g_ua, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_va, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_uab, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_vab, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_uaf, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_vaf, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_el, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_elb, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_elf, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_elf_r, m_height* m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_fsm, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_tps, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_advua, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_advva, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_wubot, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_wvbot, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_cbc, m_height*m_width * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_h, m_height*m_width * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ua, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_va, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_uab, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_vab, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_uaf, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_vaf, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_el, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_elb, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_elf, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_elf_r, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_fsm, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_tps, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_advua, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_advva, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_wubot, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_wvbot, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_cbc, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_h, square_size) == cudaSuccess)
 		
 		&& (cudaMalloc((void **)&g_press,  m_fWindData->ky *  m_fWindData->kx * m_fWindData->kt * sizeof(float)) == cudaSuccess)
 		
@@ -1748,21 +1750,21 @@ int KaspyCycler::init_device()
 		&& (cudaMalloc((void **)&g_stations_y, m_stations * sizeof(int)) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_station_elves, (m_duration -1) *  m_stations * sizeof(float)) == cudaSuccess)
 		
-		&& (cudaMalloc((void **)&g_sel, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_ssel, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_sfel, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_sfa, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_ssfa, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_sfar, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_ssfar, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_sfelr, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_su, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_sv, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_ssu, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_ssv, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_ssuv, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_ssue, m_height * sizeof(float)) == cudaSuccess)
-		&& (cudaMalloc((void **)&g_ssve, m_height * sizeof(float)) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_sel, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssel, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_sfel, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_sfa, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssfa, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_sfar, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssfar, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_sfelr, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_su, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_sv, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssu, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssv, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssuv, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssue, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_ssve, square_size) == cudaSuccess)
 		
 		
 		)
@@ -1776,6 +1778,24 @@ int KaspyCycler::init_device()
 		deinit_device();
 		return m_gpu_device;
 	}
+	
+	
+	if ( (cudaMemset (g_sel, 0, square_size) == cudaSuccess)
+		&& (cudaMemset (g_ssel, 0, square_size) == cudaSuccess)
+
+		)
+	{
+		printf("GPU memory zeroed\n");
+		
+	}
+	else
+	{
+		printf("GPU memory fill error!\n");
+		deinit_device();
+		return m_gpu_device;
+	}
+	
+	
 	
 	d_temp_storage = 0;
 	temp_storage_bytes = 0;
@@ -1837,6 +1857,24 @@ int KaspyCycler::init_device()
 		&& (cudaMemcpyToSymbol(dev_station_elves, &g_station_elves, sizeof(float *)) == cudaSuccess)
 		
 		&& (cudaMemcpyToSymbol(dev_nstations, &m_stations, sizeof(int)) == cudaSuccess)
+		
+		&& (cudaMemcpyToSymbol(dev_sel, &g_sel, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_ssel, &g_ssel, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_sfel, &g_sfel, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_sfa, &g_sfa, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_ssfa, &g_ssfa, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_sfar, &g_sfar, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_ssfar, &g_ssfar, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_sfelr, &g_sfelr, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_su, &g_su, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_sv, &g_sv, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_ssu, &g_ssu, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_ssv, &g_ssv, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_ssuv, &g_ssuv, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_ssue, &g_ssue, sizeof(float *)) == cudaSuccess)
+		&& (cudaMemcpyToSymbol(dev_ssve, &g_ssve, sizeof(float *)) == cudaSuccess)
+
+		
 		
 		)
 	{
