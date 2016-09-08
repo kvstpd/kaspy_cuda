@@ -1519,7 +1519,7 @@ void KaspyCycler::makeWsurf()
 
 			dev_statistics_2<<< numSquareBlocks, threadsPerSquareBlock>>>(ftim, sspre);
 			
-			//printf("sspre is %f\n", sspre);
+			printf("sspre is %f\n", sspre);
 
 			
 			m_nstat++;
