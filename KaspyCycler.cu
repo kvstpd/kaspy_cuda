@@ -1030,7 +1030,7 @@ __global__ void dev_statistics_1(float ftim, float afsm)
 	{
 		fa = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f;
 		
-		dev_sspre[ji] += fa * dev_fsm[ji]/afsm;
+		dev_sspre[ji] = fa * dev_fsm[ji]/afsm;
 		
 		uw = (btim*dev_fbu[ji] + ftim *dev_ffu[ji]);
 		vw = (btim*dev_fbv[ji] + ftim *dev_ffv[ji]);
