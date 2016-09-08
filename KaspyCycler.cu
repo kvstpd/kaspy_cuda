@@ -1281,10 +1281,6 @@ void KaspyCycler::writeStatistics(const char * s_kind)
 {
 	size_t s_data_size =  m_height * m_width *  sizeof(float);
 	
-	dim3 threadsPerSquareBlock(initValues->m_cuda_threads_2d_x, initValues->m_cuda_threads_2d_y);
-	
-	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
-	
 	
 	float * host_buf =  (float *) malloc(s_data_size );
 	
@@ -1338,7 +1334,7 @@ void KaspyCycler::writeStatistics(const char * s_kind)
 	}
 	else if (strncmp(s_kind, "ssve",8) == 0)
 	{
-		gpu_buf =  g_ssue;
+		gpu_buf =  g_ssve;
 		stat_filename  = "ssve.grd\0                           ";
 		check_filename  = "ssve_f.grd\0                           ";
 	}
@@ -1348,7 +1344,7 @@ void KaspyCycler::writeStatistics(const char * s_kind)
 	if (host_buf)
 	{
 		//printf("have nstat %d!\n", m_nstat);
-		dev_statistics_finalize<<< numSquareBlocks, threadsPerSquareBlock>>>(m_nstat);
+		
 		
 		
 		cudaError_t err = cudaMemcpy(host_buf, gpu_buf,  s_data_size, cudaMemcpyDeviceToHost);
@@ -1373,9 +1369,9 @@ void KaspyCycler::writeStatistics(const char * s_kind)
 	{
 		printf("memory allocation failed!\n");
 		
-		deinit_device();
+		//deinit_device();
 		
-		exit(-1);
+		//exit(-1);
 	}
 	
 }
@@ -1713,7 +1709,7 @@ void KaspyCycler::makeWsurf()
 	
 	
 
-	
+	dev_statistics_finalize<<< numSquareBlocks, threadsPerSquareBlock>>>(m_nstat);
 	
 
 }
