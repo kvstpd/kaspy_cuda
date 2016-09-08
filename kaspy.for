@@ -114,7 +114,7 @@ c      sve=0
 	CHARACTER*20 NAME,namef
 	real*4 z(NDX,*),ZMI,ZMA
 
-	real*4 fdata(IM,JM)
+	real*4 fdata(322,442)
 
 
 
