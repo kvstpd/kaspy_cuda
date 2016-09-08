@@ -89,7 +89,7 @@ public:
 	int m_stations;
 	int m_duration;
 	
-	int m_nstat;
+	float m_nstat;
 
     fortran_common_vars * m_fVars;
     fortran_common_arrays * m_fArrays;

@@ -1347,8 +1347,8 @@ void KaspyCycler::writeStatistics(const char * s_kind)
 	
 	if (host_buf)
 	{
-		printf("have nstat %d!\n", m_nstat);
-		dev_statistics_finalize<<< numSquareBlocks, threadsPerSquareBlock>>>((float)m_nstat);
+		//printf("have nstat %d!\n", m_nstat);
+		dev_statistics_finalize<<< numSquareBlocks, threadsPerSquareBlock>>>(m_nstat);
 		
 		
 		cudaError_t err = cudaMemcpy(host_buf, gpu_buf,  s_data_size, cudaMemcpyDeviceToHost);

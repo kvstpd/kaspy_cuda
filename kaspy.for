@@ -103,7 +103,7 @@ c		call cycler_get_data_back(icycler)
 	READ(1,*)XMI,XMA
 	READ(1,*)YMI,YMA
 	READ(1,*)
-	READ(1,*)((z(i,j),i=1,nx),j=1,ny) 
+	READ(1,202)((z(i,j),i=1,nx),j=1,ny) 
 	CLOSE(1)
 	RETURN
 	END
