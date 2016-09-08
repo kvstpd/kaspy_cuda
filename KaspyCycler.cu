@@ -154,6 +154,7 @@ __device__ float * dev_ssuv = 0;
 __device__ float * dev_ssue = 0;
 __device__ float * dev_ssve = 0;
 
+__device__ float * dev_sspre = 0;
 
 
 float * g_sel = 0;
@@ -171,6 +172,8 @@ float * g_ssv = 0;
 float * g_ssuv = 0;
 float * g_ssue = 0;
 float * g_ssve = 0;
+
+float * g_sspre = 0;
 
 
 float * g_fbu = 0;
@@ -1013,7 +1016,7 @@ __global__ void dev_fill_station_data(int khour)
 }
 
 
-__global__ void dev_statistics_1(float ftim)
+__global__ void dev_statistics_1(float ftim, float afsm)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -1026,6 +1029,8 @@ __global__ void dev_statistics_1(float ftim)
 	if (i < dev_width && j < dev_height)
 	{
 		fa = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f;
+		
+		dev_sspre[ji] += fa * dev_fsm[ji]/afsm;
 		
 		uw = (btim*dev_fbu[ji] + ftim *dev_ffu[ji]);
 		vw = (btim*dev_fbv[ji] + ftim *dev_ffv[ji]);
@@ -1447,6 +1452,10 @@ void KaspyCycler::makeWsurf()
 	
 	dim3 numSquareBlocks((m_width + threadsPerSquareBlock.x - 1) / threadsPerSquareBlock.x, (m_height + threadsPerSquareBlock.y - 1) / threadsPerSquareBlock.y);
 	
+	float afsm;
+	
+	DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, g_fsm, g_elf_r, F_DATA_SIZE);
+	cudaMemcpy(&afsm, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
 	
 	
 	for (int i=0; i<n_iterations; i++)
@@ -1482,23 +1491,18 @@ void KaspyCycler::makeWsurf()
 			/// STATISTICS HERE
 
 			//
-			dev_statistics_1<<< numSquareBlocks, threadsPerSquareBlock>>>(ftim);
+			dev_statistics_1<<< numSquareBlocks, threadsPerSquareBlock>>>(ftim, afsm);
 			
 			
-			float sum_fb, sum_ff, sum_fsm;
+			float sspre;
 			
-			DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, g_fb, g_elf_r, F_DATA_SIZE);
-			cudaMemcpy(&sum_fb, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
+			DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, g_sspre, g_elf_r, F_DATA_SIZE);
+			cudaMemcpy(&sspre, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
 			
-			DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, g_ff, g_elf_r, F_DATA_SIZE);
-			cudaMemcpy(&sum_ff, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
+
 			
-			DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, g_fsm, g_elf_r, F_DATA_SIZE);
-			cudaMemcpy(&sum_fsm, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
-			
-			printf("fb sums to %f\n", sum_fb);
-			printf("ff sums to %f\n", sum_ff);
-			printf("fsm sums to %f\n", sum_fsm);
+			printf("sspre is %f\n", sspre);
+
 			
 			m_nstat++;
 			
@@ -1995,6 +1999,7 @@ int KaspyCycler::init_device()
 		&& (cudaMalloc((void **)&g_ssuv, square_size) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_ssue, square_size) == cudaSuccess)
 		&& (cudaMalloc((void **)&g_ssve, square_size) == cudaSuccess)
+		&& (cudaMalloc((void **)&g_sspre, square_size) == cudaSuccess)
 		
 		
 		)
@@ -2128,8 +2133,7 @@ int KaspyCycler::init_device()
 		&& (cudaMemcpyToSymbol(dev_ssuv, &g_ssuv, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_ssue, &g_ssue, sizeof(float *)) == cudaSuccess)
 		&& (cudaMemcpyToSymbol(dev_ssve, &g_ssve, sizeof(float *)) == cudaSuccess)
-
-		
+		&& (cudaMemcpyToSymbol(dev_sspre, &g_sspre, sizeof(float *)) == cudaSuccess)
 		
 		)
 	{
@@ -2431,6 +2435,10 @@ void KaspyCycler::deinit_device()
 		if (g_ssve)
 		{
 			cudaFree(g_ssve);
+		}
+		if (g_sspre)
+		{
+			cudaFree(g_sspre);
 		}
 		
 		if (d_temp_storage)
