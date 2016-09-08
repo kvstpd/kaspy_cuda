@@ -1068,15 +1068,15 @@ __global__ void dev_statistics_2(float ftim, float sspre)
 	int ji = j * dev_width + i;
 	
 	float btim = 1.0f - ftim;
-	float far;
+	float fffar;
 	
 	if (i < dev_width && j < dev_height)
 	{
-		far = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f - sspre;
+		fffar = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f - sspre;
 		
-		dev_sfar[ji] += far;
-		dev_ssfar[ji] += far * far;
-		dev_sfelr[ji] += dev_el[ji] * far;
+		dev_sfar[ji] += fffar;
+		dev_ssfar[ji] += fffar * fffar;
+		dev_sfelr[ji] += dev_el[ji] * fffar;
 		
 	}
 }
