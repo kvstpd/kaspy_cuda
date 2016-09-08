@@ -156,7 +156,7 @@ c	namef = 'ssel_f.grd'
 	DO I=1,NX
 	  dcurr = abs(Z(I,J) - fdata(i,j))
 
-		if dcurr.gt.dmax then
+		if (dcurr.gt.dmax) then
 			dmax=dcurr
 			imax = i
 			jmax = j
