@@ -148,18 +148,28 @@ c	namef = 'ssel_f.grd'
 	call READGRD(NX,NY,NDX,fdata,NAMEF)
 
 	dmax = 0.0
+	imax = -1
+	jmax = -1
 	dcurr = 0.0
 
 	DO J=1,NY
 	DO I=1,NX
 	  dcurr = abs(Z(I,J) - fdata(i,j))
 
-		dmax=MAX(dmax,dcurr)
+		if dcurr.gt.dmax then
+			dmax=dcurr
+			imax = i
+			jmax = j
+		end if
+
+
 	END DO
 	END DO
 
 	write(6,*) "namef is: ", NAMEF
 	write(6,*) "dmax is: ", dmax
+	write(6,*) "imax is: ", imax
+	write(6,*) "jmax is: ", jmax
 
 
 200   FORMAT('DSAA')
