@@ -118,7 +118,7 @@ c		call cycler_get_data_back(icycler)
 	real*4 fdata(322,442)
 
 
-	call READGRD(NX,NY,NDX,fdata,NAMEF)
+c	call READGRD(NX,NY,NDX,fdata,NAMEF)
 
 c	write(6,*) "writing to file: ", NAME
 
@@ -127,11 +127,11 @@ c	write(6,*) "writing to file: ", NAME
 	WRITE(1,201)NX,NY
 	WRITE(1,202)XMI,XMA
 	WRITE(1,202)YMI,YMA
-	ZMAX=Z(1,1) - fdata(1,1)
-	ZMIN=Z(1,1)- fdata(1,1)
+	ZMAX=Z(1,1)
+	ZMIN=Z(1,1)
 	DO J=1,NY
 	DO I=1,NX
-		z(i,j) = abs(Z(I,J) - fdata(i,j))
+c		z(i,j) = abs(Z(I,J) - fdata(i,j))
 	  ZMAX=MAX(ZMAX,Z(I,J))
 	  ZMIN=MIN(ZMIN,Z(I,J))
 	END DO
