@@ -118,7 +118,7 @@ c		call cycler_get_data_back(icycler)
 	real*4 fdata(322,442)
 
 
-
+	call READGRD(NX,NY,NDX,fdata,NAMEF)
 
 c	write(6,*) "writing to file: ", NAME
 
@@ -127,17 +127,22 @@ c	write(6,*) "writing to file: ", NAME
 	WRITE(1,201)NX,NY
 	WRITE(1,202)XMI,XMA
 	WRITE(1,202)YMI,YMA
-	ZMAX=Z(1,1)
-	ZMIN=Z(1,1)
+	ZMAX=Z(1,1) - fdata(1,1)
+	ZMIN=Z(1,1)- fdata(1,1)
 	DO J=1,NY
 	DO I=1,NX
+		z(i,j) = abs(Z(I,J) - fdata(i,j))
 	  ZMAX=MAX(ZMAX,Z(I,J))
 	  ZMIN=MIN(ZMIN,Z(I,J))
 	END DO
-	END DO  
+	END DO
+
+
+
 	  
 	WRITE(1,202)ZMIN,ZMAX
 	DO J=1,NY
+
 	  WRITE(1,202)(z(i,j),i=1,nx)
 	END DO 
 	CLOSE(1)
@@ -145,31 +150,30 @@ c	write(6,*) "writing to file: ", NAME
 
 c	namef = 'ssel_f.grd'
 
-	call READGRD(NX,NY,NDX,fdata,NAMEF)
 
-	dmax = 0.0
-	imax = -1
-	jmax = -1
-	dcurr = 0.0
+c	dmax = 0.0
+c	imax = -1
+c	jmax = -1
+c	dcurr = 0.0
 
-	DO J=1,NY
-	DO I=1,NX
-	  dcurr = abs(Z(I,J) - fdata(i,j))
+c	DO J=1,NY
+c	DO I=1,NX
+c	  dcurr = abs(Z(I,J) - fdata(i,j))
 
-		if (dcurr.gt.dmax) then
-			dmax=dcurr
-			imax = i
-			jmax = j
-		end if
+c		if (dcurr.gt.dmax) then
+c			dmax=dcurr
+c			imax = i
+c			jmax = j
+c		end if
 
 
-	END DO
-	END DO
+c	END DO
+c	END DO
 
-	write(6,*) "namef is: ", NAMEF
-	write(6,*) "dmax is: ", dmax
-	write(6,*) "imax is: ", imax
-	write(6,*) "jmax is: ", jmax
+c	write(6,*) "namef is: ", NAMEF
+c	write(6,*) "dmax is: ", dmax
+c	write(6,*) "imax is: ", imax
+c	write(6,*) "jmax is: ", jmax
 
 
 200   FORMAT('DSAA')
