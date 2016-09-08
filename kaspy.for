@@ -19,7 +19,7 @@ C ---------------------------------------------------------
 c      COMMON/F_STATS/SEL,SSEL,SFA,SSFA,SFEL,SFAR,SSFAR,SFELR,
 c     8     su,sv,ssu,ssv,ssuv,ssue,ssve
 
-c      real*8
+c      real*4
 c     5     SEL(IM,JM),SSEL(IM,JM),SFA(IM,JM),SSFA(IM,JM),SFEL(IM,JM),
 c     6     SFAR(IM,JM),SSFAR(IM,JM),SFELR(IM,JM),
 c     8     su(im,jm),sv(im,jm),ssu(im,jm),ssv(im,jm),
@@ -94,12 +94,32 @@ c      sve=0
 
 
 
+      SUBROUTINE READGRD(NX,NY,NDX,Z,NAME)
+	CHARACTER*20 NAME
+	real z(NDX,*)
+	OPEN(1,FILE=NAME)
+	READ(1,*)
+	READ(1,*)NX,NY
+	READ(1,*)XMI,XMA
+	READ(1,*)YMI,YMA
+	READ(1,*)
+	READ(1,*)((z(i,j),i=1,nx),j=1,ny) 
+	CLOSE(1)
+	RETURN
+	END
+
+
 
       SUBROUTINE WRITEGRD(NX,NY,NDX,Z,XMI,XMA,YMI,YMA,NAME)
-	CHARACTER*20 NAME
+	CHARACTER*20 NAME,namef
 	real*4 z(NDX,*),ZMI,ZMA
 
-	write(6,*) "writing to file: ", NAME
+	real*4 fdata(IM,JM)
+
+
+
+
+c	write(6,*) "writing to file: ", NAME
 
 	OPEN(1,FILE=NAME)
 	WRITE(1,200)
@@ -120,6 +140,26 @@ c      sve=0
 	  WRITE(1,202)(z(i,j),i=1,nx)
 	END DO 
 	CLOSE(1)
+
+
+	namef = 'ssel_f.grd'
+
+	call READGRD(NX,NY,NDX,fdata,NAMEF)
+
+	dmax = 0.0
+	dcurr = 0.0
+
+	DO J=1,NY
+	DO I=1,NX
+	  dcurr = abs(Z(I,J) - fdata(i,j))
+
+		dmax=MAX(dmax,dcurr)
+	END DO
+	END DO
+
+	write(6,*) "dmax is: ", dmax
+
+
 200   FORMAT('DSAA')
 201   FORMAT(2I6)
 202   FORMAT(10G13.6)
