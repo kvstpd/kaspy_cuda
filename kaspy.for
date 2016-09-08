@@ -83,7 +83,7 @@ c      sve=0
 
        call cycler_wsurf(icycler)
 
-		call cycler_get_data_back(icycler)
+c		call cycler_get_data_back(icycler)
 
 
       call cycler_destroy(icycler)
@@ -110,7 +110,7 @@ c      sve=0
 
 
 
-      SUBROUTINE WRITEGRD(NX,NY,NDX,Z,XMI,XMA,YMI,YMA,NAME)
+      SUBROUTINE WRITEGRD(NX,NY,NDX,Z,XMI,XMA,YMI,YMA,NAME, namef)
 	CHARACTER*20 NAME,namef
 	real*4 z(NDX,*),ZMI,ZMA
 
@@ -142,7 +142,7 @@ c	write(6,*) "writing to file: ", NAME
 	CLOSE(1)
 
 
-	namef = 'ssel_f.grd'
+c	namef = 'ssel_f.grd'
 
 	call READGRD(NX,NY,NDX,fdata,NAMEF)
 
@@ -157,6 +157,7 @@ c	write(6,*) "writing to file: ", NAME
 	END DO
 	END DO
 
+	write(6,*) "namef is: ", NAMEF
 	write(6,*) "dmax is: ", dmax
 
 

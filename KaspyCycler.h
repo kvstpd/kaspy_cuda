@@ -68,7 +68,7 @@ public:
     void getDataToCPU();
 	
 	
-	void writeStatistics();
+	void writeStatistics(const char * s_kind);
 
 
 	void getWindPressure(char uv);

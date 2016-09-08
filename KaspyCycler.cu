@@ -25,7 +25,7 @@ using namespace cub;
 
 extern InitValues * initValues;
 
-extern "C" void WRITEGRD(int * NX, int * NY, int * NDX, float * Z, float * XMI, float * XMA, float * YMI, float * YMA,const char * NAME);
+extern "C" void WRITEGRD(int * NX, int * NY, int * NDX, float * Z, float * XMI, float * XMA, float * YMI, float * YMA,const char * NAME, const char * CHECKNAME);
 
 
 
@@ -1020,23 +1020,44 @@ __global__ void dev_statistics_1(float ftim)
 	
 	int ji = j * dev_width + i;
 	
+	float btim = 1.0f - ftim;
+	float fa, uw, vw;
+	
 	if (i < dev_width && j < dev_height)
 	{
+		fa = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f;
+		
+		uw = (btim*dev_fbu[ji] + ftim *dev_ffu[ji]);
+		vw = (btim*dev_fbv[ji] + ftim *dev_ffv[ji]);
+		
+		
 		dev_sel[ji] += dev_el[ji];
 		dev_ssel[ji] += dev_el[ji]*dev_el[ji];
+	
+		dev_sfa[ji] += fa;
+		dev_ssfa[ji] += fa*fa;
+	
+	
+		dev_sfel[ji] += dev_el[ji] * fa;
+		
+		dev_su[ji] += uw;
+		dev_sv[ji] += vw;
+		
+		dev_ssu[ji] += uw*uw;
+		dev_ssv[ji] += vw*vw;
+		
+		dev_ssuv[ji] += uw*vw;
+		
+		dev_ssue[ji] += uw*dev_el[ji];
+		dev_ssve[ji] += vw*dev_el[ji];
+		
 	}
 	
-	//float btim = 1.0f - ftim;
-	
-	//float fa = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f;
+
 	
 	
-	
-	//dev_sfa[ji] += fa;
-	//dev_ssfa[ji] += fa*fa;
 	
 
-	//dev_sfel[ji] += dev_el[ji] * fa;
 	
 	
 }
@@ -1052,21 +1073,39 @@ __global__ void dev_statistics_finalize(float nstat)
 	
 	if (i < dev_width && j < dev_height)
 	{
-		//dev_sfa[ji] /= nstat;
+		dev_sfa[ji] /= nstat;
 		dev_sel[ji] /= nstat;
 		
-		//dev_sfar[ji] /= nstat;
+		dev_sfar[ji] /= nstat;
 		
-		float prev_ssel = dev_ssel[ji];
+		//float prev_ssel = dev_ssel[ji];
 		
-		//dev_ssfa[ji] = (dev_ssfa[ji]/nstat - dev_sfa[ji]*dev_sfa[ji]) * 10000.0f;
+		dev_ssfa[ji] = (dev_ssfa[ji]/nstat - dev_sfa[ji]*dev_sfa[ji]) * 10000.0f;
 		dev_ssel[ji] = (dev_ssel[ji]/nstat - dev_sel[ji]*dev_sel[ji]) * 10000.0f;
 		
+		dev_sfel[ji] = (dev_sfel[ji]/nstat - dev_sfa[ji]*dev_sel[ji]) * 10000.0f;
 		
-		if (dev_ssel[ji] >= 8570.0f)
+		dev_ssfar[ji] = (dev_ssfar[ji]/nstat - dev_sfar[ji]*dev_sfar[ji]) * 10000.0f;
+		dev_sfelr[ji] = (dev_sfelr[ji]/nstat - dev_sfar[ji]*dev_sel[ji]) * 10000.0f;
+		
+		
+		dev_sfar[ji] = dev_sfelr[ji] / (dev_ssfar[ji] + 1.0e-10f);
+		
+		dev_su[ji] /= nstat;
+		dev_sv[ji] /= nstat;
+		
+		dev_ssu[ji] = ( dev_ssu[ji]/nstat -   dev_su[ji]*dev_su[ji] );
+		dev_ssv[ji] = ( dev_ssv[ji]/nstat -   dev_sv[ji]*dev_sv[ji] );
+
+		dev_ssuv[ji] = ( dev_ssuv[ji]/nstat -   dev_sv[ji]*dev_su[ji] );
+		dev_ssue[ji] = ( dev_ssue[ji]/nstat -   dev_sel[ji]*dev_su[ji] ) * 100.0f;
+		dev_ssve[ji] = ( dev_ssve[ji]/nstat -   dev_sel[ji]*dev_sv[ji] ) * 100.0f;
+
+		
+		/*if (dev_ssel[ji] >= 8570.0f)
 		{
 			printf("something wrong at i=%d, j=%d, with nstat=%f, sel=%f, prev=%f\n", i, j, nstat, dev_sel[ji], prev_ssel);
-		}
+		}*/
 
 	}
 	
@@ -1238,7 +1277,7 @@ void KaspyCycler::sendDataToGPU()
 	
 }
 
-void KaspyCycler::writeStatistics()
+void KaspyCycler::writeStatistics(const char * s_kind)
 {
 	size_t s_data_size =  m_height * m_width *  sizeof(float);
 	
@@ -1249,9 +1288,61 @@ void KaspyCycler::writeStatistics()
 	
 	float * host_buf =  (float *) malloc(s_data_size );
 	
-	float * gpu_buf =  g_ssel;
+	float * gpu_buf;// =  g_ssel;
 	
-	const char * stat_filename = "ssel.grd\0                           ";
+	const char * stat_filename;// = "ssel.grd\0                           ";
+	const char * check_filename;// = "ssel.grd\0                           ";
+	
+	
+	if (strncmp(s_kind, "ssel",8) == 0)
+	{
+		gpu_buf =  g_ssel;
+		stat_filename  = "ssel.grd\0                           ";
+		check_filename  = "ssel_f.grd\0                           ";
+	}
+	else if (strncmp(s_kind, "ssfar",8) == 0)
+	{
+		gpu_buf =  g_ssfar;
+		stat_filename  = "ssfar.grd\0                           ";
+		check_filename  = "ssfar_f.grd\0                           ";
+	}
+	else if (strncmp(s_kind, "sfelr",8) == 0)
+	{
+		gpu_buf =  g_sfelr;
+		stat_filename  = "sfelr.grd\0                           ";
+		check_filename  = "sfelr_f.grd\0                           ";
+	}
+	else if (strncmp(s_kind, "ssu",8) == 0)
+	{
+		gpu_buf =  g_ssu;
+		stat_filename  = "ssu.grd\0                           ";
+		check_filename  = "ssu_f.grd\0                           ";
+	}
+	else if (strncmp(s_kind, "ssv",8) == 0)
+	{
+		gpu_buf =  g_ssv;
+		stat_filename  = "ssv.grd\0                           ";
+		check_filename  = "ssv_f.grd\0                           ";
+	}
+	else if (strncmp(s_kind, "ssuv",8) == 0)
+	{
+		gpu_buf =  g_ssuv;
+		stat_filename  = "ssuv.grd\0                           ";
+		check_filename  = "ssuv_f.grd\0                           ";
+	}
+	else if (strncmp(s_kind, "ssue",8) == 0)
+	{
+		gpu_buf =  g_ssue;
+		stat_filename  = "ssue.grd\0                           ";
+		check_filename  = "ssue_f.grd\0                           ";
+	}
+	else if (strncmp(s_kind, "ssve",8) == 0)
+	{
+		gpu_buf =  g_ssue;
+		stat_filename  = "ssve.grd\0                           ";
+		check_filename  = "ssve_f.grd\0                           ";
+	}
+	
 	
 	
 	if (host_buf)
@@ -1266,7 +1357,7 @@ void KaspyCycler::writeStatistics()
 		{
 			// CALL WRITEGRD(IM,JM,IM,SSEL,xmi,xma,ymi,yma,NAME)
 			
-			WRITEGRD(&m_width, &m_height, &m_width, host_buf, &m_fVars->xmi, &m_fVars->xma,&m_fVars->ymi, &m_fVars->yma,stat_filename);
+			WRITEGRD(&m_width, &m_height, &m_width, host_buf, &m_fVars->xmi, &m_fVars->xma,&m_fVars->ymi, &m_fVars->yma,stat_filename, check_filename);
 
 		}
 		else

@@ -354,22 +354,6 @@ extern "C" void CYCLER_LOAD(int * icycler)
 
 
 
-// GFortran Unix naming
-extern "C" void cycler_get_data_back_(int * icycler)
-{
-    if (cycler)
-    {
-        //cycler->getDataToCPU();
-		
-		cycler->writeStatistics();
-    }
-}
-
-// Intel Fortran WIN naming
-extern "C" void CYCLER_GET_DATA_BACK(int * icycler)
-{
-	cycler_get_data_back_(icycler);
-}
 
 
 CUT_THREADPROC cycler_work(void * data)
@@ -377,6 +361,18 @@ CUT_THREADPROC cycler_work(void * data)
 	if (cycler)
 	{
 		cycler->makeWsurf();
+		
+		cycler->writeStatistics("ssel");
+		
+		//cycler->writeStatistics("ssfar");
+		//cycler->writeStatistics("sfelr");
+		
+		cycler->writeStatistics("ssu");
+		cycler->writeStatistics("ssv");
+		cycler->writeStatistics("ssuv");
+		cycler->writeStatistics("ssue");
+		cycler->writeStatistics("ssve");
+		
 	}
 	
 	CUT_THREADEND;
