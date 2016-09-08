@@ -1057,15 +1057,32 @@ __global__ void dev_statistics_1(float ftim, float afsm)
 		dev_ssve[ji] += vw*dev_el[ji];
 		
 	}
-	
 
-	
-	
-	
-
-	
-	
 }
+
+__global__ void dev_statistics_2(float ftim, float sspre)
+{
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int ji = j * dev_width + i;
+	
+	float btim = 1.0f - ftim;
+	float far;
+	
+	if (i < dev_width && j < dev_height)
+	{
+		far = (btim * dev_fb[ji] + ftim * dev_ff[ji] - 100.0f)/10.0f - sspre;
+		
+		dev_sfar[ji] += far;
+		dev_ssfar[ji] += far * far;
+		dev_sfelr[ji] += dev_el[ji] * far;
+		
+	}
+}
+
+
+
 
 __global__ void dev_statistics_finalize(float nstat)
 {
@@ -1500,8 +1517,9 @@ void KaspyCycler::makeWsurf()
 			cudaMemcpy(&sspre, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
 			
 
+			dev_statistics_2<<< numSquareBlocks, threadsPerSquareBlock>>>(ftim, sspre);
 			
-			printf("sspre is %f\n", sspre);
+			//printf("sspre is %f\n", sspre);
 
 			
 			m_nstat++;

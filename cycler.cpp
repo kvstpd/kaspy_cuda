@@ -364,8 +364,8 @@ CUT_THREADPROC cycler_work(void * data)
 		
 		cycler->writeStatistics("ssel");
 		
-		//cycler->writeStatistics("ssfar");
-		//cycler->writeStatistics("sfelr");
+		cycler->writeStatistics("ssfar");
+		cycler->writeStatistics("sfelr");
 		
 		cycler->writeStatistics("ssu");
 		cycler->writeStatistics("ssv");
