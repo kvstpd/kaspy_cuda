@@ -1485,12 +1485,20 @@ void KaspyCycler::makeWsurf()
 			dev_statistics_1<<< numSquareBlocks, threadsPerSquareBlock>>>(ftim);
 			
 			
-			float sum_fb;
+			float sum_fb, sum_ff, sum_fsm;
 			
 			DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, g_fb, g_elf_r, F_DATA_SIZE);
 			cudaMemcpy(&sum_fb, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
 			
+			DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, g_ff, g_elf_r, F_DATA_SIZE);
+			cudaMemcpy(&sum_ff, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
+			
+			DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, g_fsm, g_elf_r, F_DATA_SIZE);
+			cudaMemcpy(&sum_fsm, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
+			
 			printf("fb sums to %f\n", sum_fb);
+			printf("ff sums to %f\n", sum_ff);
+			printf("fsm sums to %f\n", sum_fsm);
 			
 			m_nstat++;
 			
