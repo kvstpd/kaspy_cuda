@@ -155,16 +155,6 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 {
 	cycler_read_ini_();
 	
-    if ((initValues == 0) || (vars_marker == 0) || (arrays_marker == 0) || (wind_marker == 0))
-    {
-		*icycler = -1;
-		
-        return ; 
-    } 
-	
-	
-     
-    //_i_cycler_time();
 
 	 
 	if (initValues->m_show_window)
@@ -187,10 +177,11 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	//CALL READGR3
 	//1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
 	
-	w_data = (fortran_wind_data *)wind_marker;
-	common_vars = (fortran_common_vars *)vars_marker;
+	w_data = (fortran_wind_data *) malloc(sizeof(fortran_wind_data) );
 	
-	common_arrays = (fortran_common_arrays *)arrays_marker;
+	common_vars = (fortran_common_vars *) malloc(sizeof(fortran_common_vars) );
+	
+	common_arrays = (fortran_common_arrays *) malloc(sizeof(fortran_common_arrays) );
 	
 	common_floats = (fortran_ffloats *) malloc(sizeof(fortran_ffloats) );
 	
@@ -223,7 +214,7 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 	
 	_i_cycler_time();
 	
-    cycler = new KaspyCycler(common_vars, (fortran_common_arrays *)arrays_marker,
+    cycler = new KaspyCycler(common_vars, common_arrays,
 							 common_floats, w_data,
                              c_press, c_uwd, c_vwd, nstations, c_stations_x, c_stations_y, c_station_elves, initValues->m_duration);
 	
@@ -252,9 +243,9 @@ extern "C" void cycler_create_(int * icycler, float * vars_marker, double * arra
 // GFortran Unix naming
 extern "C" void cycler_load_(int * icycler)
 {
-    if (cycler)
-    {
-		//common_arrays->h = c_h;
+	if (cycler && initValues)
+	{
+		initValues->tide_from_grd(common_arrays, common_vars, initValues->m_initial_tide_grd);
 		
 		int device = cycler->init_device();
 		
@@ -302,8 +293,10 @@ extern "C" void cycler_load_(int * icycler)
 // Intel Fortran WIN naming
 extern "C" void CYCLER_LOAD(int * icycler)
 {
-	if (cycler)
+	if (cycler && initValues)
 	{
+		initValues->tide_from_grd(common_arrays, common_vars, initValues->m_initial_tide_grd);
+		
 		//common_arrays->h = c_h;
 		
 		//cycler->m_h = c_h;
@@ -315,7 +308,7 @@ extern "C" void CYCLER_LOAD(int * icycler)
 			setbuf(stdout,NULL);
 			printf("before init GL\n");
 			
-			if (initValues && initValues->m_show_window)
+			if ( initValues->m_show_window)
 			{
 				if (defaultGlWindow->gl_init(device, initValues->m_frames_per_second) < 0)
 				{
@@ -502,25 +495,7 @@ extern "C" void CYCLER_DESTROY(int * icycler)
 
 
 
-extern "C" void TIDEGEN_C(char * name)
-{
-	if (initValues)
-	{
-		initValues->tide_from_grd(common_arrays, common_vars, name);
-	}
-}
 
-extern "C" void tidegen_c_(char * name)
-{
-	if (initValues)
-	{
-		//printf("C_H is %llx\n", (unsigned long long)c_h);
-		
-		initValues->tide_from_grd(common_arrays, common_vars, name);
-		
-		//printf("NOW C_H is %llx\n", (unsigned long long)c_h);
-	}
-}
 /*
 extern "C" void tidegen_check_()
 {

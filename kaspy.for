@@ -17,13 +17,9 @@ C ---------------------------------------------------------
 
 
 
-      CHARACTER*20 NAME,nameh
 
 
 
-
-       arrays_marker = 3.1415926535897932384626433832795010
-       arrays_end_marker = 0.9876543211234567890
 
 
 		icycler = -1
@@ -34,11 +30,6 @@ C ---------------------------------------------------------
 			write(6,*) "cycler creation failed!"
 			stop
 		end if
-
-
-      nameh='kaspi_1_5mR.grd'//CHAR(0)
-
-		CALL TIDEGEN_C(nameh)
 
 
 
@@ -62,47 +53,6 @@ C ---------------------------------------------------------
 
 
 
-
-
-
-      SUBROUTINE WRITEGRD(NX,NY,NDX,Z,XMI,XMA,YMI,YMA,NAME, namef)
-	CHARACTER*20 NAME,namef
-	real*4 z(NDX,*),ZMI,ZMA
-
-
-	OPEN(1,FILE=NAME)
-	WRITE(1,200)
-	WRITE(1,201)NX,NY
-	WRITE(1,202)XMI,XMA
-	WRITE(1,202)YMI,YMA
-	ZMAX=Z(1,1)
-	ZMIN=Z(1,1)
-	DO J=1,NY
-	DO I=1,NX
-	  ZMAX=MAX(ZMAX,Z(I,J))
-	  ZMIN=MIN(ZMIN,Z(I,J))
-	END DO
-	END DO
-
-
-
-	  
-	WRITE(1,202)ZMIN,ZMAX
-	DO J=1,NY
-
-	  WRITE(1,202)(z(i,j),i=1,nx)
-	END DO 
-	CLOSE(1)
-
-
-
-
-
-200   FORMAT('DSAA')
-201   FORMAT(2I6)
-202   FORMAT(10G13.6)
-	RETURN
-	END
 
 
       
