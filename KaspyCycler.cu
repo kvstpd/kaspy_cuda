@@ -25,8 +25,6 @@ using namespace cub;
 
 extern InitValues * initValues;
 
-extern "C" void WRITEGRD(int * NX, int * NY, int * NDX, float * Z, float * XMI, float * XMA, float * YMI, float * YMA,const char * NAME, const char * CHECKNAME);
-
 
 
 
@@ -1135,6 +1133,40 @@ __global__ void dev_statistics_finalize(float nstat)
 
 
 
+void writegrd(int nx, int ny, int ndx, float * z, float xmi, float xma, float ymi, float yma, float zmi, float zma, const char * name)
+{
+	FILE * hnd = fopen(name, "w");
+	
+	int zSize = nx * ny;
+	
+	if (hnd!= NULL)
+	{
+		fprintf(hnd, "DSAA\n");
+		
+		fprintf(hnd, " %d %d\n", nx, ny);
+		fprintf(hnd, " %f %f\n", xmi, xma);
+		fprintf(hnd, " %f %f\n", ymi, yma);
+		fprintf(hnd, " %f %f\n", zmi, zma);
+		
+		
+		for (int i = 0; i < zSize; i++)
+		{
+			if (i % ndx == 0)
+			{
+				fprintf(hnd, "\n");
+			}
+			
+			fprintf(hnd, " %f ", z[i]);
+		}
+		
+		fclose(hnd);
+	}
+}
+
+
+
+
+
 float * KaspyCycler::getElves()
 {
 	return g_el;
@@ -1309,56 +1341,56 @@ void KaspyCycler::writeStatistics(const char * s_kind)
 	float * gpu_buf;// =  g_ssel;
 	
 	const char * stat_filename;// = "ssel.grd\0                           ";
-	const char * check_filename;// = "ssel.grd\0                           ";
+//	const char * check_filename;// = "ssel.grd\0                           ";
 	
 	
 	if (strncmp(s_kind, "ssel",8) == 0)
 	{
 		gpu_buf =  g_ssel;
 		stat_filename  = "ssel.grd\0                           ";
-		check_filename  = "ssel_f.grd\0                           ";
+//		check_filename  = "ssel_f.grd\0                           ";
 	}
 	else if (strncmp(s_kind, "ssfar",8) == 0)
 	{
 		gpu_buf =  g_ssfar;
 		stat_filename  = "ssfar.grd\0                           ";
-		check_filename  = "ssfar_f.grd\0                           ";
+//		check_filename  = "ssfar_f.grd\0                           ";
 	}
 	else if (strncmp(s_kind, "sfelr",8) == 0)
 	{
 		gpu_buf =  g_sfelr;
 		stat_filename  = "sfelr.grd\0                           ";
-		check_filename  = "sfelr_f.grd\0                           ";
+////		check_filename  = "sfelr_f.grd\0                           ";
 	}
 	else if (strncmp(s_kind, "ssu",8) == 0)
 	{
 		gpu_buf =  g_ssu;
 		stat_filename  = "ssu.grd\0                           ";
-		check_filename  = "ssu_f.grd\0                           ";
+//		check_filename  = "ssu_f.grd\0                           ";
 	}
 	else if (strncmp(s_kind, "ssv",8) == 0)
 	{
 		gpu_buf =  g_ssv;
 		stat_filename  = "ssv.grd\0                           ";
-		check_filename  = "ssv_f.grd\0                           ";
+//		check_filename  = "ssv_f.grd\0                           ";
 	}
 	else if (strncmp(s_kind, "ssuv",8) == 0)
 	{
 		gpu_buf =  g_ssuv;
 		stat_filename  = "ssuv.grd\0                           ";
-		check_filename  = "ssuv_f.grd\0                           ";
+//		check_filename  = "ssuv_f.grd\0                           ";
 	}
 	else if (strncmp(s_kind, "ssue",8) == 0)
 	{
 		gpu_buf =  g_ssue;
 		stat_filename  = "ssue.grd\0                           ";
-		check_filename  = "ssue_f.grd\0                           ";
+//		check_filename  = "ssue_f.grd\0                           ";
 	}
 	else if (strncmp(s_kind, "ssve",8) == 0)
 	{
 		gpu_buf =  g_ssve;
 		stat_filename  = "ssve.grd\0                           ";
-		check_filename  = "ssve_f.grd\0                           ";
+//		check_filename  = "ssve_f.grd\0                           ";
 	}
 	
 	
@@ -1367,7 +1399,14 @@ void KaspyCycler::writeStatistics(const char * s_kind)
 	{
 		//printf("have nstat %d!\n", m_nstat);
 		
+		float zmin, zmax;
 		
+		DeviceReduce::Max(d_temp_storage, temp_storage_bytes, gpu_buf, g_elf_r, F_DATA_SIZE);
+		cudaMemcpy(&zmax, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
+
+		DeviceReduce::Min(d_temp_storage, temp_storage_bytes, gpu_buf, g_elf_r, F_DATA_SIZE);
+		cudaMemcpy(&zmin, g_elf_r,  sizeof(float), cudaMemcpyDeviceToHost);
+
 		
 		cudaError_t err = cudaMemcpy(host_buf, gpu_buf,  s_data_size, cudaMemcpyDeviceToHost);
 		
@@ -1375,7 +1414,7 @@ void KaspyCycler::writeStatistics(const char * s_kind)
 		{
 			// CALL WRITEGRD(IM,JM,IM,SSEL,xmi,xma,ymi,yma,NAME)
 			
-			WRITEGRD(&m_width, &m_height, &m_width, host_buf, &m_fVars->xmi, &m_fVars->xma,&m_fVars->ymi, &m_fVars->yma,stat_filename, check_filename);
+			writegrd(m_width, m_height, m_width, host_buf, m_fVars->xmi, m_fVars->xma,m_fVars->ymi, m_fVars->yma, zmin, zmax, stat_filename);
 
 		}
 		else

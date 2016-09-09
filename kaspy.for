@@ -16,16 +16,6 @@ C ---------------------------------------------------------
      2  XKVI,XKVA,YKVI,YKVA,TKVI,TKVA
 
 
-c      COMMON/F_STATS/SEL,SSEL,SFA,SSFA,SFEL,SFAR,SSFAR,SFELR,
-c     8     su,sv,ssu,ssv,ssuv,ssue,ssve
-
-c      real*4
-c     5     SEL(IM,JM),SSEL(IM,JM),SFA(IM,JM),SSFA(IM,JM),SFEL(IM,JM),
-c     6     SFAR(IM,JM),SSFAR(IM,JM),SFELR(IM,JM),
-c     8     su(im,jm),sv(im,jm),ssu(im,jm),ssv(im,jm),
-c     9     ssuv(im,jm),ssue(im,jm),ssve(im,jm)
-      
-
 
       CHARACTER*20 NAME,nameh
 
@@ -52,25 +42,6 @@ c     9     ssuv(im,jm),ssue(im,jm),ssve(im,jm)
 
 
 
-c c     SEL=0
-c      SSEL=0
-c      SFA=0
-c      SSFA=0
-c      SFEL=0
-c      SFAR=0
-c      SSFAR=0
-c      SFELR=0
-      
-c      su=0
-c      sv=0
-c      ssu=0
-c      ssv=0
-c      ssuv=0
-c      sue=0
-c      sve=0
-
-
-
 		call cycler_load(icycler)
 
 
@@ -83,9 +54,6 @@ c      sve=0
 
        call cycler_wsurf(icycler)
 
-c		call cycler_get_data_back(icycler)
-
-
       call cycler_destroy(icycler)
 
       STOP
@@ -94,20 +62,6 @@ c		call cycler_get_data_back(icycler)
 
 
 
-      SUBROUTINE READGRD(NX,NY,NDX,Z,NAME)
-	CHARACTER*20 NAME
-	real z(NDX,*)
-	OPEN(1,FILE=NAME)
-	READ(1,*)
-	READ(1,*)NX,NY
-	READ(1,*)XMI,XMA
-	READ(1,*)YMI,YMA
-	READ(1,*)
-	READ(1,8202)((z(i,j),i=1,nx),j=1,ny)
-	CLOSE(1)
-8202   FORMAT(10G13.6)
-	RETURN
-	END
 
 
 
@@ -115,12 +69,6 @@ c		call cycler_get_data_back(icycler)
 	CHARACTER*20 NAME,namef
 	real*4 z(NDX,*),ZMI,ZMA
 
-	real*4 fdata(322,442)
-
-
-c	call READGRD(NX,NY,NDX,fdata,NAMEF)
-
-c	write(6,*) "writing to file: ", NAME
 
 	OPEN(1,FILE=NAME)
 	WRITE(1,200)
@@ -131,7 +79,6 @@ c	write(6,*) "writing to file: ", NAME
 	ZMIN=Z(1,1)
 	DO J=1,NY
 	DO I=1,NX
-c		z(i,j) = abs(Z(I,J) - fdata(i,j))
 	  ZMAX=MAX(ZMAX,Z(I,J))
 	  ZMIN=MIN(ZMIN,Z(I,J))
 	END DO
@@ -148,32 +95,7 @@ c		z(i,j) = abs(Z(I,J) - fdata(i,j))
 	CLOSE(1)
 
 
-c	namef = 'ssel_f.grd'
 
-
-c	dmax = 0.0
-c	imax = -1
-c	jmax = -1
-c	dcurr = 0.0
-
-c	DO J=1,NY
-c	DO I=1,NX
-c	  dcurr = abs(Z(I,J) - fdata(i,j))
-
-c		if (dcurr.gt.dmax) then
-c			dmax=dcurr
-c			imax = i
-c			jmax = j
-c		end if
-
-
-c	END DO
-c	END DO
-
-c	write(6,*) "namef is: ", NAMEF
-c	write(6,*) "dmax is: ", dmax
-c	write(6,*) "imax is: ", imax
-c	write(6,*) "jmax is: ", jmax
 
 
 200   FORMAT('DSAA')
