@@ -30,7 +30,7 @@ all : build/kaspy_cuda.exe
 test : build/kaspy_cuda.exe
 	cp Kaspy.ini build/Kaspy.ini -f && cd build && pwd && ./kaspy_cuda.exe
 
-build/kaspy_cuda.exe : kaspy.obj KaspyCycler.obj DrawArrayWindow.obj cycler.obj InitValues.obj multithreading.obj
+build/kaspy_cuda.exe : KaspyCycler.obj DrawArrayWindow.obj cycler.obj InitValues.obj multithreading.obj
 	link $+ $(CUDA_LIBS) $(GLUT_LIBS) /OUT:$@ $(LINK_OPTS) /LIBPATH:"$(F_LIBPATH)" /LIBPATH:"$(C_LIBPATH)" /LIBPATH:"$(SDK_LIBPATH)" /LIBPATH:"$(CUDA_LIBPATH)" /LIBPATH:"$(GLUT_LIBPATH)"
 
 KaspyCycler.obj: KaspyCycler.cu
@@ -48,8 +48,8 @@ InitValues.obj: InitValues.cpp
 cycler.obj : cycler.cpp
 	nvcc $< --compile $(NV_OPTS)
 
-kaspy.obj : kaspy.for
-	ifort $(F_OPTS) /c $<
+#kaspy.obj : kaspy.for
+#	ifort $(F_OPTS) /c $<
 
 clean :
 	rm -f *.obj

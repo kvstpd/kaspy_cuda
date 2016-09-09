@@ -54,11 +54,11 @@ all : build/kaspy
 test : build/kaspy
 	cp -f Kaspy.ini build/Kaspy.ini && cd build && pwd && ./kaspy
 
-build/kaspy : kaspy.o cycler.o KaspyCycler.o DrawArrayWindow.o multithreading.o InitValues.o
-	$(NVCC) -ccbin gfortran $(OPT_FLAGS) -o $@ $(LDFLAGS) $(GENCODE_FLAGS) $(GLUT_LIBS)  $+
+build/kaspy : cycler.o KaspyCycler.o DrawArrayWindow.o multithreading.o InitValues.o
+	$(NVCC) -ccbin gcc $(OPT_FLAGS) -o $@ $(LDFLAGS) $(GENCODE_FLAGS) $(GLUT_LIBS)  $+
 
-kaspy.o: kaspy.for
-	gfortran $(OPT_FLAGS) -o $@ -c $<
+#kaspy.o: kaspy.for
+#	gfortran $(OPT_FLAGS) -o $@ -c $<
 
 cycler.o: cycler.cpp
 	$(NVCC) -ccbin clang $(OPT_FLAGS) -o $@ $(GENCODE_FLAGS)  -c $<

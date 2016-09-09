@@ -594,4 +594,31 @@ extern "C" void SAVE_Z(int * nx,int * nsize,float * z, const char * name)
 	}
 }
 
+int main(int argc, const char * argv[])
+{
+
+	
+	int icycler = -1;
+	
+	cycler_create_(&icycler);
+	
+	if (icycler < 0)
+	{
+		printf("cycler creation failed!\n");
+		exit(-1);
+	}
+	
+	cycler_load_(&icycler);
+	
+	if (icycler < 0)
+	{
+		printf("data loading failed!\n");
+		exit(-1);
+	}
+	
+	cycler_wsurf_(&icycler);
+	
+	cycler_destroy_(&icycler);
+}
+
 
