@@ -44,11 +44,11 @@ public:
 	d_temp_storage(0),
 	temp_storage_bytes(0)
     {
-        setbuf(stdout,NULL);
+        /*setbuf(stdout,NULL);
         
         printf("cycler alloc with dht %f, array marker %32.32f \n", m_fVars->dht, m_fArrays->marker);
         printf("end marker %32.32f \n", m_fArrays->end_marker);
-        printf("ff end %32.32f \n", m_fFloats->end_marker);
+        printf("ff end %32.32f \n", m_fFloats->end_marker);*/
         printf("wind data: \n \t %d \t %d \t %d \n \t %d \t %d \t %d \n \t %d \t %d \t %d \n",
                m_fWindData->kx, m_fWindData->ky, m_fWindData->kt,
                m_fWindData->kxu, m_fWindData->kyu, m_fWindData->ktu,

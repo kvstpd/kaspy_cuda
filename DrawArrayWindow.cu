@@ -164,7 +164,7 @@ int DrawArrayWindow::gl_init(int device, double fps)
 {
 	int argc = 0;
 
-	setbuf(stdout,NULL);
+	//setbuf(stdout,NULL);
     printf("starting to init GL\n");
 
     glutInit(&argc, 0);
@@ -224,7 +224,7 @@ int DrawArrayWindow::gl_init(int device, double fps)
 	glutTimerFunc(msesc_in_frame, gg_timer, msesc_in_frame);
 	
 	
-	setbuf(stdout,NULL);
+	//setbuf(stdout,NULL);
     printf("GL init finished\n");
     
 	return 0;

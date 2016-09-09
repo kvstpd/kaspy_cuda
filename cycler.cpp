@@ -69,7 +69,7 @@ void _i_cycler_time()
 #endif
     
     //ersetb();
-    setbuf(stdout,NULL);
+    //setbuf(stdout,NULL);
     
     printf("time now is %10.10f\n", new_time);
     
@@ -156,7 +156,7 @@ void _i_cycler_load(int * icycler)
 		
 		if (device >= 0)
 		{
-			setbuf(stdout,NULL);
+			//setbuf(stdout,NULL);
 			printf("before init GL\n");
 			
 			if (initValues && initValues->m_show_window)
