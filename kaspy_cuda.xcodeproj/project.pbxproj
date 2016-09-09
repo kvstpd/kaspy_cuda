@@ -20,10 +20,8 @@
 		2BD529EE1D1D605E00B573DA /* InitValues.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InitValues.h; sourceTree = "<group>"; };
 		2BD529EF1D1D60CA00B573DA /* Kaspy.ini */ = {isa = PBXFileReference; lastKnownFileType = text; path = Kaspy.ini; sourceTree = "<group>"; };
 		2BE06F341CF3A78400038345 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		2BE06F361CF415A900038345 /* comblk.for */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.fortran; path = comblk.for; sourceTree = "<group>"; };
 		2BE06F371CF415A900038345 /* cycler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cycler.cpp; sourceTree = "<group>"; };
 		2BE06F381CF415A900038345 /* fortran_vars.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fortran_vars.h; sourceTree = "<group>"; };
-		2BE06F391CF415A900038345 /* kaspy.for */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.fortran; path = kaspy.for; sourceTree = "<group>"; };
 		2BE06F3A1CF415A900038345 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		2BE06F3B1CF415A900038345 /* Makefile.cygwin */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.cygwin; sourceTree = "<group>"; };
 		2BE06F3C1CF415A900038345 /* Makefile.MacOsNoCUDA */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.MacOsNoCUDA; sourceTree = "<group>"; };
@@ -34,7 +32,6 @@
 			isa = PBXGroup;
 			children = (
 				2B8EC9B41D09713E001CE377 /* cub */,
-				2BE06F361CF415A900038345 /* comblk.for */,
 				2BE06F371CF415A900038345 /* cycler.cpp */,
 				2BD529EE1D1D605E00B573DA /* InitValues.h */,
 				2BBB5E8C1D244BB7000389E9 /* InitValues.cpp */,
@@ -44,7 +41,6 @@
 				2B8EC9B31D05CB80001CE377 /* DrawArrayWindow.h */,
 				2B8EC9B21D05CB80001CE377 /* DrawArrayWindow.cu */,
 				2BE06F381CF415A900038345 /* fortran_vars.h */,
-				2BE06F391CF415A900038345 /* kaspy.for */,
 				2BE06F3A1CF415A900038345 /* Makefile */,
 				2BE06F3B1CF415A900038345 /* Makefile.cygwin */,
 				2BB58ABD1CF73C98002770AB /* Makefile.cygother */,

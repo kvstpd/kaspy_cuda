@@ -24,7 +24,6 @@
 
 
 
-
 double last_measured_time = 0.0;
 
 KaspyCycler * cycler = 0;
@@ -37,9 +36,6 @@ InitValues * initValues = 0;
 float * c_press = 0;
 float * c_uwd = 0;
 float * c_vwd = 0;
-
-
-//float * c_h = 0;
 
 
 
@@ -86,96 +82,19 @@ void _i_cycler_time()
 }
 
 
-// Intel Fortran WIN naming
-extern "C" void CYCLER_TIME()
-{
-    _i_cycler_time();
-}
-
-// GFortran Unix naming
-extern "C" void cycler_time_()
-{
-    _i_cycler_time();
-}
-
-// Intel Fortran WIN naming
-extern "C" void CYCLER_READ_INI()
-{
-	initValues = new InitValues();
-	
-	initValues->read();
-}
-
-// GFortran Unix naming
-extern "C" void cycler_read_ini_()
-{
-	initValues = new InitValues();
-	
-	initValues->read();
-}
-
-// Intel Fortran WIN naming
-extern "C" void CYCLER_GET_INT_PARAM(char * parName, int * param)
-{
-	if (initValues)
-	{
-		initValues->get_int_parameter(parName, param);
-	}
-}
-
-// GFortran Unix naming
-extern "C" void cycler_get_int_param_(char * parName, int * param)
-{
-	if (initValues)
-	{
-		initValues->get_int_parameter(parName, param);
-	}
-}
-
-// Intel Fortran WIN naming
-extern "C" void CYCLER_GET_STRING_PARAM(char * parName, char * param)
-{
-	if (initValues)
-	{
-		initValues->get_string_parameter(parName, param);
-	}
-}
-
-// GFortran Unix naming
-extern "C" void cycler_get_string_param_(char * parName, char * param)
-{ 
-	if (initValues)
-	{
-		initValues->get_string_parameter(parName, param);
-	}
-}
-
 
 void _i_cycler_init(int * icycler)
 {
-	cycler_read_ini_();
+	initValues = new InitValues();
 	
-
-	 
+	initValues->read();
+	
 	if (initValues->m_show_window)
 	{
 		defaultGlWindow = new DrawArrayWindow();
 	}
 	
-	
-	/// read_grd(char * name, int * nx, int * ny, int * nz,
-	//	float * xmi, float * xma, float * ymi, float * yma,
-	//float * zmi, float * zma, float ** z = 0, float multiplier)
-	
-	//ALLOCATE (PRESS(KX,KY,KT))
-	//c ,PRESS0(KX,KY))
-	//CALL READGR3(KX,KY,KT,XKI,XKA,YKI,YKA,TKI,TKA,namep,PRESS)
-	
-	//CALL READDIMGR3(KXU,KYU,KTU,nameu)
-	//ALLOCATE (UWD(KXU,KYU,KTU))
-	//c ,UWD0(KXU,KYU))
-	//CALL READGR3
-	//1 (KXU,KYU,KTU,XKUI,XKUA,YKUI,YKUA,TKUI,TKUA,nameu,UWD)
+
 	
 	w_data = (fortran_wind_data *) malloc(sizeof(fortran_wind_data) );
 	
@@ -199,18 +118,10 @@ void _i_cycler_init(int * icycler)
 	
 	printf("read %d stations\n", nstations);
 	
-	//int size = w_data->kxv * w_data->kyv * w_data->ktv;
-	
-	//initValues->save_z("c_vwd.ttt", c_vwd, size, w_data->kxv);
-	
 
-	///
-	
 	common_vars->dht = (w_data->tka - w_data->tki) / (float)(w_data->kt - 1);
 	
-	//printf("tka %f tki %f kt %d dht %f\n",w_data->tka, w_data->tki, w_data->kt,  common_vars->dht );
-	
-	
+
 	
 	_i_cycler_time();
 	
@@ -226,22 +137,7 @@ void _i_cycler_init(int * icycler)
 }
 
 
-// Intel Fortran WIN naming
-extern "C" void CYCLER_CREATE(int * icycler)
-{
-    _i_cycler_init(icycler);
-}
-
-// GFortran Unix naming
-extern "C" void cycler_create_(int * icycler)
-{
-    _i_cycler_init(icycler);
-}
-
-
-
-// GFortran Unix naming
-extern "C" void cycler_load_(int * icycler)
+void _i_cycler_load(int * icycler)
 {
 	if (cycler && initValues)
 	{
@@ -290,61 +186,6 @@ extern "C" void cycler_load_(int * icycler)
 	return;
 }
 
-// Intel Fortran WIN naming
-extern "C" void CYCLER_LOAD(int * icycler)
-{
-	if (cycler && initValues)
-	{
-		initValues->tide_from_grd(common_arrays, common_vars, initValues->m_initial_tide_grd);
-		
-		//common_arrays->h = c_h;
-		
-		//cycler->m_h = c_h;
-		
-		int device = cycler->init_device();
-		
-		if (device >= 0)
-		{
-			setbuf(stdout,NULL);
-			printf("before init GL\n");
-			
-			if ( initValues->m_show_window)
-			{
-				if (defaultGlWindow->gl_init(device, initValues->m_frames_per_second) < 0)
-				{
-					printf("unable to init GL window!\n");
-					*icycler = -1;
-					
-					return;
-				}
-			}
-			
-			
-			cycler->sendDataToGPU();
-			
-			if (initValues && initValues->m_show_window)
-			{
-				defaultGlWindow->set_data_to_display(cycler->getElves(), cycler->getSurface(), F_DATA_WIDTH, F_DATA_HEIGHT, F_DATA_WIDTH);
-			}
-			
-		}
-		else
-		{
-			printf("unable to init CUDA device!\n");
-			
-			*icycler = -1;
-		}
-		
-	}
-	else
-	{
-		*icycler = -1;
-	}
-	
-	return;
-}
-
-
 
 
 
@@ -375,8 +216,7 @@ CUT_THREADPROC cycler_work(void * data)
 
 
 
-// Intel Fortran WIN naming
-extern "C" void CYCLER_WSURF(int * icycler)
+void _i_cycler_wsurf(int * icycler)
 {
 	cycler_thread = cutStartThread((CUT_THREADROUTINE)cycler_work, icycler);
 	
@@ -392,30 +232,6 @@ extern "C" void CYCLER_WSURF(int * icycler)
 	cutDestroyThread(cycler_thread);
 }
 
-// GFortran Unix naming
-extern "C" void cycler_wsurf_(int * icycler)
-{
-	CYCLER_WSURF(icycler);
-}
-
-
-// GFortran Unix naming
-extern "C" void cycler_find_elves_(int * icycler)
-{
-	if (cycler)
-	{
-		cycler->findElves();
-	}
-}
-
-// Intel Fortran WIN naming
-extern "C" void CYCLER_FIND_ELVES(int * icycler)
-{
-	if (cycler)
-	{ 
-		cycler->findElves();
-	}
-}
 
 
 
@@ -454,10 +270,6 @@ void _i_cycler_destroy(int * icycler)
 		free(c_station_elves);
 	}
 	
-	//if (c_h)
-	//{
-	//	free(c_h);
-	//}
 	
 	if (defaultGlWindow)
 	{
@@ -481,118 +293,8 @@ void _i_cycler_destroy(int * icycler)
 	} 
 }
 
-// GFortran Unix naming
-extern "C" void cycler_destroy_(int * icycler)
-{
-    _i_cycler_destroy(icycler);
-}
-
-// Intel Fortran WIN naming
-extern "C" void CYCLER_DESTROY(int * icycler)
-{
-    _i_cycler_destroy(icycler);
-} 
 
 
-
-
-/*
-extern "C" void tidegen_check_()
-{
-	float diff = 0.0f;
-	
-	float * h1 = c_h;
-	float * h2 = &common_arrays->h[0][0];
-	
-	int ind;
-	
-	
-	
-	for (int i = 0; i < F_DATA_WIDTH; i++)
-	{
-		for (int j = 0; j < F_DATA_HEIGHT; j++)
-		{
-			ind = j * F_DATA_WIDTH + i;
-			
-			diff = fabs(h1[ind] - h2[ind]);
-			
-			if (diff >= 0.001f)
-			{
-				printf("FAIL at %d %d\n", i, j);
-				break;
-			}
-		}
-		
-	}
-	printf("HERE\n");
-}
-
-extern "C" void TIDEGEN_CHECK()
-{
-	tidegen_check_();
-
-}
-*/
- 
-/*extern "C" void READDIMGR3(int * nx,int * ny,int * nz,char * name)
-{ 
-	if (initValues)
-	{
-		initValues->read_grd(name, nx,ny,nz);
-	}
-}
-
-extern "C" void readdimgr3_(int * nx,int * ny,int * nz,char * name)
-{
-	if (initValues)
-	{
-		initValues->read_grd(name, nx,ny,nz);
-	}
-}
-
-extern "C" void READGR3(int * nx,int * ny,int * nz,float * xmi,float * xma,float * ymi,float * yma,float * zmi,float * zma,
-						char * name,float * z)
-{  
-	if (initValues)
-	{
-		initValues->read_grd(name, nx,ny,nz,xmi,xma,ymi,yma,zmi,zma,z);
-	} 
-}
- 
-extern "C" void readgr3_(int * nx,int * ny,int * nz,float * xmi,float * xma,float * ymi,float * yma,float * zmi,float * zma,
-						 char * name,float * z)
-{
-	//printf("here\n"); 
-	//printf("z is %f \n", z[0]); 
-	  
-	if (initValues) 
-	{
-		initValues->read_grd(name, nx,ny,nz,xmi,xma,ymi,yma,zmi,zma,z);
-	}
-}*/
-
-
-extern "C" void save_z_(int * nx,int * nsize,float * z, const char * name)
-{
-	//printf("here\n");
-	//printf("z is %f \n", z[0]);
-	
-	if (initValues)
-	{
-		initValues->save_z(name, z, *nsize, *nx);
-	}
-}
-
-extern "C" void SAVE_Z(int * nx,int * nsize,float * z, const char * name)
-{
-	//printf("here\n");
-	//printf("z is %f \n", z[0]);
-	
-	if (initValues)
-	{
-		initValues->save_z(name, z, *nsize, *nx);
-	}
-}
 
 int main(int argc, const char * argv[])
 {
@@ -600,7 +302,7 @@ int main(int argc, const char * argv[])
 	
 	int icycler = -1;
 	
-	cycler_create_(&icycler);
+	_i_cycler_init(&icycler);
 	
 	if (icycler < 0)
 	{
@@ -608,7 +310,7 @@ int main(int argc, const char * argv[])
 		exit(-1);
 	}
 	
-	cycler_load_(&icycler);
+	_i_cycler_load(&icycler);
 	
 	if (icycler < 0)
 	{
@@ -616,9 +318,9 @@ int main(int argc, const char * argv[])
 		exit(-1);
 	}
 	
-	cycler_wsurf_(&icycler);
+	_i_cycler_wsurf(&icycler);
 	
-	cycler_destroy_(&icycler);
+	_i_cycler_destroy(&icycler);
 }
 
 
