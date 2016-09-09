@@ -98,11 +98,20 @@ void _i_cycler_init(int * icycler)
 	
 	w_data = (fortran_wind_data *) malloc(sizeof(fortran_wind_data) );
 	
+	memset(w_data, 0, sizeof(fortran_wind_data));
+	
 	common_vars = (fortran_common_vars *) malloc(sizeof(fortran_common_vars) );
+	
+	memset(common_vars, 0, sizeof(fortran_common_vars));
+	
 	
 	common_arrays = (fortran_common_arrays *) malloc(sizeof(fortran_common_arrays) );
 	
+	memset(common_arrays, 0, sizeof(fortran_common_arrays));
+	
 	common_floats = (fortran_ffloats *) malloc(sizeof(fortran_ffloats) );
+	
+	memset(common_floats, 0, sizeof(fortran_ffloats));
 	
 	
 	initValues->read_grd(initValues->m_pressure_grd, &w_data->kx, &w_data->ky, &w_data->kt, &w_data->xki, &w_data->xka, &w_data->yki, &w_data->yka, &w_data->tki, &w_data->tka, &c_press, 0.001f );

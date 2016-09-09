@@ -470,13 +470,13 @@ void InitValues::tide_from_grd(fortran_common_arrays * common_arrays, fortran_co
 				}
 				
 				
-				common_arrays->uab[j][i] = 0.0f;
-				common_arrays->vab[j][i] = 0.0f;
-				common_arrays->elb[j][i] = 0.0f;
+				//common_arrays->uab[j][i] = 0.0f;
+				//common_arrays->vab[j][i] = 0.0f;
+				//common_arrays->elb[j][i] = 0.0f;
 				
-				common_arrays->elf[j][i] = 0.0f;
+				//common_arrays->elf[j][i] = 0.0f;
 				
-				common_arrays->el[j][i] = 0.0f;
+				//common_arrays->el[j][i] = 0.0f;
 				
 				common_arrays->d[j][i] = hh0[ji];
 	
