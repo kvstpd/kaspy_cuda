@@ -151,7 +151,7 @@ extern "C" void cycler_get_string_param_(char * parName, char * param)
 }
 
 
-void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, int * wind_marker)
+void _i_cycler_init(int * icycler)
 {
 	cycler_read_ini_();
 	
@@ -227,15 +227,15 @@ void _i_cycler_init(int * icycler, float * vars_marker, double * arrays_marker, 
 
 
 // Intel Fortran WIN naming
-extern "C" void CYCLER_CREATE(int * icycler, float * vars_marker, double * arrays_marker,  int * wind_marker)
+extern "C" void CYCLER_CREATE(int * icycler)
 {
-    _i_cycler_init(icycler, vars_marker, arrays_marker, wind_marker);
+    _i_cycler_init(icycler);
 }
 
 // GFortran Unix naming
-extern "C" void cycler_create_(int * icycler, float * vars_marker, double * arrays_marker, int * wind_marker)
+extern "C" void cycler_create_(int * icycler)
 {
-    _i_cycler_init(icycler, vars_marker, arrays_marker, wind_marker);
+    _i_cycler_init(icycler);
 }
 
 
