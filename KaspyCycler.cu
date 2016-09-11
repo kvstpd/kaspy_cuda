@@ -572,8 +572,8 @@ __global__ void elf_and_flux_2()
 	int i = threadIdx.x * gridDim.x + blockIdx.x;
 	int j = threadIdx.y * gridDim.y + blockIdx.y;
 	
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	//int i = threadIdx.x * gridDim.x + blockIdx.x;
+	//int j = threadIdx.y * gridDim.y + blockIdx.y;
 
 	
 	int ji = j * dev_width + i;
