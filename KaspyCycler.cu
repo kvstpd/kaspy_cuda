@@ -351,8 +351,8 @@ __device__ void dev_bcucof(float * y,float * y1,float * y2, float * y12,float d1
 
 __global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, float dkx, float dky, float xki, float yki)
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	
 	
@@ -426,8 +426,8 @@ __global__ void dev_make_p(int nx, int ny, int kx, int ky, float dx, float dy, f
 
 __global__ void dev_bicubic(int nx, int ny, int nd)
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	
 	float d1 = 1.0f;
@@ -490,8 +490,8 @@ __global__ void dev_bicubic(int nx, int ny, int nd)
 
 __global__ void dev_pkk_ij(int kx, int ky, int kd)
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	if (i > 0 && j > 0 && i <= kx && j <= ky)
 	{
@@ -502,8 +502,7 @@ __global__ void dev_pkk_ij(int kx, int ky, int kd)
 
 __global__ void dev_pkk_j(int kx, int ky)
 {
-	//int j = blockDim.x * blockIdx.x + threadIdx.x;
-	int j = threadIdx.x * gridDim.x + blockIdx.x;
+	int j = blockDim.x * blockIdx.x + threadIdx.x;
 	
 	if (j > 0 && j <= ky)
 	{
@@ -515,8 +514,7 @@ __global__ void dev_pkk_j(int kx, int ky)
 
 __global__ void dev_pkk_i(int kx, int ky)
 {
-	//int i = blockDim.x * blockIdx.x + threadIdx.x;
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
+	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	
 	if (i > 0 && i <= kx+1)
 	{
@@ -530,8 +528,8 @@ __global__ void dev_pkk_i(int kx, int ky)
 
 __global__ void surf_and_flux_1(float ftim)
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	int jp1i = ji + dev_width;
@@ -569,12 +567,8 @@ __global__ void surf_and_flux_1(float ftim)
 
 __global__ void elf_and_flux_2()
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
-	
-	//int i = threadIdx.x * gridDim.x + blockIdx.x;
-	//int j = threadIdx.y * gridDim.y + blockIdx.y;
-
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	int jp1i = ji + dev_width;
@@ -591,8 +585,7 @@ __global__ void elf_and_flux_2()
 
 __global__ void bcond_1_j()
 {
-	//int j = blockDim.x * blockIdx.x + threadIdx.x;
-	int j = threadIdx.x * gridDim.x + blockIdx.x;
+	int j = blockDim.x * blockIdx.x + threadIdx.x;
 	
 	if (j > 0 && j < dev_height)
 	{
@@ -606,8 +599,7 @@ __global__ void bcond_1_j()
 
 __global__ void bcond_1_i()
 {
-	//int i = blockDim.x * blockIdx.x + threadIdx.x;
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
+	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	
 	if (i > 0 && i< dev_width)
 	{
@@ -620,8 +612,8 @@ __global__ void bcond_1_i()
 
 __global__ void bcond_1_ji()
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	
@@ -635,8 +627,8 @@ __global__ void bcond_1_ji()
 
 __global__ void uaf_and_vaf_3()
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	
@@ -692,8 +684,7 @@ __global__ void uaf_and_vaf_3()
 
 __global__ void bcond_2_j()
 {
-	//int j = blockDim.x * blockIdx.x + threadIdx.x;
-	int j = threadIdx.x * gridDim.x + blockIdx.x;
+	int j = blockDim.x * blockIdx.x + threadIdx.x;
 	
 	int j1 =  j * dev_width;
 	int j2 =  j1 + 1;
@@ -736,8 +727,7 @@ __global__ void bcond_2_j()
 
 __global__ void bcond_2_i()
 {
-	//int i = blockDim.x * blockIdx.x + threadIdx.x;
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
+	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	
 	int jli = dev_width * (dev_heightm1) + i;
 	int jlm1i = jli - dev_width;
@@ -785,8 +775,8 @@ __global__ void bcond_2_i()
 
 __global__ void bcond_2_ji()
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	
@@ -802,8 +792,8 @@ __global__ void bcond_2_ji()
 
 __global__ void tps_and_other_arrays_4()
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	
@@ -857,8 +847,8 @@ __global__ void swap_arrays_5()
 
 __global__ void adv_fluxes_1()
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	int jip1 = ji + 1;
@@ -903,8 +893,8 @@ __global__ void adv_fluxes_1()
 
 __global__ void adv_advua_1()
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	int jim1 = ji - 1;
@@ -920,8 +910,8 @@ __global__ void adv_advua_1()
 
 __global__ void adv_fluxes_2()
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	int jim1 = ji - 1;
@@ -957,8 +947,8 @@ __global__ void adv_fluxes_2()
 
 __global__ void adv_advva_2()
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	int jip1 = ji + 1;
@@ -974,8 +964,8 @@ __global__ void adv_advva_2()
 
 __global__ void adv_bot_3()
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
  	int jp1i = ji + dev_width;
@@ -1002,8 +992,7 @@ __global__ void adv_bot_3()
 
 __global__ void dev_fill_station_data(int khour)
 {
-	//int n = blockDim.x * blockIdx.x + threadIdx.x;
-	int n = threadIdx.x * gridDim.x + blockIdx.x;
+	int n = blockDim.x * blockIdx.x + threadIdx.x;
 	
 	int ji;
 	
@@ -1027,8 +1016,8 @@ __global__ void dev_fill_station_data(int khour)
 
 __global__ void dev_statistics_1(float ftim, float afsm)
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	
@@ -1071,8 +1060,8 @@ __global__ void dev_statistics_1(float ftim, float afsm)
 
 __global__ void dev_statistics_2(float ftim, float sspre)
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	
@@ -1095,8 +1084,8 @@ __global__ void dev_statistics_2(float ftim, float sspre)
 
 __global__ void dev_statistics_finalize(float nstat)
 {
-	int i = threadIdx.x * gridDim.x + blockIdx.x;
-	int j = threadIdx.y * gridDim.y + blockIdx.y;
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j = blockIdx.y * blockDim.y + threadIdx.y;
 	
 	int ji = j * dev_width + i;
 	
